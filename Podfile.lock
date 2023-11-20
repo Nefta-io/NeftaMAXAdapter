@@ -1,0 +1,22 @@
+PODS:
+  - Adjust (4.35.2):
+    - Adjust/Core (= 4.35.2)
+  - Adjust/Core (4.35.2)
+  - AppLovinSDK (11.11.4)
+
+DEPENDENCIES:
+  - Adjust
+  - AppLovinSDK
+
+SPEC REPOS:
+  trunk:
+    - Adjust
+    - AppLovinSDK
+
+SPEC CHECKSUMS:
+  Adjust: cac836ba910f868b38d0350045aaf498f794719a
+  AppLovinSDK: 5c667a790725d9529c01c3f3acf12ab195865fbb
+
+PODFILE CHECKSUM: 59be804780041ef7729945c791e830fe8e6f7a6d
+
+COCOAPODS: 1.13.0
