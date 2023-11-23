@@ -17,7 +17,7 @@
                BlueprintIdentifier = "900A5A802AFD2A150057098B"
                BuildableName = "NeftaMAXAdapter.framework"
                BlueprintName = "NeftaMAXAdapter"
-               ReferencedContainer = "container:NeftaMaxAdapter.xcodeproj">
+               ReferencedContainer = "container:NeftaMAXAdapter.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -52,7 +52,7 @@
             BlueprintIdentifier = "900A5A802AFD2A150057098B"
             BuildableName = "NeftaMAXAdapter.framework"
             BlueprintName = "NeftaMAXAdapter"
-            ReferencedContainer = "container:NeftaMaxAdapter.xcodeproj">
+            ReferencedContainer = "container:NeftaMAXAdapter.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

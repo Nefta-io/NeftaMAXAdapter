@@ -41,8 +41,6 @@
 		77B6F43E279B51F70063F81D /* ALMAXTemplateNativeAdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B6F43B279B51F70063F81D /* ALMAXTemplateNativeAdViewController.swift */; };
 		77B6F441279B52050063F81D /* NativeManualAdView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77B6F440279B52050063F81D /* NativeManualAdView.xib */; };
 		9033B8D22B0659A800F1A03E /* Pods_AppLovin_MAX_Demo_App___Swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9AD48B42EE79CDEA120A731 /* Pods_AppLovin_MAX_Demo_App___Swift.framework */; };
-		90C038BD2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C038BC2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework */; };
-		90C038BE2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90C038BC2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEEC21F1299EC36F002313FB /* ALMAXAppOpenAdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEC21F0299EC36F002313FB /* ALMAXAppOpenAdViewController.swift */; };
 		E5EE50E7241D9E5B0032B659 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3763B23A23357C4B00E49783 /* Main.storyboard */; };
 /* End PBXBuildFile section */
@@ -54,7 +52,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				90C038BE2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -99,9 +96,8 @@
 		77B6F43A279B51F70063F81D /* ALMAXManualNativeAdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ALMAXManualNativeAdViewController.swift; sourceTree = "<group>"; };
 		77B6F43B279B51F70063F81D /* ALMAXTemplateNativeAdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ALMAXTemplateNativeAdViewController.swift; sourceTree = "<group>"; };
 		77B6F440279B52050063F81D /* NativeManualAdView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NativeManualAdView.xib; sourceTree = "<group>"; };
-		900A5A742AFD21B60057098B /* Pods-AppLovin MAX Demo App - Swift.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Pods-AppLovin MAX Demo App - Swift.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AppLovin MAX Demo App - Swift/Pods-AppLovin MAX Demo App - Swift.debug.xcconfig"; sourceTree = SOURCE_ROOT; };
-		900A5A752AFD21B60057098B /* Pods-AppLovin MAX Demo App - Swift.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Pods-AppLovin MAX Demo App - Swift.release.xcconfig"; path = "Pods/Target Support Files/Pods-AppLovin MAX Demo App - Swift/Pods-AppLovin MAX Demo App - Swift.release.xcconfig"; sourceTree = SOURCE_ROOT; };
-		90C038BC2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NeftaMAXAdapter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		900A5A742AFD21B60057098B /* Pods-AppLovin MAX Demo App - Swift.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Pods-AppLovin MAX Demo App - Swift.debug.xcconfig"; path = "../../gitHub-MAX-adapter/Pods/Target Support Files/Pods-AppLovin MAX Demo App - Swift/Pods-AppLovin MAX Demo App - Swift.debug.xcconfig"; sourceTree = SOURCE_ROOT; };
+		900A5A752AFD21B60057098B /* Pods-AppLovin MAX Demo App - Swift.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Pods-AppLovin MAX Demo App - Swift.release.xcconfig"; path = "../../gitHub-MAX-adapter/Pods/Target Support Files/Pods-AppLovin MAX Demo App - Swift/Pods-AppLovin MAX Demo App - Swift.release.xcconfig"; sourceTree = SOURCE_ROOT; };
 		C395ACD57CFF0746B2DE19C2 /* Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.release.xcconfig"; path = "Target Support Files/Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift/Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.release.xcconfig"; sourceTree = "<group>"; };
 		C9AD48B42EE79CDEA120A731 /* Pods_AppLovin_MAX_Demo_App___Swift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "Pods_AppLovin_MAX_Demo_App___Swift.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEEC21F0299EC36F002313FB /* ALMAXAppOpenAdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ALMAXAppOpenAdViewController.swift; sourceTree = "<group>"; };
@@ -113,7 +109,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90C038BD2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework in Frameworks */,
 				9033B8D22B0659A800F1A03E /* Pods_AppLovin_MAX_Demo_App___Swift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -251,7 +246,6 @@
 		47C548B6FFA12425795CF4C2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				90C038BC2B0BAA0E000EC2A8 /* NeftaMAXAdapter.framework */,
 				C9AD48B42EE79CDEA120A731 /* Pods_AppLovin_MAX_Demo_App___Swift.framework */,
 			);
 			name = Frameworks;

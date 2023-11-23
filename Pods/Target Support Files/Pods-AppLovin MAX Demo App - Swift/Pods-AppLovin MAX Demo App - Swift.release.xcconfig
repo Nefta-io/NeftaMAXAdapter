@@ -1,13 +1,13 @@
 CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/Adjust" "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-11.11.4" "${PODS_XCFRAMEWORKS_BUILD_DIR}/AppLovinSDK"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/Adjust" "${PODS_CONFIGURATION_BUILD_DIR}/NeftaMAXAdapter" "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-11.11.4" "${PODS_ROOT}/NeftaSDK" "${PODS_XCFRAMEWORKS_BUILD_DIR}/AppLovinSDK" "${PODS_XCFRAMEWORKS_BUILD_DIR}/NeftaSDK"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/Adjust/Adjust.framework/Headers"
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/Adjust/Adjust.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/NeftaMAXAdapter/NeftaMAXAdapter.framework/Headers"
 LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
-OTHER_CFLAGS = $(inherited) -isystem "${PODS_CONFIGURATION_BUILD_DIR}/Adjust/Adjust.framework/Headers" -iframework "${PODS_CONFIGURATION_BUILD_DIR}/Adjust" -iframework "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-11.11.4" -iframework "${PODS_XCFRAMEWORKS_BUILD_DIR}/AppLovinSDK"
-OTHER_LDFLAGS = $(inherited) -ObjC -l"z" -framework "AVFoundation" -framework "AdSupport" -framework "Adjust" -framework "AppLovinSDK" -framework "AudioToolbox" -framework "CFNetwork" -framework "CoreGraphics" -framework "CoreMedia" -framework "CoreMotion" -framework "CoreTelephony" -framework "MessageUI" -framework "SafariServices" -framework "StoreKit" -framework "SystemConfiguration" -framework "UIKit" -framework "WebKit" -weak_framework "AdSupport" -weak_framework "AppTrackingTransparency"
+OTHER_CFLAGS = $(inherited) -isystem "${PODS_CONFIGURATION_BUILD_DIR}/Adjust/Adjust.framework/Headers" -isystem "${PODS_CONFIGURATION_BUILD_DIR}/NeftaMAXAdapter/NeftaMAXAdapter.framework/Headers" -iframework "${PODS_CONFIGURATION_BUILD_DIR}/Adjust" -iframework "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-11.11.4" -iframework "${PODS_XCFRAMEWORKS_BUILD_DIR}/AppLovinSDK" -iframework "${PODS_CONFIGURATION_BUILD_DIR}/NeftaMAXAdapter" -iframework "${PODS_ROOT}/NeftaSDK" -iframework "${PODS_XCFRAMEWORKS_BUILD_DIR}/NeftaSDK"
+OTHER_LDFLAGS = $(inherited) -ObjC -l"z" -framework "AVFoundation" -framework "AdSupport" -framework "Adjust" -framework "AppLovinSDK" -framework "AudioToolbox" -framework "CFNetwork" -framework "CoreGraphics" -framework "CoreMedia" -framework "CoreMotion" -framework "CoreTelephony" -framework "MessageUI" -framework "NeftaMAXAdapter" -framework "NeftaSDK" -framework "SafariServices" -framework "StoreKit" -framework "SystemConfiguration" -framework "UIKit" -framework "WebKit" -weak_framework "AdSupport" -weak_framework "AppTrackingTransparency"
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
-PODS_PODFILE_DIR_PATH = ${SRCROOT}/.
-PODS_ROOT = ${SRCROOT}/Pods
+PODS_PODFILE_DIR_PATH = ${SRCROOT}/..
+PODS_ROOT = ${SRCROOT}/../Pods
 PODS_XCFRAMEWORKS_BUILD_DIR = $(PODS_CONFIGURATION_BUILD_DIR)/XCFrameworkIntermediates
 USE_RECURSIVE_SCRIPT_INPUTS_IN_SCRIPT_PHASES = YES
