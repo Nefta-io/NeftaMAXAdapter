@@ -97,10 +97,10 @@ EOM
   esac
 }
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_resource "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-11.11.4/AppLovinSDKResources.bundle"
+  install_resource "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-12.0.0/AppLovinSDKResources.bundle"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_resource "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-11.11.4/AppLovinSDKResources.bundle"
+  install_resource "${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-12.0.0/AppLovinSDKResources.bundle"
 fi
 
 mkdir -p "${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
