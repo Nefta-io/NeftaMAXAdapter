@@ -58,7 +58,7 @@
 		3BBFC1119116E41A710C8A4ADAE0D3E2 /* Adjust.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B6AF44EEB2D1A9C104E7D77DF3A372 /* Adjust.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		3FEECA817664550D15CF630EE0E9176E /* ADJSessionSuccess.m in Sources */ = {isa = PBXBuildFile; fileRef = CBF404A348AB82E8788FA63D792FCED4 /* ADJSessionSuccess.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		434C29AD588BB14BB5F2CDA2438F12ED /* ADJTimerCycle.h in Headers */ = {isa = PBXBuildFile; fileRef = E6088BD807B8E212ED91F93B4B74D426 /* ADJTimerCycle.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		46EB2E000011D0 /* AppLovinSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46EB2E000011C0 /* AppLovinSDK.xcframework */; };
+		46EB2E000011C0 /* AppLovinSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE2C8CAC0E4E748729AA9DC99114F55E /* AppLovinSDK.xcframework */; };
 		47AD3EF40D31C9B9D8DCCC5CC161970D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30453446C5310EA114B978294858C9A5 /* Foundation.framework */; };
 		4AD966F1DE8559323BEA9BFFE0BC9839 /* NeftaMAXAdapter-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = F746D4745A9926C046FFD339DB754A14 /* NeftaMAXAdapter-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4B220715374244DB1590D6A908843CC6 /* ADJUrlStrategy.m in Sources */ = {isa = PBXBuildFile; fileRef = C9D7020FEB38196004476133E9470AE5 /* ADJUrlStrategy.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
@@ -192,7 +192,6 @@
 		40FA05768396D6F29342ED488B784E33 /* ADJUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ADJUtil.h; path = Adjust/ADJUtil.h; sourceTree = "<group>"; };
 		4186ED62371AB12D1024D031137A13C4 /* AppLovinSDKResources.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; name = AppLovinSDKResources.bundle; path = "applovin-ios-sdk-12.0.0/AppLovinSDKResources.bundle"; sourceTree = "<group>"; };
 		44C381BDF20D2E6C8D45C768E42001FB /* ADJActivityHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ADJActivityHandler.h; path = Adjust/ADJActivityHandler.h; sourceTree = "<group>"; };
-		46EB2E000011C0 /* AppLovinSDK.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = AppLovinSDK.xcframework; path = "AppLovinSDK/applovin-ios-sdk-12.0.0/AppLovinSDK.xcframework"; sourceTree = "<group>"; };
 		589CE5850253F3B87385B8A135A75BE7 /* NeftaMAXAdapter */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = NeftaMAXAdapter; path = NeftaMAXAdapter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		58BFFFFDD73355D0A79ED0785F53F92A /* ADJRequestHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ADJRequestHandler.h; path = Adjust/ADJRequestHandler.h; sourceTree = "<group>"; };
 		58E35B9D8466D03828A81792D4A181E1 /* ADJSdkClickHandler.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = ADJSdkClickHandler.m; path = Adjust/ADJSdkClickHandler.m; sourceTree = "<group>"; };
@@ -294,7 +293,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				46EB2E000011D0 /* AppLovinSDK.xcframework in Frameworks */,
+				46EB2E000011C0 /* AppLovinSDK.xcframework in Frameworks */,
 				7F5AAD5E975A541F9F8CD1A1D39F3603 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -356,7 +355,6 @@
 		1628BF05B4CAFDCC3549A101F5A10A17 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				46EB2E000011C0 /* AppLovinSDK.xcframework */,
 				A651368EF97F3D9B9BAA0C0FD537DD81 /* iOS */,
 			);
 			name = Frameworks;
