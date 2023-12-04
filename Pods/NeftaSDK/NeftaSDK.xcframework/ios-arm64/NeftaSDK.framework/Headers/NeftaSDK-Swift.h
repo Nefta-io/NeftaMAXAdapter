@@ -490,7 +490,8 @@ typedef SWIFT_ENUM(NSInteger, Modes, open) {
 
 SWIFT_CLASS("_TtC8NeftaSDK14VideoPlacement")
 @interface VideoPlacement : Placement
-@property (nonatomic, copy) NSArray<Creative *> * _Nonnull _creatives;
+@property (nonatomic, copy) NSArray<Creative *> * _Nullable _bufferedCreatives;
+@property (nonatomic, copy) NSArray<Creative *> * _Nullable _renderedCreatives;
 @end
 
 @class MediaFile;

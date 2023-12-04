@@ -193,7 +193,8 @@ import _StringProcessing
     @objc override dynamic public init()
     @objc deinit
   }
-  @objc public var _creatives: [NeftaSDK.VideoPlacement.Creative]
+  @objc public var _bufferedCreatives: [NeftaSDK.VideoPlacement.Creative]?
+  @objc public var _renderedCreatives: [NeftaSDK.VideoPlacement.Creative]?
   @objc deinit
 }
 @_inheritsConvenienceInitializers @objc public class BidResponse : ObjectiveC.NSObject {
