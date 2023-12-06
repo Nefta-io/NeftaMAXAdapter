@@ -337,7 +337,8 @@ typedef SWIFT_ENUM(NSInteger, ProgressionType, open) {
   ProgressionTypeAchievement = 3,
   ProgressionTypePlayerLevel = 4,
   ProgressionTypeItemLevel = 5,
-  ProgressionTypeOther = 6,
+  ProgressionTypeUnlock = 6,
+  ProgressionTypeOther = 7,
 };
 
 typedef SWIFT_ENUM(NSInteger, ProgressionSource, open) {
@@ -419,6 +420,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _No
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (NSString * _Nullable)GetToolboxUser SWIFT_WARN_UNUSED_RESULT;
 - (void)SetToolboxUserWithJson:(NSString * _Nonnull)json;
+- (void)SetCustomBatchSize:(NSInteger)newBatchSize;
 - (void)RecordWithEvent:(NSString * _Nonnull)event;
 - (void)EnableAds:(BOOL)enable;
 - (void)EnableBannerWithEnable:(BOOL)enable;

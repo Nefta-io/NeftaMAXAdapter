@@ -1,6 +1,6 @@
 {
   "name": "NeftaMAXAdapter",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "summary": "Custom mediation adapter for Applovin MAX SDK.",
   "homepage": "https://docs-adnetwork.nefta.io/docs/max-ios",
   "license": {
@@ -12,14 +12,14 @@
   },
   "source": {
     "git": "https://github.com/Nefta-io/NeftaMAXAdapter.git",
-    "tag": "1.0.2"
+    "tag": "1.0.4"
   },
   "platforms": {
     "ios": "10.0"
   },
   "dependencies": {
     "NeftaSDK": [
-      "~> 3.1.9"
+      "~> 3.1.11"
     ]
   },
   "source_files": "NeftaMAXAdapter/NeftaMAXAdapter/*.{h,m}"
