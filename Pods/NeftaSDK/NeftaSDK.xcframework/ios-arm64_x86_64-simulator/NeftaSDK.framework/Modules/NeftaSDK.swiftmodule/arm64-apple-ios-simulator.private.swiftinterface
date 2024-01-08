@@ -14,31 +14,24 @@ import WebKit
 import _Concurrency
 import _StringProcessing
 @_hasMissingDesignatedInitializers @objc public class NeftaEvents : ObjectiveC.NSObject {
-  @objc public enum ProgressionStatus : Swift.Int {
-    case Start
-    case Completed
-    case Fail
-    public var _value: Swift.String {
-      get
-    }
+  @objc public enum ProgressionType : Swift.Int, Swift.Hashable {
+    case Achievement
+    case GameplayUnit
+    case ItemLevel
+    case Unlock
+    case PlayerLevel
+    case Task
+    case Other
     public init?(rawValue: Swift.Int)
     public typealias RawValue = Swift.Int
     public var rawValue: Swift.Int {
       get
     }
   }
-  @objc public enum ProgressionType : Swift.Int {
-    case Undefined
-    case GameplayUnit
-    case Task
-    case Achievement
-    case PlayerLevel
-    case ItemLevel
-    case Unlock
-    case Other
-    public var _value: Swift.String? {
-      get
-    }
+  @objc public enum ProgressionStatus : Swift.Int, Swift.Hashable {
+    case Start
+    case Complete
+    case Fail
     public init?(rawValue: Swift.Int)
     public typealias RawValue = Swift.Int
     public var rawValue: Swift.Int {
@@ -66,15 +59,14 @@ import _StringProcessing
   @objc public func AddProgressionEvent(status: NeftaSDK.NeftaEvents.ProgressionStatus, type: NeftaSDK.NeftaEvents.ProgressionType, source: NeftaSDK.NeftaEvents.ProgressionSource, name: Swift.String?, value: Swift.Int)
   @objc public func AddProgressionEvent(status: NeftaSDK.NeftaEvents.ProgressionStatus, type: NeftaSDK.NeftaEvents.ProgressionType, source: NeftaSDK.NeftaEvents.ProgressionSource, name: Swift.String?, value: Swift.Int, customPayload: Swift.String?)
   @objc public enum ResourceCategory : Swift.Int {
-    case Undefined
     case SoftCurrency
     case PremiumCurrency
     case Resource
-    case CoreItem
-    case CosmeticItem
     case Consumable
-    case Experience
+    case CosmeticItem
+    case CoreItem
     case Chest
+    case Experience
     case Other
     public var _value: Swift.String? {
       get
@@ -114,7 +106,6 @@ import _StringProcessing
     case Unlock
     case Upgrade
     case Shop
-    case Looted
     case Other
     public var _value: Swift.String? {
       get
@@ -128,6 +119,20 @@ import _StringProcessing
   @objc public func AddSpendEvent(category: NeftaSDK.NeftaEvents.ResourceCategory, method: NeftaSDK.NeftaEvents.SpendMethod)
   @objc public func AddSpendEvent(category: NeftaSDK.NeftaEvents.ResourceCategory, method: NeftaSDK.NeftaEvents.SpendMethod, name: Swift.String?, quantity: Swift.Int)
   @objc public func AddSpendEvent(category: NeftaSDK.NeftaEvents.ResourceCategory, method: NeftaSDK.NeftaEvents.SpendMethod, name: Swift.String?, quantity: Swift.Int, customPayload: Swift.String?)
+  @objc public enum SessionCategory : Swift.Int {
+    case AccountConnected
+    case AccountUpgraded
+    public var _value: Swift.String? {
+      get
+    }
+    public init?(rawValue: Swift.Int)
+    public typealias RawValue = Swift.Int
+    public var rawValue: Swift.Int {
+      get
+    }
+  }
+  @objc public func AddSessionEvent(category: NeftaSDK.NeftaEvents.SessionCategory)
+  @objc public func AddSessionEvent(category: NeftaSDK.NeftaEvents.SessionCategory, name: Swift.String?, value: Swift.Int, customPayload: Swift.String?)
   @objc deinit
 }
 @_hasMissingDesignatedInitializers @objc public class Placement : ObjectiveC.NSObject {
@@ -268,26 +273,25 @@ import _StringProcessing
   @objc deinit
 }
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class NeftaPlugin_iOS : NeftaSDK.NeftaPlugin {
+  @objc(EnableLogging:) public static func EnableLogging(enable: Swift.Bool)
   @objc public static func Init(appId: Swift.String?) -> NeftaSDK.NeftaPlugin_iOS
   @objc public func PrepareRenderer(viewController: UIKit.UIViewController)
   @objc public func PrepareRenderer(view: UIKit.UIView)
   @objc deinit
 }
-@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc @_Concurrency.MainActor(unsafe) public class WebController : UIKit.UIView, WebKit.WKNavigationDelegate, WebKit.WKScriptMessageHandler {
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc @_Concurrency.MainActor(unsafe) public class WebController : UIKit.UIView, WebKit.WKNavigationDelegate {
   public typealias OnLoadBlock = ((NeftaSDK.Placement, Swift.String?) -> Swift.Void)
   public typealias OnClickBlock = (() -> Swift.Void)
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public func layoutSubviews()
   @_Concurrency.MainActor(unsafe) @objc public func webView(_ webView: WebKit.WKWebView, didFail navigation: WebKit.WKNavigation!, withError error: any Swift.Error)
   @_Concurrency.MainActor(unsafe) @objc public func webView(_ webView: WebKit.WKWebView, didFailProvisionalNavigation navigation: WebKit.WKNavigation!, withError error: any Swift.Error)
+  @_Concurrency.MainActor(unsafe) @objc public func webView(_ webView: WebKit.WKWebView, didFinish navigation: WebKit.WKNavigation!)
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public func observeValue(forKeyPath keyPath: Swift.String?, of object: Any?, change: [Foundation.NSKeyValueChangeKey : Any]?, context: Swift.UnsafeMutableRawPointer?)
   @_Concurrency.MainActor(unsafe) public func SetFrame(rect: CoreFoundation.CGRect)
-  @_Concurrency.MainActor(unsafe) @objc public func userContentController(_ userContentController: WebKit.WKUserContentController, didReceive message: WebKit.WKScriptMessage)
   @objc deinit
 }
-extension NeftaSDK.NeftaEvents.ProgressionStatus : Swift.Equatable {}
-extension NeftaSDK.NeftaEvents.ProgressionStatus : Swift.Hashable {}
-extension NeftaSDK.NeftaEvents.ProgressionStatus : Swift.RawRepresentable {}
-extension NeftaSDK.NeftaEvents.ProgressionType : Swift.Equatable {}
-extension NeftaSDK.NeftaEvents.ProgressionType : Swift.Hashable {}
 extension NeftaSDK.NeftaEvents.ProgressionType : Swift.RawRepresentable {}
+extension NeftaSDK.NeftaEvents.ProgressionStatus : Swift.RawRepresentable {}
 extension NeftaSDK.NeftaEvents.ProgressionSource : Swift.Equatable {}
 extension NeftaSDK.NeftaEvents.ProgressionSource : Swift.Hashable {}
 extension NeftaSDK.NeftaEvents.ProgressionSource : Swift.RawRepresentable {}
@@ -300,6 +304,9 @@ extension NeftaSDK.NeftaEvents.ReceiveMethod : Swift.RawRepresentable {}
 extension NeftaSDK.NeftaEvents.SpendMethod : Swift.Equatable {}
 extension NeftaSDK.NeftaEvents.SpendMethod : Swift.Hashable {}
 extension NeftaSDK.NeftaEvents.SpendMethod : Swift.RawRepresentable {}
+extension NeftaSDK.NeftaEvents.SessionCategory : Swift.Equatable {}
+extension NeftaSDK.NeftaEvents.SessionCategory : Swift.Hashable {}
+extension NeftaSDK.NeftaEvents.SessionCategory : Swift.RawRepresentable {}
 extension NeftaSDK.Placement.Types : Swift.Equatable {}
 extension NeftaSDK.Placement.Types : Swift.Hashable {}
 extension NeftaSDK.Placement.Types : Swift.RawRepresentable {}
