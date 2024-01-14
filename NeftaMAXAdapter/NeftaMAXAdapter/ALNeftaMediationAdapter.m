@@ -101,7 +101,7 @@ static NSMutableDictionary<NSString *, id<MAAdapterDelegate>> *_listeners;
 
 - (NSString *)adapterVersion
 {
-    return @"1.0.7";
+    return @"1.0.8";
 }
 
 - (void)loadAdViewAdForParameters:(id<MAAdapterResponseParameters>)parameters adFormat:(MAAdFormat *)adFormat andNotify:(id<MAAdViewAdapterDelegate>)delegate {

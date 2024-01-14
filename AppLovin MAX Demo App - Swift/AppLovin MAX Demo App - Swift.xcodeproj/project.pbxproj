@@ -45,6 +45,19 @@
 		E5EE50E7241D9E5B0032B659 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3763B23A23357C4B00E49783 /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		90AA3F932B5025FE00361C6D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		078501F52BC6135FA410F2C8 /* Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.debug.xcconfig"; path = "Target Support Files/Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift/Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.debug.xcconfig"; sourceTree = "<group>"; };
 		07DAFDDF2A781A4C00AA54FA /* ALAdViewSwiftUIWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALAdViewSwiftUIWrapper.swift; sourceTree = "<group>"; };
@@ -294,6 +307,7 @@
 				3763B23123357C4B00E49783 /* Resources */,
 				F29D313FDB890A24D9B2E2AA /* [CP] Embed Pods Frameworks */,
 				DF976C4C8E170C8639464285 /* [CP] Copy Pods Resources */,
+				90AA3F932B5025FE00361C6D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
