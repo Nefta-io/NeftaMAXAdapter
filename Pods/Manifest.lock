@@ -1,11 +1,11 @@
 PODS:
-  - Adjust (4.37.0):
-    - Adjust/Core (= 4.37.0)
-  - Adjust/Core (4.37.0)
+  - Adjust (4.37.1):
+    - Adjust/Core (= 4.37.1)
+  - Adjust/Core (4.37.1)
   - AppLovinSDK (12.1.0)
-  - NeftaMAXAdapter (1.0.8):
-    - NeftaSDK (~> 3.1.18)
-  - NeftaSDK (3.1.18)
+  - NeftaMAXAdapter (1.1.0):
+    - NeftaSDK (~> 3.2.0)
+  - NeftaSDK (3.2.0)
 
 DEPENDENCIES:
   - Adjust
@@ -23,11 +23,11 @@ EXTERNAL SOURCES:
     :path: "."
 
 SPEC CHECKSUMS:
-  Adjust: 86a6935688251ca6cea371f9b284578ccf3d981b
+  Adjust: de140fb7f466ad6884ffc2bca2f9a3afbd285f42
   AppLovinSDK: 179d509c258e01a3a77eb8416f0ba843a12ed322
-  NeftaMAXAdapter: ca2cff77a4a09514187b74d204341560208f5d0a
-  NeftaSDK: ffa1f40857fc3c65e32ecd89cbe09cc5580f8bd1
+  NeftaMAXAdapter: 46c36a7cd469f11f84b4fe10ab39f652a6c26b60
+  NeftaSDK: e4ad671e71cc8c273a224d21947efb57dbcbd17e
 
 PODFILE CHECKSUM: 7ab8bdff5e8ee67a917be3c5ee29c0e3256d38d9
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
