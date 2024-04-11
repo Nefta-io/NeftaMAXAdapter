@@ -9,6 +9,7 @@
 import UIKit
 import Adjust
 import AppLovinSDK
+import NeftaSDK
 
 class ALAppDelegate: UIResponder, UIApplicationDelegate
 {
@@ -17,6 +18,16 @@ class ALAppDelegate: UIResponder, UIApplicationDelegate
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool
     {
         #warning("Make sure to add your AppLovin SDK key in the Info.plist under the \"AppLovinSDKKey\" key")
+        
+        NeftaPlugin_iOS.EnableLogging(enable: true)
+        
+        let plugin = NeftaPlugin_iOS.Init(appId: "5661184053215232")
+        
+        plugin.Events.AddProgressionEvent(status: NeftaEvents.ProgressionStatus.Start,
+                                                 type: NeftaEvents.ProgressionType.GameplayUnit,
+                                                 source: NeftaEvents.ProgressionSource.CoreContent,
+                                                 name: "area-4",
+                                                 value: 21)
         
         // Initialize the AppLovin SDK
         ALSdk.shared()!.mediationProvider = ALMediationProviderMAX
