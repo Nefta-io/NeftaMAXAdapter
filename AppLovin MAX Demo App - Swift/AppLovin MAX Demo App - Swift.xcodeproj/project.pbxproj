@@ -41,8 +41,8 @@
 		77B6F43D279B51F70063F81D /* ALMAXManualNativeAdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B6F43A279B51F70063F81D /* ALMAXManualNativeAdViewController.swift */; };
 		77B6F43E279B51F70063F81D /* ALMAXTemplateNativeAdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B6F43B279B51F70063F81D /* ALMAXTemplateNativeAdViewController.swift */; };
 		77B6F441279B52050063F81D /* NativeManualAdView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77B6F440279B52050063F81D /* NativeManualAdView.xib */; };
-		90E572882BCE5A1500AECAC0 /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90E572872BCE5A1500AECAC0 /* NeftaSDK.xcframework */; };
-		90E572892BCE5A1500AECAC0 /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90E572872BCE5A1500AECAC0 /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9027EA902BCF9894005477C5 /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9027EA8F2BCF9894005477C5 /* NeftaSDK.xcframework */; };
+		9027EA912BCF9894005477C5 /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9027EA8F2BCF9894005477C5 /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEEC21F1299EC36F002313FB /* ALMAXAppOpenAdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEC21F0299EC36F002313FB /* ALMAXAppOpenAdViewController.swift */; };
 		E5EE50E7241D9E5B0032B659 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3763B23A23357C4B00E49783 /* Main.storyboard */; };
 /* End PBXBuildFile section */
@@ -54,7 +54,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				90E572892BCE5A1500AECAC0 /* NeftaSDK.xcframework in Embed Frameworks */,
+				9027EA912BCF9894005477C5 /* NeftaSDK.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,9 +101,9 @@
 		77B6F440279B52050063F81D /* NativeManualAdView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NativeManualAdView.xib; sourceTree = "<group>"; };
 		900A5A742AFD21B60057098B /* Pods-AppLovin MAX Demo App - Swift.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Pods-AppLovin MAX Demo App - Swift.debug.xcconfig"; path = "../../NeftaMAXAdapter-iOS/Pods/Target Support Files/Pods-AppLovin MAX Demo App - Swift/Pods-AppLovin MAX Demo App - Swift.debug.xcconfig"; sourceTree = SOURCE_ROOT; };
 		900A5A752AFD21B60057098B /* Pods-AppLovin MAX Demo App - Swift.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Pods-AppLovin MAX Demo App - Swift.release.xcconfig"; path = "../../NeftaMAXAdapter-iOS/Pods/Target Support Files/Pods-AppLovin MAX Demo App - Swift/Pods-AppLovin MAX Demo App - Swift.release.xcconfig"; sourceTree = SOURCE_ROOT; };
-		90E572852BCE5A0900AECAC0 /* ALNeftaMediationAdapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaMediationAdapter.m; sourceTree = "<group>"; };
-		90E572862BCE5A0900AECAC0 /* ALNeftaMediationAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaMediationAdapter.h; sourceTree = "<group>"; };
-		90E572872BCE5A1500AECAC0 /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = "../NeftaMAXAdapter-1.1.8/NeftaSDK.xcframework"; sourceTree = "<group>"; };
+		9027EA8D2BCF9883005477C5 /* ALNeftaMediationAdapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaMediationAdapter.m; sourceTree = "<group>"; };
+		9027EA8E2BCF9883005477C5 /* ALNeftaMediationAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaMediationAdapter.h; sourceTree = "<group>"; };
+		9027EA8F2BCF9894005477C5 /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = ../NeftaMAXAdapter/NeftaSDK.xcframework; sourceTree = "<group>"; };
 		C395ACD57CFF0746B2DE19C2 /* Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.release.xcconfig"; path = "Target Support Files/Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift/Pods-Non-Mediated Projects-AppLovin MAX Demo App - Swift.release.xcconfig"; sourceTree = "<group>"; };
 		DEEC21F0299EC36F002313FB /* ALMAXAppOpenAdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ALMAXAppOpenAdViewController.swift; sourceTree = "<group>"; };
 		E5BDBFEF2435197700F82D79 /* AppLovin MAX Demo App-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AppLovin MAX Demo App-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -116,7 +116,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D684B148FCC2503A9C344F7 /* Pods_AppLovin_MAX_Demo_App___Swift.framework in Frameworks */,
-				90E572882BCE5A1500AECAC0 /* NeftaSDK.xcframework in Frameworks */,
+				9027EA902BCF9894005477C5 /* NeftaSDK.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,7 +184,7 @@
 		3763B22A23357C4B00E49783 = {
 			isa = PBXGroup;
 			children = (
-				90E572842BCE5A0900AECAC0 /* NeftaMAXdapter */,
+				9027EA8C2BCF9883005477C5 /* NeftaMAXdapter */,
 				E5BDBFEF2435197700F82D79 /* AppLovin MAX Demo App-Bridging-Header.h */,
 				3763B23523357C4B00E49783 /* AppLovin MAX Demo App - Swift */,
 				3763B23423357C4B00E49783 /* Products */,
@@ -254,7 +254,7 @@
 		47C548B6FFA12425795CF4C2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				90E572872BCE5A1500AECAC0 /* NeftaSDK.xcframework */,
+				9027EA8F2BCF9894005477C5 /* NeftaSDK.xcframework */,
 				EBD05372A2C3F8737F004BA1 /* Pods_AppLovin_MAX_Demo_App___Swift.framework */,
 			);
 			name = Frameworks;
@@ -295,14 +295,14 @@
 			path = "../../iOS-Workspace/Pods";
 			sourceTree = "<group>";
 		};
-		90E572842BCE5A0900AECAC0 /* NeftaMAXdapter */ = {
+		9027EA8C2BCF9883005477C5 /* NeftaMAXdapter */ = {
 			isa = PBXGroup;
 			children = (
-				90E572852BCE5A0900AECAC0 /* ALNeftaMediationAdapter.m */,
-				90E572862BCE5A0900AECAC0 /* ALNeftaMediationAdapter.h */,
+				9027EA8D2BCF9883005477C5 /* ALNeftaMediationAdapter.m */,
+				9027EA8E2BCF9883005477C5 /* ALNeftaMediationAdapter.h */,
 			);
 			name = NeftaMAXdapter;
-			path = "../NeftaMAXAdapter-1.1.8/NeftaMAXdapter";
+			path = ../NeftaMAXAdapter/NeftaMAXdapter;
 			sourceTree = "<group>";
 		};
 		DEEC21EF299EC36F002313FB /* App Open Ads */ = {
