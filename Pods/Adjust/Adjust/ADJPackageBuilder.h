@@ -32,6 +32,8 @@
 
 @property (nonatomic, copy) ADJAttribution * _Nullable attribution;
 
+@property (nonatomic, weak) ADJInternalState * _Nullable internalState;
+
 - (id _Nullable)initWithPackageParams:(ADJPackageParams * _Nullable)packageParams
                         activityState:(ADJActivityState * _Nullable)activityState
                                config:(ADJConfig * _Nullable)adjustConfig
@@ -89,15 +91,29 @@
             forKey:(NSString * _Nullable)key;
 
 + (void)parameters:(NSMutableDictionary * _Nullable)parameters
+         setDouble:(double)value
+            forKey:(NSString * _Nullable)key;
+
++ (void)parameters:(NSMutableDictionary * _Nullable)parameters
        setDate1970:(double)value
+            forKey:(NSString * _Nullable)key;
+
++ (void)parameters:(NSMutableDictionary * _Nullable)parameters
+setNumberWithoutRounding:(NSNumber * _Nullable)value
             forKey:(NSString * _Nullable)key;
 
 + (BOOL)isAdServicesPackage:(ADJActivityPackage * _Nullable)activityPackage;
 
-+ (void)addIdfaToParameters:(NSMutableDictionary * _Nullable)parameters
-                 withConfig:(ADJConfig * _Nullable)adjConfig
-                     logger:(id<ADJLogger> _Nullable)logger
-              packageParams:(ADJPackageParams * _Nullable)packageParams;
++ (void)addConsentDataToParameters:(NSMutableDictionary * _Nullable)parameters
+                   forActivityKind:(ADJActivityKind)activityKind
+                     withAttStatus:(NSString * _Nullable)attStatusString
+                     configuration:(ADJConfig * _Nullable)adjConfig
+                     packageParams:(ADJPackageParams * _Nullable)packageParams;
+
++ (void)removeConsentDataFromParameters:(nonnull NSMutableDictionary *)parameters;
+
++ (void)updateAttStatusInParameters:(nonnull NSMutableDictionary *)parameters;
+
 @end
 // TODO change to ADJ...
 extern NSString * _Nullable const ADJAttributionTokenParameter;

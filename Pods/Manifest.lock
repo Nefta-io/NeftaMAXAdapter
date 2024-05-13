@@ -1,12 +1,12 @@
 PODS:
-  - Adjust (4.37.2):
-    - Adjust/Core (= 4.37.2)
-  - Adjust/Core (4.37.2)
-  - AppLovinSDK (12.1.0)
+  - Adjust (4.38.2):
+    - Adjust/Core (= 4.38.2)
+  - Adjust/Core (4.38.2)
+  - AppLovinSDK (12.4.2)
 
 DEPENDENCIES:
   - Adjust
-  - AppLovinSDK (= 12.1.0)
+  - AppLovinSDK (= 12.4.2)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -14,9 +14,9 @@ SPEC REPOS:
     - AppLovinSDK
 
 SPEC CHECKSUMS:
-  Adjust: a830d963025334aee8a62a7bac87825e297a841e
-  AppLovinSDK: 179d509c258e01a3a77eb8416f0ba843a12ed322
+  Adjust: 5a0f813fe079212bed61404d1f635cc330068b4a
+  AppLovinSDK: 0d28d095238ec35cf1dc408ca2d983fb7a1803bb
 
-PODFILE CHECKSUM: b9a286a3876bf1f068ebd77637943fba3af70320
+PODFILE CHECKSUM: 143aa14f1b306b2e341e6c301c14326b03860891
 
 COCOAPODS: 1.15.2

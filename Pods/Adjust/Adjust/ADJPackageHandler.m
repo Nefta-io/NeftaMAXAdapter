@@ -32,6 +32,9 @@ static const char * const kInternalQueueName    = "io.adjust.PackageQueue";
 @property (nonatomic, weak) id<ADJActivityHandler> activityHandler;
 @property (nonatomic, weak) id<ADJLogger> logger;
 @property (nonatomic, assign) NSInteger lastPackageRetriesCount;
+@property (nonatomic, assign) BOOL isRetrying;
+@property (nonatomic, assign) NSTimeInterval retryStartedAt;
+@property (nonatomic, assign) double totalWaitTime;
 
 @end
 
@@ -50,6 +53,8 @@ static const char * const kInternalQueueName    = "io.adjust.PackageQueue";
     self.backoffStrategy = [ADJAdjustFactory packageHandlerBackoffStrategy];
     self.backoffStrategyForInstallSession = [ADJAdjustFactory installSessionBackoffStrategy];
     self.lastPackageRetriesCount = 0;
+    self.isRetrying = NO;
+    self.totalWaitTime = 0.0;
 
     [ADJUtil launchInQueue:self.internalQueue
                 selfInject:self
@@ -101,6 +106,8 @@ static const char * const kInternalQueueName    = "io.adjust.PackageQueue";
 
 - (void)sendNextPackage:(ADJResponseData *)responseData {
     self.lastPackageRetriesCount = 0;
+    self.isRetrying = NO;
+    self.retryStartedAt = 0.0;
 
     [ADJUtil launchInQueue:self.internalQueue
                 selfInject:self
@@ -111,12 +118,18 @@ static const char * const kInternalQueueName    = "io.adjust.PackageQueue";
     [self.activityHandler finishedTracking:responseData];
 }
 
-- (void)closeFirstPackage:(ADJResponseData *)responseData
-{
+- (void)closeFirstPackage:(ADJResponseData *)responseData {
     responseData.willRetry = YES;
+
     [self.activityHandler finishedTracking:responseData];
 
     self.lastPackageRetriesCount++;
+
+    [ADJUtil launchInQueue:self.internalQueue
+                selfInject:self
+                     block:^(ADJPackageHandler* selfI) {
+                         [selfI writePackageQueueS:selfI];
+                     }];
 
     NSTimeInterval waitTime;
     if (responseData.activityKind == ADJActivityKindSession && [ADJUserDefaults getInstallTracked] == NO) {
@@ -127,9 +140,11 @@ static const char * const kInternalQueueName    = "io.adjust.PackageQueue";
     NSString *waitTimeFormatted = [ADJUtil secondsNumberFormat:waitTime];
 
     [self.logger verbose:@"Waiting for %@ seconds before retrying the %d time", waitTimeFormatted, self.lastPackageRetriesCount];
+    self.totalWaitTime += waitTime;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), self.internalQueue, ^{
         [self.logger verbose:@"Package handler finished waiting"];
         dispatch_semaphore_signal(self.sendingSemaphore);
+        responseData.sdkPackage.waitBeforeSend += waitTime;
         [self sendFirstPackage];
     });
 }
@@ -153,11 +168,12 @@ static const char * const kInternalQueueName    = "io.adjust.PackageQueue";
     }];
 }
 
-- (void)updatePackagesWithIdfaAndAttStatus {
+- (void)updatePackagesWithAttStatus:(int)attStatus {
     [ADJUtil launchInQueue:self.internalQueue
                 selfInject:self
                      block:^(ADJPackageHandler* selfI) {
-        [selfI updatePackagesWithIdfaAndAttStatusI:selfI];
+        [selfI updatePackagesTrackingI:selfI
+                             attStatus:attStatus];
     }];
 }
 
@@ -211,6 +227,13 @@ startsSending:(BOOL)startsSending
 - (void)addI:(ADJPackageHandler *)selfI
      package:(ADJActivityPackage *)newPackage
 {
+    if (self.isRetrying == YES) {
+        NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+        newPackage.waitBeforeSend = self.totalWaitTime - (now - self.retryStartedAt);
+    }
+    [ADJPackageBuilder parameters:newPackage.parameters
+                           setInt:(int)selfI.packageQueue.count
+                           forKey:@"enqueue_size"];
     [selfI.packageQueue addObject:newPackage];
 
     [selfI.logger debug:@"Added package %d (%@)", selfI.packageQueue.count, newPackage];
@@ -251,6 +274,22 @@ startsSending:(BOOL)startsSending
                         setString:[ADJUtil formatSeconds1970:[NSDate.date timeIntervalSince1970]]
                            forKey:@"sent_at"];
 
+    [ADJPackageBuilder parameters:sendingParameters
+                           setInt:(int)activityPackage.errorCount
+                           forKey:@"retry_count"];
+    [ADJPackageBuilder parameters:sendingParameters
+         setNumberWithoutRounding:activityPackage.firstErrorCode
+                           forKey:@"first_error"];
+    [ADJPackageBuilder parameters:sendingParameters
+         setNumberWithoutRounding:activityPackage.lastErrorCode
+                           forKey:@"last_error"];
+    [ADJPackageBuilder parameters:sendingParameters
+                        setDouble:self.totalWaitTime
+                           forKey:@"wait_total"];
+    [ADJPackageBuilder parameters:sendingParameters
+                        setDouble:activityPackage.waitBeforeSend
+                           forKey:@"wait_time"];
+
     [selfI.requestHandler sendPackageByPOST:activityPackage
                           sendingParameters:[sendingParameters copy]];
 }
@@ -259,6 +298,10 @@ startsSending:(BOOL)startsSending
     if ([selfI.packageQueue count] > 0) {
         [selfI.packageQueue removeObjectAtIndex:0];
         [selfI writePackageQueueS:selfI];
+    } else {
+        // at this point, the queue has been emptied
+        // reset total_wait in this moment to allow all requests to populate total_wait
+        selfI.totalWaitTime = 0.0;
     }
 
     dispatch_semaphore_signal(selfI.sendingSemaphore);
@@ -299,18 +342,20 @@ startsSending:(BOOL)startsSending
     [selfI writePackageQueueS:selfI];
 }
 
-- (void)updatePackagesWithIdfaAndAttStatusI:(ADJPackageHandler *)selfI {
-    int attStatus = [ADJUtil attStatus];
+- (void)updatePackagesTrackingI:(ADJPackageHandler *)selfI
+                      attStatus:(int)attStatus {
     [selfI.logger debug:@"Updating package queue with idfa and att_status: %d", (long)attStatus];
     // create package queue copy for new state of array
     NSMutableArray *packageQueueCopy = [NSMutableArray array];
 
     for (ADJActivityPackage *activityPackage in selfI.packageQueue) {
         [ADJPackageBuilder parameters:activityPackage.parameters setInt:attStatus forKey:@"att_status"];
-        [ADJPackageBuilder addIdfaToParameters:activityPackage.parameters
-                                    withConfig:self.activityHandler.adjustConfig
-                                        logger:[ADJAdjustFactory logger]
-                                 packageParams:self.activityHandler.packageParams];
+
+        [ADJPackageBuilder addConsentDataToParameters:activityPackage.parameters
+                                      forActivityKind:activityPackage.activityKind
+                                        withAttStatus:[activityPackage.parameters objectForKey:@"att_status"]
+                                        configuration:selfI.activityHandler.adjustConfig
+                                        packageParams:selfI.activityHandler.packageParams];
         // add to copy queue
         [packageQueueCopy addObject:activityPackage];
     }

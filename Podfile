@@ -4,8 +4,8 @@ use_frameworks!
 inhibit_all_warnings!
 platform :ios, '11.0'
 
-target 'AppLovin MAX Demo App - Swift' do
-  project 'AppLovin MAX Demo App - Swift/AppLovin MAX Demo App - Swift.xcodeproj'
-  pod 'AppLovinSDK', '12.1.0'
+target 'MaxIntegration' do
+  project 'MaxIntegration/MaxIntegration.xcodeproj'
+  pod 'AppLovinSDK', '12.4.2'
   pod 'Adjust'
 end
