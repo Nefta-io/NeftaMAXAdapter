@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		901458D42BECC44000647C97 /* Banner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901458D32BECC44000647C97 /* Banner.swift */; };
-		901458D62BECC50F00647C97 /* Interstitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901458D52BECC50F00647C97 /* Interstitial.swift */; };
-		901458D82BECD81000647C97 /* RewardedVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901458D72BECD81000647C97 /* RewardedVideo.swift */; };
-		902657812BEC9C8A00EA4F62 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902657742BEC9C8A00EA4F62 /* AppDelegate.swift */; };
-		902657822BEC9C8A00EA4F62 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 902657752BEC9C8A00EA4F62 /* Assets.xcassets */; };
-		902657842BEC9C8A00EA4F62 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 902657782BEC9C8A00EA4F62 /* LaunchScreen.storyboard */; };
-		902657852BEC9C8A00EA4F62 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9026577A2BEC9C8A00EA4F62 /* Main.storyboard */; };
-		902657862BEC9C8A00EA4F62 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9026577C2BEC9C8A00EA4F62 /* SceneDelegate.swift */; };
-		902657872BEC9C8A00EA4F62 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9026577D2BEC9C8A00EA4F62 /* ViewController.swift */; };
-		902657922BEC9D0500EA4F62 /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 902657912BEC9D0500EA4F62 /* NeftaSDK.xcframework */; };
-		902657932BEC9D0500EA4F62 /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 902657912BEC9D0500EA4F62 /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		902657982BEC9D1600EA4F62 /* ALNeftaMediationAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 902657962BEC9D1600EA4F62 /* ALNeftaMediationAdapter.m */; };
-		C9D5621468288107DD7AA653 /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D23B6BE64384F4DA64F8EFFC /* Pods_MaxIntegration.framework */; };
+		5EEE0C193AC7BEAB274ED4C2 /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */; };
+		90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA539F2C0871DD0041E63B /* AppDelegate.swift */; };
+		90DA53AD2C0871DD0041E63B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A02C0871DD0041E63B /* Assets.xcassets */; };
+		90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A12C0871DD0041E63B /* Banner.swift */; };
+		90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A32C0871DD0041E63B /* Interstitial.swift */; };
+		90DA53B12C0871DD0041E63B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A52C0871DD0041E63B /* LaunchScreen.storyboard */; };
+		90DA53B22C0871DD0041E63B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A72C0871DD0041E63B /* Main.storyboard */; };
+		90DA53B32C0871DD0041E63B /* RewardedVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A82C0871DD0041E63B /* RewardedVideo.swift */; };
+		90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A92C0871DD0041E63B /* SceneDelegate.swift */; };
+		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
+		90DA53B72C0872170041E63B /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; };
+		90DA53B82C0872170041E63B /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		90DA53C32C0875930041E63B /* ALNeftaMediationAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53C12C0875930041E63B /* ALNeftaMediationAdapter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,7 +29,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				902657932BEC9D0500EA4F62 /* NeftaSDK.xcframework in Embed Frameworks */,
+				90DA53B82C0872170041E63B /* NeftaSDK.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -37,23 +37,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		061B59928434B0FB6BF2A5B3 /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
-		901458D12BECAECD00647C97 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		901458D32BECC44000647C97 /* Banner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Banner.swift; sourceTree = "<group>"; };
-		901458D52BECC50F00647C97 /* Interstitial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interstitial.swift; sourceTree = "<group>"; };
-		901458D72BECD81000647C97 /* RewardedVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedVideo.swift; sourceTree = "<group>"; };
+		1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
+		407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 		9026575D2BEC9B8900EA4F62 /* MaxIntegration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaxIntegration.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		902657742BEC9C8A00EA4F62 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		902657752BEC9C8A00EA4F62 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		902657772BEC9C8A00EA4F62 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		902657792BEC9C8A00EA4F62 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		9026577C2BEC9C8A00EA4F62 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		9026577D2BEC9C8A00EA4F62 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		902657912BEC9D0500EA4F62 /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = ../NeftaMAXAdapter/NeftaSDK.xcframework; sourceTree = "<group>"; };
-		902657952BEC9D1600EA4F62 /* ALNeftaMediationAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALNeftaMediationAdapter.h; sourceTree = "<group>"; };
-		902657962BEC9D1600EA4F62 /* ALNeftaMediationAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALNeftaMediationAdapter.m; sourceTree = "<group>"; };
-		C20E03675605D6375CD0F448 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
-		D23B6BE64384F4DA64F8EFFC /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		90DA539F2C0871DD0041E63B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		90DA53A02C0871DD0041E63B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		90DA53A12C0871DD0041E63B /* Banner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Banner.swift; sourceTree = "<group>"; };
+		90DA53A32C0871DD0041E63B /* Interstitial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interstitial.swift; sourceTree = "<group>"; };
+		90DA53A42C0871DD0041E63B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		90DA53A62C0871DD0041E63B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		90DA53A82C0871DD0041E63B /* RewardedVideo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardedVideo.swift; sourceTree = "<group>"; };
+		90DA53A92C0871DD0041E63B /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		90DA53B62C0872170041E63B /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = NeftaMAXAdapter/NeftaSDK.xcframework; sourceTree = "<group>"; };
+		90DA53C02C0875930041E63B /* ALNeftaMediationAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALNeftaMediationAdapter.h; sourceTree = "<group>"; };
+		90DA53C12C0875930041E63B /* ALNeftaMediationAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALNeftaMediationAdapter.m; sourceTree = "<group>"; };
+		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,22 +61,32 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9D5621468288107DD7AA653 /* Pods_MaxIntegration.framework in Frameworks */,
-				902657922BEC9D0500EA4F62 /* NeftaSDK.xcframework in Frameworks */,
+				90DA53B72C0872170041E63B /* NeftaSDK.xcframework in Frameworks */,
+				5EEE0C193AC7BEAB274ED4C2 /* Pods_MaxIntegration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		864A835197C7F57B6007B655 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */,
+				407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
-				902657972BEC9D1600EA4F62 /* NeftaMAXdapter */,
-				9026577E2BEC9C8A00EA4F62 /* MaxIntegration */,
+				90DA53C52C0878D20041E63B /* Info.plist */,
+				90DA53C22C0875930041E63B /* NeftaMAXdapter */,
+				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
 				9026575E2BEC9B8900EA4F62 /* Products */,
-				EDBB9336310FE99E920259C7 /* Pods */,
 				BDD989115C3FB8BAA759FA16 /* Frameworks */,
+				864A835197C7F57B6007B655 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -88,50 +98,39 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9026577E2BEC9C8A00EA4F62 /* MaxIntegration */ = {
+		90DA53AB2C0871DD0041E63B /* MaxIntegration */ = {
 			isa = PBXGroup;
 			children = (
-				901458D12BECAECD00647C97 /* Info.plist */,
-				902657742BEC9C8A00EA4F62 /* AppDelegate.swift */,
-				902657752BEC9C8A00EA4F62 /* Assets.xcassets */,
-				902657782BEC9C8A00EA4F62 /* LaunchScreen.storyboard */,
-				9026577A2BEC9C8A00EA4F62 /* Main.storyboard */,
-				9026577C2BEC9C8A00EA4F62 /* SceneDelegate.swift */,
-				9026577D2BEC9C8A00EA4F62 /* ViewController.swift */,
-				901458D32BECC44000647C97 /* Banner.swift */,
-				901458D52BECC50F00647C97 /* Interstitial.swift */,
-				901458D72BECD81000647C97 /* RewardedVideo.swift */,
+				90DA539F2C0871DD0041E63B /* AppDelegate.swift */,
+				90DA53A02C0871DD0041E63B /* Assets.xcassets */,
+				90DA53A12C0871DD0041E63B /* Banner.swift */,
+				90DA53A32C0871DD0041E63B /* Interstitial.swift */,
+				90DA53A52C0871DD0041E63B /* LaunchScreen.storyboard */,
+				90DA53A72C0871DD0041E63B /* Main.storyboard */,
+				90DA53A82C0871DD0041E63B /* RewardedVideo.swift */,
+				90DA53A92C0871DD0041E63B /* SceneDelegate.swift */,
+				90DA53AA2C0871DD0041E63B /* ViewController.swift */,
 			);
-			name = MaxIntegration;
+			path = MaxIntegration;
 			sourceTree = "<group>";
 		};
-		902657972BEC9D1600EA4F62 /* NeftaMAXdapter */ = {
+		90DA53C22C0875930041E63B /* NeftaMAXdapter */ = {
 			isa = PBXGroup;
 			children = (
-				902657952BEC9D1600EA4F62 /* ALNeftaMediationAdapter.h */,
-				902657962BEC9D1600EA4F62 /* ALNeftaMediationAdapter.m */,
+				90DA53C02C0875930041E63B /* ALNeftaMediationAdapter.h */,
+				90DA53C12C0875930041E63B /* ALNeftaMediationAdapter.m */,
 			);
 			name = NeftaMAXdapter;
-			path = ../NeftaMAXAdapter/NeftaMAXdapter;
+			path = NeftaMAXAdapter/NeftaMAXdapter;
 			sourceTree = "<group>";
 		};
 		BDD989115C3FB8BAA759FA16 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				902657912BEC9D0500EA4F62 /* NeftaSDK.xcframework */,
-				D23B6BE64384F4DA64F8EFFC /* Pods_MaxIntegration.framework */,
+				90DA53B62C0872170041E63B /* NeftaSDK.xcframework */,
+				DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		EDBB9336310FE99E920259C7 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				061B59928434B0FB6BF2A5B3 /* Pods-MaxIntegration.debug.xcconfig */,
-				C20E03675605D6375CD0F448 /* Pods-MaxIntegration.release.xcconfig */,
-			);
-			name = Pods;
-			path = ../Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,12 +140,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 902657712BEC9B8A00EA4F62 /* Build configuration list for PBXNativeTarget "MaxIntegration" */;
 			buildPhases = (
-				FEE25561D401FB571586FC29 /* [CP] Check Pods Manifest.lock */,
+				ACBB05DDECEACAD792F738F4 /* [CP] Check Pods Manifest.lock */,
 				902657592BEC9B8900EA4F62 /* Sources */,
 				9026575A2BEC9B8900EA4F62 /* Frameworks */,
 				9026575B2BEC9B8900EA4F62 /* Resources */,
 				902657942BEC9D0500EA4F62 /* Embed Frameworks */,
-				ED78C736DE2422F7239A592F /* [CP] Embed Pods Frameworks */,
+				44551742761E378368D66DA9 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -195,16 +194,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				902657842BEC9C8A00EA4F62 /* LaunchScreen.storyboard in Resources */,
-				902657822BEC9C8A00EA4F62 /* Assets.xcassets in Resources */,
-				902657852BEC9C8A00EA4F62 /* Main.storyboard in Resources */,
+				90DA53B12C0871DD0041E63B /* LaunchScreen.storyboard in Resources */,
+				90DA53AD2C0871DD0041E63B /* Assets.xcassets in Resources */,
+				90DA53B22C0871DD0041E63B /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		ED78C736DE2422F7239A592F /* [CP] Embed Pods Frameworks */ = {
+		44551742761E378368D66DA9 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -221,7 +220,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		FEE25561D401FB571586FC29 /* [CP] Check Pods Manifest.lock */ = {
+		ACBB05DDECEACAD792F738F4 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -250,31 +249,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				902657872BEC9C8A00EA4F62 /* ViewController.swift in Sources */,
-				901458D82BECD81000647C97 /* RewardedVideo.swift in Sources */,
-				902657812BEC9C8A00EA4F62 /* AppDelegate.swift in Sources */,
-				901458D42BECC44000647C97 /* Banner.swift in Sources */,
-				902657982BEC9D1600EA4F62 /* ALNeftaMediationAdapter.m in Sources */,
-				902657862BEC9C8A00EA4F62 /* SceneDelegate.swift in Sources */,
-				901458D62BECC50F00647C97 /* Interstitial.swift in Sources */,
+				90DA53B32C0871DD0041E63B /* RewardedVideo.swift in Sources */,
+				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,
+				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
+				90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */,
+				90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */,
+				90DA53C32C0875930041E63B /* ALNeftaMediationAdapter.m in Sources */,
+				90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		902657782BEC9C8A00EA4F62 /* LaunchScreen.storyboard */ = {
+		90DA53A52C0871DD0041E63B /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				902657772BEC9C8A00EA4F62 /* Base */,
+				90DA53A42C0871DD0041E63B /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
-		9026577A2BEC9C8A00EA4F62 /* Main.storyboard */ = {
+		90DA53A72C0871DD0041E63B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				902657792BEC9C8A00EA4F62 /* Base */,
+				90DA53A62C0871DD0041E63B /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -403,7 +402,7 @@
 		};
 		902657722BEC9B8A00EA4F62 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 061B59928434B0FB6BF2A5B3 /* Pods-MaxIntegration.debug.xcconfig */;
+			baseConfigurationReference = 1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -432,7 +431,7 @@
 		};
 		902657732BEC9B8A00EA4F62 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C20E03675605D6375CD0F448 /* Pods-MaxIntegration.release.xcconfig */;
+			baseConfigurationReference = 407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

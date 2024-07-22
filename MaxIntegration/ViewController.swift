@@ -12,9 +12,22 @@ import AppLovinSDK
 
 class ViewController: UIViewController {
 
-    var banner: Banner!
-    var interstitial: Interstitial!
-    var rewardedVideo: RewardedVideo!
+    var _banner: Banner!
+    var _interstitial: Interstitial!
+    var _rewardedVideo: RewardedVideo!
+    
+    @IBOutlet weak var _bannerPlaceholder: UIView!
+    @IBOutlet weak var _showBanner: UIButton!
+    @IBOutlet weak var _hideBanner: UIButton!
+    @IBOutlet weak var _loadInterstitial: UIButton!
+    @IBOutlet weak var _showInterstitial: UIButton!
+    @IBOutlet weak var _loadRewarded: UIButton!
+    @IBOutlet weak var _showRewarded: UIButton!
+    @IBOutlet weak var _title: UILabel!
+    @IBOutlet weak var _bannerStatus: UILabel!
+    @IBOutlet weak var _interstitialStatus: UILabel!
+    @IBOutlet weak var _rewardedStatus: UILabel!
+    @IBOutlet weak var _impressionStatus: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,39 +35,16 @@ class ViewController: UIViewController {
         _ = NeftaPlugin_iOS.Init(appId: "5661184053215232")
         NeftaPlugin_iOS.EnableLogging(enable: true)
         
+        _title.text = "Nefta Adapter for MAX"
+        _banner = Banner(showButton: _showBanner, hideButton: _hideBanner, status: _bannerStatus, bannerPlaceholder: _bannerPlaceholder)
+        _interstitial = Interstitial(loadButton: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus)
+        _rewardedVideo = RewardedVideo(loadButton: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
+        
         ALSdk.shared().settings.isVerboseLoggingEnabled = true
         ALSdk.shared().mediationProvider = "max"
         ALSdk.shared().initializeSdk { (configuration: ALSdkConfiguration) in
        
         }
-        
-    }
-    
-    @IBAction func showBanner(_ sender: UIButton) {
-        print("showBanner")
-        
-        banner = Banner()
-        banner.show(view: view)
-    }
-    
-    @IBAction func closeBanner(_ sender: UIButton) {
-        print("closeBanner")
-        
-        banner.close()
-    }
-    
-    @IBAction func showInterstitial(_ sender: UIButton) {
-        print("showInterstitial")
-
-        interstitial = Interstitial()
-        interstitial.show()
-    }
-    
-    @IBAction func showRewardedVideo(_ sender: UIButton) {
-        print("showRewardedVideo")
-
-        rewardedVideo = RewardedVideo()
-        rewardedVideo.show()
     }
 }
 

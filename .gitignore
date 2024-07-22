@@ -1,5 +1,5 @@
 xcuserdata/
-
+*.xcworkspace/
 *.xcuserstate
 *.xcuserdatad
 *.xccheckout

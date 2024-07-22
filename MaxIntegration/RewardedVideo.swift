@@ -9,45 +9,73 @@ import Foundation
 import AppLovinSDK
 
 class RewardedVideo : NSObject, MARewardedAdDelegate {
-    var rewardedAd: MARewardedAd!
+    let _loadButton: UIButton
+    let _showButton: UIButton
+    let _status: UILabel
     
-    func show() {
-        rewardedAd = MARewardedAd.shared(withAdUnitIdentifier: "e0b0d20088d60ec5")
-        rewardedAd.delegate = self
-        rewardedAd.load()
+    var _rewarded: MARewardedAd!
+
+    init(loadButton: UIButton, showButton: UIButton, status: UILabel) {
+        _loadButton = loadButton
+        _showButton = showButton
+        _status = status
+        
+        super.init()
+        
+        _loadButton.addTarget(self, action: #selector(Load), for: .touchUpInside)
+        _showButton.addTarget(self, action: #selector(Show), for: .touchUpInside)
+        
+        _showButton.isEnabled = false
+    }
+    
+    @objc func Load() {
+        _rewarded = MARewardedAd.shared(withAdUnitIdentifier: "e0b0d20088d60ec5")
+        _rewarded.delegate = self
+        _rewarded.load()
+    }
+    
+    @objc func Show() {
+        _rewarded.show()
+        
+        _showButton.isEnabled = false
     }
     
     func didLoad(_ ad: MAAd) {
-        print("didLoad \(ad)")
+        SetInfo("didLoad \(ad)")
         
-        rewardedAd.show()
+        _showButton.isEnabled = true
     }
 
     func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-        print("didFailToLoadAd \(adUnitIdentifier): \(error)")
+        SetInfo("didFailToLoadAd \(adUnitIdentifier): \(error)")
     }
 
     func didDisplay(_ ad: MAAd) {
-        print("didDisplay \(ad)")
+        SetInfo("didDisplay \(ad)")
     }
 
     func didClick(_ ad: MAAd) {
-        print("didClick \(ad)")
+        SetInfo("didClick \(ad)")
     }
 
     func didHide(_ ad: MAAd) {
-        print("didHide \(ad)")
+        SetInfo("didHide \(ad)")
     }
 
     func didFail(toDisplay ad: MAAd, withError error: MAError) {
-        print("didFail \(ad)")
+        SetInfo("didFail \(ad)")
     }
 
     func didRewardUser(for ad: MAAd, with reward: MAReward) {
-        print("didRewardUser \(ad)")
+        SetInfo("didRewardUser \(ad)")
     }
     
     func didPayRevenue(for ad: MAAd) {
-        print("didPayRevenue \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+        SetInfo("didPayRevenue \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+    }
+    
+    private func SetInfo(_ info: String) {
+        print(info)
+        _status.text = info
     }
 }
