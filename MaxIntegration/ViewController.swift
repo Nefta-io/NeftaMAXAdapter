@@ -32,8 +32,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        _ = NeftaPlugin_iOS.Init(appId: "5661184053215232")
-        NeftaPlugin_iOS.EnableLogging(enable: true)
+        _ = NeftaPlugin.Init(appId: "5661184053215232")
+        NeftaPlugin.EnableLogging(enable: true)
         
         _title.text = "Nefta Adapter for MAX"
         _banner = Banner(showButton: _showBanner, hideButton: _hideBanner, status: _bannerStatus, bannerPlaceholder: _bannerPlaceholder)

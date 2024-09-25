@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,7 +19,6 @@
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
 		90DA53B72C0872170041E63B /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; };
 		90DA53B82C0872170041E63B /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		90DA53C32C0875930041E63B /* ALNeftaMediationAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53C12C0875930041E63B /* ALNeftaMediationAdapter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,11 +49,13 @@
 		90DA53A92C0871DD0041E63B /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90DA53B62C0872170041E63B /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = NeftaMAXAdapter/NeftaSDK.xcframework; sourceTree = "<group>"; };
-		90DA53C02C0875930041E63B /* ALNeftaMediationAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALNeftaMediationAdapter.h; sourceTree = "<group>"; };
-		90DA53C12C0875930041E63B /* ALNeftaMediationAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALNeftaMediationAdapter.m; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		90EE3F8D2CA43AA9003966E6 /* NeftaMAXAdapter */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = NeftaMAXAdapter; path = NeftaMAXAdapter/NeftaMAXAdapter; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		9026575A2BEC9B8900EA4F62 /* Frameworks */ = {
@@ -81,8 +82,8 @@
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
+				90EE3F8D2CA43AA9003966E6 /* NeftaMAXAdapter */,
 				90DA53C52C0878D20041E63B /* Info.plist */,
-				90DA53C22C0875930041E63B /* NeftaMAXdapter */,
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
 				9026575E2BEC9B8900EA4F62 /* Products */,
 				BDD989115C3FB8BAA759FA16 /* Frameworks */,
@@ -114,16 +115,6 @@
 			path = MaxIntegration;
 			sourceTree = "<group>";
 		};
-		90DA53C22C0875930041E63B /* NeftaMAXdapter */ = {
-			isa = PBXGroup;
-			children = (
-				90DA53C02C0875930041E63B /* ALNeftaMediationAdapter.h */,
-				90DA53C12C0875930041E63B /* ALNeftaMediationAdapter.m */,
-			);
-			name = NeftaMAXdapter;
-			path = NeftaMAXAdapter/NeftaMAXdapter;
-			sourceTree = "<group>";
-		};
 		BDD989115C3FB8BAA759FA16 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -150,6 +141,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				90EE3F8D2CA43AA9003966E6 /* NeftaMAXAdapter */,
 			);
 			name = MaxIntegration;
 			productName = MaxIntegration;
@@ -254,7 +248,6 @@
 				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
 				90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */,
 				90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */,
-				90DA53C32C0875930041E63B /* ALNeftaMediationAdapter.m in Sources */,
 				90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
