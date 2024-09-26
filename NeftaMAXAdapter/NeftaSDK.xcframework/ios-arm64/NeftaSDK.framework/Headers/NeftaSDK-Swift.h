@@ -312,6 +312,8 @@ SWIFT_CLASS("_TtC8NeftaSDK11BidResponse")
 @interface BidResponse : NSObject
 @property (nonatomic, copy) NSString * _Null_unspecified _id;
 @property (nonatomic) float _price;
+@property (nonatomic, copy) NSString * _Nullable _campaignId;
+@property (nonatomic, copy) NSString * _Nullable _creativeId;
 - (BOOL)IsExpired SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
@@ -322,7 +324,6 @@ enum ProgressionSource : NSInteger;
 enum ResourceCategory : NSInteger;
 enum ReceiveMethod : NSInteger;
 enum SpendMethod : NSInteger;
-enum SessionCategory : NSInteger;
 
 SWIFT_CLASS("_TtC8NeftaSDK11NeftaEvents")
 @interface NeftaEvents : NSObject
@@ -335,11 +336,16 @@ SWIFT_CLASS("_TtC8NeftaSDK11NeftaEvents")
 - (void)AddSpendEventWithCategory:(enum ResourceCategory)category method:(enum SpendMethod)method;
 - (void)AddSpendEventWithCategory:(enum ResourceCategory)category method:(enum SpendMethod)method name:(NSString * _Nullable)name quantity:(NSInteger)quantity;
 - (void)AddSpendEventWithCategory:(enum ResourceCategory)category method:(enum SpendMethod)method name:(NSString * _Nullable)name quantity:(NSInteger)quantity customPayload:(NSString * _Nullable)customPayload;
-- (void)AddSessionEventWithCategory:(enum SessionCategory)category;
-- (void)AddSessionEventWithCategory:(enum SessionCategory)category name:(NSString * _Nullable)name value:(NSInteger)value customPayload:(NSString * _Nullable)customPayload log:(BOOL)log trySend:(BOOL)trySend;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
+
+typedef SWIFT_ENUM(NSInteger, SessionCategory, open) {
+  SessionCategorySessionStart = 0,
+  SessionCategorySessionPause = 1,
+  SessionCategoryAccountConnected = 2,
+  SessionCategoryAccountUpgraded = 3,
+};
 
 typedef SWIFT_ENUM(NSInteger, ProgressionType, open) {
   ProgressionTypeAchievement = 0,
@@ -368,15 +374,15 @@ typedef SWIFT_ENUM(NSInteger, ProgressionSource, open) {
 };
 
 typedef SWIFT_ENUM(NSInteger, ResourceCategory, open) {
-  ResourceCategorySoftCurrency = 0,
-  ResourceCategoryPremiumCurrency = 1,
-  ResourceCategoryResource = 2,
-  ResourceCategoryConsumable = 3,
-  ResourceCategoryCosmeticItem = 4,
-  ResourceCategoryCoreItem = 5,
-  ResourceCategoryChest = 6,
-  ResourceCategoryExperience = 7,
-  ResourceCategoryOther = 8,
+  ResourceCategoryOther = 0,
+  ResourceCategorySoftCurrency = 1,
+  ResourceCategoryPremiumCurrency = 2,
+  ResourceCategoryResource = 3,
+  ResourceCategoryConsumable = 4,
+  ResourceCategoryCosmeticItem = 5,
+  ResourceCategoryCoreItem = 6,
+  ResourceCategoryChest = 7,
+  ResourceCategoryExperience = 8,
 };
 
 typedef SWIFT_ENUM(NSInteger, ReceiveMethod, open) {
@@ -399,14 +405,6 @@ typedef SWIFT_ENUM(NSInteger, SpendMethod, open) {
   SpendMethodUpgrade = 5,
   SpendMethodShop = 6,
   SpendMethodOther = 7,
-};
-
-typedef SWIFT_ENUM(NSInteger, SessionCategory, open) {
-  SessionCategorySessionStart = 0,
-  SessionCategorySessionPause = 1,
-  SessionCategoryAccountConnected = 2,
-  SessionCategoryAccountUpgraded = 3,
-  SessionCategoryHeartbeat = 4,
 };
 
 @class Placement;
@@ -450,7 +448,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, strong) NeftaPlugin * _Null_un
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (void)PrepareRendererWithViewController:(UIViewController * _Nonnull)viewController;
-- (void)RecordWithEvent:(NSString * _Nonnull)event;
+- (void)RecordWithType:(NSInteger)type category:(NSInteger)category subCategory:(NSInteger)subCategory name:(NSString * _Nullable)name value:(NSInteger)value customPayload:(NSString * _Nullable)customPayload;
 - (void)EnableAds:(BOOL)enable;
 - (void)EnableBannerWithId:(NSString * _Nonnull)id enable:(BOOL)enable;
 - (void)SetPublisherUserIdWithId:(NSString * _Nonnull)id;
