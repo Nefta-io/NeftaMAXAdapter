@@ -133,7 +133,7 @@ import os
   @objc(EnableLogging:) public static func EnableLogging(enable: Swift.Bool)
   @objc public static func Init(appId: Swift.String?) -> NeftaSDK.NeftaPlugin
   @objc public func PrepareRenderer(viewController: UIKit.UIViewController)
-  public static func SetDebugTime(time: Swift.Double)
+  public static func SetDebugTime(time: Swift.UInt)
   @objc public func Record(event: Swift.String)
   @objc(EnableAds:) public func EnableAds(enable: Swift.Bool)
   @objc public func EnableBanner(id: Swift.String, enable: Swift.Bool)
