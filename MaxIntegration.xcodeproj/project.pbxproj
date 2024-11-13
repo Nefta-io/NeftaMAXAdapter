@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5EEE0C193AC7BEAB274ED4C2 /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */; };
 		90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA539F2C0871DD0041E63B /* AppDelegate.swift */; };
 		90DA53AD2C0871DD0041E63B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A02C0871DD0041E63B /* Assets.xcassets */; };
 		90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A12C0871DD0041E63B /* Banner.swift */; };
@@ -19,6 +18,7 @@
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
 		90DA53B72C0872170041E63B /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; };
 		90DA53B82C0872170041E63B /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AE4F60CAA7AA3BB2755A0372 /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DABE0FD60191A49EE02B9917 /* Pods_MaxIntegration.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,11 +50,11 @@
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90DA53B62C0872170041E63B /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = NeftaMAXAdapter/NeftaSDK.xcframework; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DABE0FD60191A49EE02B9917 /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		90EE3F8D2CA43AA9003966E6 /* NeftaMAXAdapter */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = NeftaMAXAdapter; path = NeftaMAXAdapter/NeftaMAXAdapter; sourceTree = "<group>"; };
+		9086F3F62CE49DAE00643BC1 /* NeftaMAXAdapter */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = NeftaMAXAdapter; path = NeftaMAXAdapter/NeftaMAXAdapter; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,7 +63,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				90DA53B72C0872170041E63B /* NeftaSDK.xcframework in Frameworks */,
-				5EEE0C193AC7BEAB274ED4C2 /* Pods_MaxIntegration.framework in Frameworks */,
+				AE4F60CAA7AA3BB2755A0372 /* Pods_MaxIntegration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,7 +82,7 @@
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
-				90EE3F8D2CA43AA9003966E6 /* NeftaMAXAdapter */,
+				9086F3F62CE49DAE00643BC1 /* NeftaMAXAdapter */,
 				90DA53C52C0878D20041E63B /* Info.plist */,
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
 				9026575E2BEC9B8900EA4F62 /* Products */,
@@ -119,7 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				90DA53B62C0872170041E63B /* NeftaSDK.xcframework */,
-				DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */,
+				DABE0FD60191A49EE02B9917 /* Pods_MaxIntegration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,7 +143,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				90EE3F8D2CA43AA9003966E6 /* NeftaMAXAdapter */,
+				9086F3F62CE49DAE00643BC1 /* NeftaMAXAdapter */,
 			);
 			name = MaxIntegration;
 			productName = MaxIntegration;
@@ -156,7 +156,6 @@
 		902657552BEC9B8900EA4F62 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1530;
 				LastUpgradeCheck = 1530;
 				TargetAttributes = {
