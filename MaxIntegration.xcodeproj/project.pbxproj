@@ -13,22 +13,49 @@
 		90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A32C0871DD0041E63B /* Interstitial.swift */; };
 		90DA53B12C0871DD0041E63B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A52C0871DD0041E63B /* LaunchScreen.storyboard */; };
 		90DA53B22C0871DD0041E63B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A72C0871DD0041E63B /* Main.storyboard */; };
-		90DA53B32C0871DD0041E63B /* RewardedVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A82C0871DD0041E63B /* RewardedVideo.swift */; };
+		90DA53B32C0871DD0041E63B /* Rewarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A82C0871DD0041E63B /* Rewarded.swift */; };
 		90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A92C0871DD0041E63B /* SceneDelegate.swift */; };
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
-		90DA53B72C0872170041E63B /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; };
-		90DA53B82C0872170041E63B /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53B62C0872170041E63B /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		AE4F60CAA7AA3BB2755A0372 /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DABE0FD60191A49EE02B9917 /* Pods_MaxIntegration.framework */; };
+		90DA53E12C087B3E0041E63B /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */; };
+		90DA53E22C087B3E0041E63B /* Pods_MaxIntegration.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		90E161FB2DBF99EB004F3AF2 /* NeftaSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90E161FA2DBF99EB004F3AF2 /* NeftaSDK.xcframework */; };
+		90E161FC2DBF99EB004F3AF2 /* NeftaSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90E161FA2DBF99EB004F3AF2 /* NeftaSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		90EB37262DA5146900BC227C /* AdUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90EB37252DA5143B00BC227C /* AdUnit.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		90DA53DB2C087A680041E63B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7FF5C62DF1E2D492F272FD7D2A1EF4A3;
+			remoteInfo = Adjust;
+		};
+		90DA53DD2C087A680041E63B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B6C339432292171DF9AF35D79D97FF46;
+			remoteInfo = "Adjust-Adjust";
+		};
+		90DA53DF2C087A680041E63B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 46BCF8680C410BE2966DFB5A4206ACB2;
+			remoteInfo = "Pods-MaxIntegration";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
-		902657942BEC9D0500EA4F62 /* Embed Frameworks */ = {
+		90DA53D32C0879E30041E63B /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				90DA53B82C0872170041E63B /* NeftaSDK.xcframework in Embed Frameworks */,
+				90DA53E22C087B3E0041E63B /* Pods_MaxIntegration.framework in Embed Frameworks */,
+				90E161FC2DBF99EB004F3AF2 /* NeftaSDK.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -39,22 +66,25 @@
 		1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
 		407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 		9026575D2BEC9B8900EA4F62 /* MaxIntegration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaxIntegration.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		90B643722D4CBAEE00446480 /* MaxIntegration-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaxIntegration-Bridging-Header.h"; sourceTree = "<group>"; };
 		90DA539F2C0871DD0041E63B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90DA53A02C0871DD0041E63B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90DA53A12C0871DD0041E63B /* Banner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Banner.swift; sourceTree = "<group>"; };
 		90DA53A32C0871DD0041E63B /* Interstitial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interstitial.swift; sourceTree = "<group>"; };
 		90DA53A42C0871DD0041E63B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		90DA53A62C0871DD0041E63B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		90DA53A82C0871DD0041E63B /* RewardedVideo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardedVideo.swift; sourceTree = "<group>"; };
+		90DA53A82C0871DD0041E63B /* Rewarded.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rewarded.swift; sourceTree = "<group>"; };
 		90DA53A92C0871DD0041E63B /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		90DA53B62C0872170041E63B /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = NeftaMAXAdapter/NeftaSDK.xcframework; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DABE0FD60191A49EE02B9917 /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		90DA53D42C087A680041E63B /* Pods.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Pods.xcodeproj; path = Pods/Pods.xcodeproj; sourceTree = "<group>"; };
+		90E161FA2DBF99EB004F3AF2 /* NeftaSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NeftaSDK.xcframework; path = NeftaMAXAdapter/NeftaSDK.xcframework; sourceTree = "<group>"; };
+		90EB37252DA5143B00BC227C /* AdUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdUnit.swift; sourceTree = "<group>"; };
+		DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9086F3F62CE49DAE00643BC1 /* NeftaMAXAdapter */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = NeftaMAXAdapter; path = NeftaMAXAdapter/NeftaMAXAdapter; sourceTree = "<group>"; };
+		90E161F92DBF9985004F3AF2 /* NeftaMAXAdapter */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = NeftaMAXAdapter; path = NeftaMAXAdapter/NeftaMAXAdapter; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,8 +92,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90DA53B72C0872170041E63B /* NeftaSDK.xcframework in Frameworks */,
-				AE4F60CAA7AA3BB2755A0372 /* Pods_MaxIntegration.framework in Frameworks */,
+				90DA53E12C087B3E0041E63B /* Pods_MaxIntegration.framework in Frameworks */,
+				90E161FB2DBF99EB004F3AF2 /* NeftaSDK.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,7 +112,8 @@
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
-				9086F3F62CE49DAE00643BC1 /* NeftaMAXAdapter */,
+				90E161F92DBF9985004F3AF2 /* NeftaMAXAdapter */,
+				90DA53D42C087A680041E63B /* Pods.xcodeproj */,
 				90DA53C52C0878D20041E63B /* Info.plist */,
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
 				9026575E2BEC9B8900EA4F62 /* Products */,
@@ -102,24 +133,36 @@
 		90DA53AB2C0871DD0041E63B /* MaxIntegration */ = {
 			isa = PBXGroup;
 			children = (
+				90B643722D4CBAEE00446480 /* MaxIntegration-Bridging-Header.h */,
 				90DA539F2C0871DD0041E63B /* AppDelegate.swift */,
 				90DA53A02C0871DD0041E63B /* Assets.xcassets */,
 				90DA53A12C0871DD0041E63B /* Banner.swift */,
 				90DA53A32C0871DD0041E63B /* Interstitial.swift */,
 				90DA53A52C0871DD0041E63B /* LaunchScreen.storyboard */,
 				90DA53A72C0871DD0041E63B /* Main.storyboard */,
-				90DA53A82C0871DD0041E63B /* RewardedVideo.swift */,
+				90DA53A82C0871DD0041E63B /* Rewarded.swift */,
 				90DA53A92C0871DD0041E63B /* SceneDelegate.swift */,
 				90DA53AA2C0871DD0041E63B /* ViewController.swift */,
+				90EB37252DA5143B00BC227C /* AdUnit.swift */,
 			);
 			path = MaxIntegration;
+			sourceTree = "<group>";
+		};
+		90DA53D52C087A680041E63B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				90DA53DC2C087A680041E63B /* Adjust.framework */,
+				90DA53DE2C087A680041E63B /* Adjust.bundle */,
+				90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		BDD989115C3FB8BAA759FA16 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				90DA53B62C0872170041E63B /* NeftaSDK.xcframework */,
-				DABE0FD60191A49EE02B9917 /* Pods_MaxIntegration.framework */,
+				90E161FA2DBF99EB004F3AF2 /* NeftaSDK.xcframework */,
+				DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -135,15 +178,15 @@
 				902657592BEC9B8900EA4F62 /* Sources */,
 				9026575A2BEC9B8900EA4F62 /* Frameworks */,
 				9026575B2BEC9B8900EA4F62 /* Resources */,
-				902657942BEC9D0500EA4F62 /* Embed Frameworks */,
 				44551742761E378368D66DA9 /* [CP] Embed Pods Frameworks */,
+				90DA53D32C0879E30041E63B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				9086F3F62CE49DAE00643BC1 /* NeftaMAXAdapter */,
+				90E161F92DBF9985004F3AF2 /* NeftaMAXAdapter */,
 			);
 			name = MaxIntegration;
 			productName = MaxIntegration;
@@ -156,6 +199,7 @@
 		902657552BEC9B8900EA4F62 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1530;
 				LastUpgradeCheck = 1530;
 				TargetAttributes = {
@@ -175,12 +219,42 @@
 			mainGroup = 902657542BEC9B8900EA4F62;
 			productRefGroup = 9026575E2BEC9B8900EA4F62 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 90DA53D52C087A680041E63B /* Products */;
+					ProjectRef = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				9026575C2BEC9B8900EA4F62 /* MaxIntegration */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		90DA53DC2C087A680041E63B /* Adjust.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Adjust.framework;
+			remoteRef = 90DA53DB2C087A680041E63B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		90DA53DE2C087A680041E63B /* Adjust.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = Adjust.bundle;
+			remoteRef = 90DA53DD2C087A680041E63B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Pods_MaxIntegration.framework;
+			remoteRef = 90DA53DF2C087A680041E63B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		9026575B2BEC9B8900EA4F62 /* Resources */ = {
@@ -242,9 +316,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90DA53B32C0871DD0041E63B /* RewardedVideo.swift in Sources */,
+				90DA53B32C0871DD0041E63B /* Rewarded.swift in Sources */,
 				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,
 				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
+				90EB37262DA5146900BC227C /* AdUnit.swift in Sources */,
 				90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */,
 				90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */,
 				90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */,
@@ -399,23 +474,27 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 171;
 				DEVELOPMENT_TEAM = 2LJ985962L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This allows us to deliver personalized ads and content.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nefta.max;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "MaxIntegration/MaxIntegration-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -428,23 +507,27 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = 2LJ985962L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This allows us to deliver personalized ads and content.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nefta.max;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "MaxIntegration/MaxIntegration-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
