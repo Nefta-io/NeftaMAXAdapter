@@ -10,69 +10,97 @@ import AppLovinSDK
 
 class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
     
-    private let _defaultAdUnitId = "6d318f954e2630a8"
+    private let DefaultAdUnitId = "6d318f954e2630a8"
     
-    static let InsightAdUnitId = "recommended_interstitial_ad_unit_id"
-    static let InsightFloorPrice = "calculated_user_floor_price_interstitial"
+    private let AdUnitIdInsightName = "recommended_interstitial_ad_unit_id"
+    private let FloorPriceInsightName = "calculated_user_floor_price_interstitial"
     
-    private var RequestNewInsights: () -> Void
-    private var _selectedAdUnitId: String?
+    private var _defaultInterstitial: MAInterstitialAd?
+    private var _defaultAd: MAAd?
+    private var _recommendedInterstitial: MAInterstitialAd?
+    private var _recommendedAd: MAAd?
+    
     private var _recommendedAdUnitId: String?
     private var _calculatedBidFloor: Double = 0.0
-    private var _consecutiveAdFail = 0
-    private var _isLoadPending = false
     
     private let _loadButton: UIButton
     private let _showButton: UIButton
     private let _status: UILabel
     private let _onFullScreenAdDisplayed: (Bool) -> Void
     
-    private var _interstitialAd: MAInterstitialAd!
+    func Load() {
+        SetInfo("Load default: \(String(describing: _defaultAd)) recommended: \(String(describing: _recommendedInterstitial))")
+        
+        if _defaultAd == nil {
+            _defaultInterstitial = MAInterstitialAd(adUnitIdentifier: DefaultAdUnitId)
+            _defaultInterstitial!.delegate = self
+            _defaultInterstitial!.revenueDelegate = self
+            _defaultInterstitial!.load()
+        }
+        
+        if _recommendedAd == nil {
+            NeftaPlugin._instance.GetBehaviourInsight([AdUnitIdInsightName, FloorPriceInsightName], callback: OnBehaviourInsight)
+        }
+    }
     
     func OnBehaviourInsight(insights: [String: Insight]) {
-        _recommendedAdUnitId = insights[Interstitial.InsightAdUnitId]?._string
-        _calculatedBidFloor = insights[Interstitial.InsightFloorPrice]?._float ?? 0.0
+        _recommendedAdUnitId = nil
+        _calculatedBidFloor = 0
+        if let recommendedInsight = insights[AdUnitIdInsightName] {
+            _recommendedAdUnitId = recommendedInsight._string
+        }
+        if let bidFloorInsight = insights[FloorPriceInsightName] {
+            _calculatedBidFloor = bidFloorInsight._float
+        }
         
-        print("OnBehaviourInsight for Interstitial recommended AdUnit: \(String(describing: _recommendedAdUnitId))/cpm:\(_calculatedBidFloor)")
+        print("OnBehaviourInsight for Interstitial: \(String(describing: _recommendedAdUnitId)) calculated bid floor: \(_calculatedBidFloor)")
         
-        _selectedAdUnitId = _recommendedAdUnitId
-
-        if _isLoadPending {
-            Load()
+        if let recommendedAdUnitId = _recommendedAdUnitId, DefaultAdUnitId != recommendedAdUnitId {
+            _recommendedInterstitial = MAInterstitialAd(adUnitIdentifier: recommendedAdUnitId)
+            _recommendedInterstitial!.delegate = self
+            _recommendedInterstitial!.revenueDelegate = self
+            _recommendedInterstitial!.load()
         }
     }
     
     func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-        ALNeftaMediationAdapter.onExternalMediationRequestFail(.interstitial, recommendedAdUnitId: _recommendedAdUnitId, calculatedFloorPrice: _calculatedBidFloor, adUnitIdentifier: adUnitIdentifier, error: error)
-        
-        if error.code == .noFill {
-            _consecutiveAdFail += 1
-            if _consecutiveAdFail == 1 { // in case of first no fill, try to get new insight (will probably return adUnit with lower bid floor
-                _isLoadPending = true
-                RequestNewInsights()
-            } else { // for consequential no fills go with default (no bid floor) ad unit
-                _selectedAdUnitId = nil
-                Load()
-            }
+        if adUnitIdentifier == _recommendedAdUnitId {
+            ALNeftaMediationAdapter.onExternalMediationRequestFail(.interstitial, recommendedAdUnitId: _recommendedAdUnitId, calculatedFloorPrice: _calculatedBidFloor, adUnitIdentifier: adUnitIdentifier, error: error)
+            
+            _recommendedInterstitial = nil
+            _recommendedAdUnitId = nil
+            _calculatedBidFloor = 0
+        } else {
+            ALNeftaMediationAdapter.onExternalMediationRequestFail(.interstitial, recommendedAdUnitId: nil, calculatedFloorPrice: 0, adUnitIdentifier: adUnitIdentifier, error: error)
+            
+            _defaultInterstitial = nil
         }
+        
+        // or automatically retry
+        //if _recommendedInterstitial == nil && _defaultInterstitial == nil {
+        //    Load()
+        //}
         
         SetInfo("didFailToLoadAd \(adUnitIdentifier): \(error)")
     }
     
     func didLoad(_ ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationRequestLoad(.interstitial, recommendedAdUnitId: _recommendedAdUnitId, calculatedFloorPrice: _calculatedBidFloor, ad: ad)
+        if ad.adUnitIdentifier == _recommendedAdUnitId {
+            ALNeftaMediationAdapter.onExternalMediationRequestLoad(.interstitial, recommendedAdUnitId: _recommendedAdUnitId, calculatedFloorPrice: _calculatedBidFloor, ad: ad)
+            
+            _recommendedAd = ad
+        } else {
+            ALNeftaMediationAdapter.onExternalMediationRequestLoad(.interstitial, recommendedAdUnitId: nil, calculatedFloorPrice: 0, ad: ad)
+            
+            _defaultAd = ad
+        }
         
-        _consecutiveAdFail = 0
-        // Optionally request new insights on ad load, in case ad unit with higher bid floor gets recommended
-        // SelectAdUnitFromInsights()
+        SetInfo("didLoad \(ad) at: \(ad.revenue)")
         
         _showButton.isEnabled = true
-        SetInfo("didLoad \(ad)")
     }
     
-    init(requestNewInsights: @escaping (() -> Void), loadButton: UIButton, showButton: UIButton, status: UILabel, onDisplay: @escaping (Bool) -> Void) {
-        RequestNewInsights = requestNewInsights
-        
+    init(loadButton: UIButton, showButton: UIButton, status: UILabel, onDisplay: @escaping (Bool) -> Void) {
         _loadButton = loadButton
         _showButton = showButton
         _status = status
@@ -80,26 +108,40 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
         
         super.init()
         
-        _loadButton.addTarget(self, action: #selector(Load), for: .touchUpInside)
-        _showButton.addTarget(self, action: #selector(Show), for: .touchUpInside)
+        _loadButton.addTarget(self, action: #selector(OnLoadClick), for: .touchUpInside)
+        _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
         
         _showButton.isEnabled = false
     }
     
-    @objc func Load() {
-        _interstitialAd = MAInterstitialAd(adUnitIdentifier: _selectedAdUnitId ?? _defaultAdUnitId)
-        _interstitialAd.delegate = self
-        _interstitialAd.load()
+    @objc func OnLoadClick() {
+        Load()
     }
     
-    @objc func Show() {
+    @objc func OnShowClick() {
+        SetInfo("Show default: \(String(describing: _defaultAd)) recommended: \(String(describing: _recommendedInterstitial))")
+        
+        if _recommendedAd != nil {
+            if _defaultAd != nil && _defaultAd!.revenue > _recommendedAd!.revenue {
+                _defaultInterstitial!.show()
+                _defaultInterstitial = nil
+                _defaultAd = nil
+            } else {
+                _recommendedInterstitial!.show()
+                _recommendedInterstitial = nil
+                _recommendedAd = nil
+            }
+        } else if _defaultAd != nil {
+            _defaultInterstitial!.show()
+            _defaultInterstitial = nil
+            _defaultAd = nil
+        }
+        
         _showButton.isEnabled = false
-        _interstitialAd.show()
     }
 
     func didDisplay(_ ad: MAAd) {
         SetInfo("didDisplay \(ad)")
-        ALNeftaMediationAdapter.onExternalMediationImpression(ad)
         _onFullScreenAdDisplayed(true)
     }
 
@@ -117,11 +159,13 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
     }
     
     func didPayRevenue(for ad: MAAd) {
+        ALNeftaMediationAdapter.onExternalMediationImpression(ad)
+        
         SetInfo("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
     }
     
     private func SetInfo(_ info: String) {
-        print(info)
+        print("Integration Interstitial: \(info)")
         _status.text = info
     }
 }
