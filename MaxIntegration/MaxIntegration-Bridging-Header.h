@@ -6,3 +6,5 @@
 //
 
 #import "ALNeftaMediationAdapter.h"
+
+#import "InterstitialObjC.h"

@@ -18,6 +18,7 @@ class ViewController: UIViewController {
     
     var _banner: Banner!
     var _interstitial: Interstitial!
+    var _interstitialObjC: InterstitialObjC!
     var _rewardedVideo: Rewarded!
     
     @IBOutlet weak var _bannerPlaceholder: UIView!
@@ -46,6 +47,8 @@ class ViewController: UIViewController {
         _title.text = "Nefta Adapter for MAX"
         _banner = Banner(showButton: _showBanner, hideButton: _hideBanner, status: _bannerStatus, bannerPlaceholder: _bannerPlaceholder)
         _interstitial = Interstitial(loadButton: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus, onDisplay: OnFullScreenAdDisplay)
+        //_interstitialObjC = InterstitialObjC(_loadInterstitial, show: _showInterstitial, status: _interstitialStatus)
+        
         _rewardedVideo = Rewarded(loadButton: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus, onDisplay: OnFullScreenAdDisplay)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {

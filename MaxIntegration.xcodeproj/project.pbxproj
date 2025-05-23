@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		901313882C09B0EF0096EC21 /* ALNeftaMediationAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53CD2C0879CE0041E63B /* ALNeftaMediationAdapter.m */; };
 		9013138D2C09B1060096EC21 /* ALNeftaMediationAdapter.h in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53CC2C0879CE0041E63B /* ALNeftaMediationAdapter.h */; };
+		907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 907C22EA2DE0335900857E06 /* InterstitialObjC.m */; };
 		90B9D5762CAE6981004F0561 /* ALNeftaBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B9D5752CAE697E004F0561 /* ALNeftaBanner.m */; };
 		90B9D5792CAE6991004F0561 /* ALNeftaInterstitial.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B9D5782CAE698C004F0561 /* ALNeftaInterstitial.m */; };
 		90B9D57C2CAE699E004F0561 /* ALNeftaRewarded.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B9D57B2CAE699A004F0561 /* ALNeftaRewarded.m */; };
@@ -72,6 +73,8 @@
 		1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
 		407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 		9026575D2BEC9B8900EA4F62 /* MaxIntegration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaxIntegration.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		907C22E92DE0332B00857E06 /* InterstitialObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterstitialObjC.h; sourceTree = "<group>"; };
+		907C22EA2DE0335900857E06 /* InterstitialObjC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InterstitialObjC.m; sourceTree = "<group>"; };
 		90B643722D4CBAEE00446480 /* MaxIntegration-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaxIntegration-Bridging-Header.h"; sourceTree = "<group>"; };
 		90B9D5742CAE6975004F0561 /* ALNeftaBanner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaBanner.h; sourceTree = "<group>"; };
 		90B9D5752CAE697E004F0561 /* ALNeftaBanner.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaBanner.m; sourceTree = "<group>"; };
@@ -145,6 +148,8 @@
 		90DA53AB2C0871DD0041E63B /* MaxIntegration */ = {
 			isa = PBXGroup;
 			children = (
+				907C22EA2DE0335900857E06 /* InterstitialObjC.m */,
+				907C22E92DE0332B00857E06 /* InterstitialObjC.h */,
 				90B643722D4CBAEE00446480 /* MaxIntegration-Bridging-Header.h */,
 				90DA539F2C0871DD0041E63B /* AppDelegate.swift */,
 				90DA53A02C0871DD0041E63B /* Assets.xcassets */,
@@ -346,6 +351,7 @@
 				90B9D5762CAE6981004F0561 /* ALNeftaBanner.m in Sources */,
 				9013138D2C09B1060096EC21 /* ALNeftaMediationAdapter.h in Sources */,
 				90DA53B32C0871DD0041E63B /* Rewarded.swift in Sources */,
+				907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */,
 				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,
 				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
 				90B9D5792CAE6991004F0561 /* ALNeftaInterstitial.m in Sources */,
