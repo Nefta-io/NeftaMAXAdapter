@@ -15,6 +15,7 @@
 @property (nonatomic, assign) NSString *recommendedAdUnitId;
 @property (nonatomic, assign) double calculatedBidFloor;
 @property (nonatomic, assign) BOOL isLoadRequested;
+@property (nonatomic, assign) int consecutiveAdFails;
 
 @property (weak, nonatomic) UIButton *loadButton;
 @property (weak, nonatomic) UIButton *showButton;

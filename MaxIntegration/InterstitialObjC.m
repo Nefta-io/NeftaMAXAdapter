@@ -69,10 +69,12 @@ NSString * const FloorPriceInsightName = @"calculated_user_floor_price_interstit
     
     [self SetInfo: @"didFailToLoadAdForAdUnitIdentifier %@: %@", adUnitIdentifier, error];
     
-    // or automatically retry with a delay
-    // dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-    //     [self GetInsightsAndLoad];
-    // });
+    _consecutiveAdFails++;
+    // As per MAX recommendations, retry with exponentially higher delays up to 64s
+         // In case you would like to customize fill rate / revenue please contact our customer support
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int[]){ 0, 2, 4, 8, 32, 64 }[MIN(_consecutiveAdFails, 5)] * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [self GetInsightsAndLoad];
+    });
 }
 
 - (void)didLoadAd:(MAAd *)ad {
@@ -80,6 +82,7 @@ NSString * const FloorPriceInsightName = @"calculated_user_floor_price_interstit
     
     [self SetInfo: @"didFailToLoadAdForAdUnitIdentifier %@: %f", ad, ad.revenue];
     
+    _consecutiveAdFails = 0;
     _showButton.enabled = true;
 }
 

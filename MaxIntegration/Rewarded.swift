@@ -19,6 +19,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     private var _recommendedAdUnitId: String?
     private var _calculatedBidFloor: Double = 0.0
     private var _isLoadRequested = false
+    private var _consecutiveAdFails = 0
     
     private let _loadButton: UIButton
     private let _showButton: UIButton
@@ -73,10 +74,12 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
         
         SetInfo("didFailToLoadAd \(adUnitIdentifier): \(error)")
         
-        // or automatically retry with a delay
-        // DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-        //     self.GetInsightsAndLoad()
-        // }
+        _consecutiveAdFails += 1
+        // As per MAX recommendations, retry with exponentially higher delays up to 64s
+        // In case you would like to customize fill rate / revenue please contact our customer support
+        DispatchQueue.main.asyncAfter(deadline: .now() + [0, 2, 4, 8, 32, 64][min(_consecutiveAdFails, 5)]) {
+            self.GetInsightsAndLoad()
+        }
     }
     
     func didLoad(_ ad: MAAd) {
@@ -84,6 +87,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
         
         SetInfo("didLoad \(ad) at: \(ad.revenue)")
         
+        _consecutiveAdFails = 0
         _showButton.isEnabled = true
     }
     
