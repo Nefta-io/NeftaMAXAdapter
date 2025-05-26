@@ -8,13 +8,14 @@
 import Foundation
 import AppLovinSDK
 
-class Rewarded : NSObject, MARewardedAdDelegate {
+class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     
     private let DefaultAdUnitId = "918acf84edf9c034"
     
     private let AdUnitIdInsightName = "recommended_rewarded_ad_unit_id"
     private let FloorPriceInsightName = "calculated_user_floor_price_rewarded"
     
+    private var _rewarded: MARewardedAd?
     private var _recommendedAdUnitId: String?
     private var _calculatedBidFloor: Double = 0.0
     private var _isLoadRequested = false
@@ -23,8 +24,6 @@ class Rewarded : NSObject, MARewardedAdDelegate {
     private let _showButton: UIButton
     private let _status: UILabel
     private let _onFullScreenAdDisplayed: (Bool) -> Void
-    
-    var _rewarded: MARewardedAd!
     
     private func GetInsightsAndLoad() {
         _isLoadRequested = true
@@ -43,15 +42,15 @@ class Rewarded : NSObject, MARewardedAdDelegate {
     func OnBehaviourInsight(insights: [String: Insight]) {
         _recommendedAdUnitId = nil
         _calculatedBidFloor = 0
-        if let recommendedAdUnitInsight = insights[AdUnitIdInsightName] {
-            _recommendedAdUnitId = recommendedAdUnitInsight._string
+        if let recommendedInsight = insights[AdUnitIdInsightName] {
+            _recommendedAdUnitId = recommendedInsight._string
         }
-        if let floorPriceInsight = insights[FloorPriceInsightName] {
-            _calculatedBidFloor = floorPriceInsight._float
+        if let bidFloorInsight = insights[FloorPriceInsightName] {
+            _calculatedBidFloor = bidFloorInsight._float
         }
         
-        print("OnBehaviourInsight for Rewarded recommended AdUnit: \(String(describing: _recommendedAdUnitId)) calculated bid floor:\(_calculatedBidFloor)")
-
+        print("OnBehaviourInsight for Rewarded: \(String(describing: _recommendedAdUnitId)) calculated bid floor: \(_calculatedBidFloor)")
+        
         if _isLoadRequested {
             Load()
         }
@@ -65,8 +64,8 @@ class Rewarded : NSObject, MARewardedAdDelegate {
             adUnitId = recommendedAdUnitId
         }
         _rewarded = MARewardedAd.shared(withAdUnitIdentifier: adUnitId)
-        _rewarded.delegate = self
-        _rewarded.load()
+        _rewarded!.delegate = self
+        _rewarded!.load()
     }
 
     func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
@@ -83,7 +82,8 @@ class Rewarded : NSObject, MARewardedAdDelegate {
     func didLoad(_ ad: MAAd) {
         ALNeftaMediationAdapter.onExternalMediationRequestLoad(.rewarded, recommendedAdUnitId: _recommendedAdUnitId, calculatedFloorPrice: _calculatedBidFloor, ad: ad)
         
-        SetInfo("didLoad \(ad)")
+        SetInfo("didLoad \(ad) at: \(ad.revenue)")
+        
         _showButton.isEnabled = true
     }
     
@@ -106,7 +106,7 @@ class Rewarded : NSObject, MARewardedAdDelegate {
     }
     
     @objc func OnShowClick() {
-        _rewarded.show()
+        _rewarded!.show()
         
         _showButton.isEnabled = false
     }
@@ -140,7 +140,7 @@ class Rewarded : NSObject, MARewardedAdDelegate {
     }
     
     private func SetInfo(_ info: String) {
-        print(info)
+        print("Integration Rewarded: \(info)")
         _status.text = info
     }
 }
