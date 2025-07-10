@@ -8,88 +8,69 @@
 import Foundation
 import AppLovinSDK
 
-class Banner : NSObject, MAAdViewAdDelegate {
+class Banner : NSObject, MAAdViewAdDelegate, MAAdRevenueDelegate {
     private let DefaultAdUnitId = "34686daf09e9b052"
-    private let AdUnitIdInsightName = "recommended_banner_ad_unit_id"
-    private let FloorPriceInsightName = "calculated_user_floor_price_banner"
-    
-    private var _recommendedAdUnitId: String?
-    private var _calculatedBidFloor: Double = 0.0
-    private var _isLoadRequested = false
-    
-    private let _showButton: UIButton
-    private let _hideButton: UIButton
-    private let _status: UILabel
-    private let _bannerPlaceholder: UIView
+    private let TimeoutInSeconds = 5
     
     private var _adView: MAAdView!
+    private var _usedInsight: AdInsight?
+    private var _consecutiveAdFails = 0
+    
+    private let _viewController: ViewController
+    private let _showButton: UIButton
+    private let _hideButton: UIButton
     
     private func GetInsightsAndLoad() {
-        _isLoadRequested = true
-        
-        NeftaPlugin._instance.GetBehaviourInsight([AdUnitIdInsightName, FloorPriceInsightName], callback: OnBehaviourInsight)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            if self._isLoadRequested {
-                self._recommendedAdUnitId = nil
-                self._calculatedBidFloor = 0
-                self.Load()
-            }
-        }
+        NeftaPlugin._instance.GetInsights(Insights.Banner, callback: Load, timeout: TimeoutInSeconds)
     }
     
-    private func OnBehaviourInsight(insights: [String: Insight]) {
-        _recommendedAdUnitId = nil
-        _calculatedBidFloor = 0
-        if let recommendedAdUnitInsight = insights[AdUnitIdInsightName] {
-            _recommendedAdUnitId = recommendedAdUnitInsight._string
+    private func Load(insights: Insights) {
+        var selectedAdUnitId = DefaultAdUnitId
+        _usedInsight = insights._banner
+        if let usedInsight = _usedInsight, let recommendedAdUnit = usedInsight._adUnit {
+            selectedAdUnitId = recommendedAdUnit
         }
-        if let bidFloorInsight = insights[FloorPriceInsightName] {
-            _calculatedBidFloor = bidFloorInsight._float
-        }
-        
-        print("OnBehaviourInsight for Banner: \(String(describing: _recommendedAdUnitId)), calculated bid floor: \(_calculatedBidFloor)")
-        
-        if _isLoadRequested {
-            Load()
-        }
-    }
-    
-    func Load() {
-        _isLoadRequested = false
-        
-        var adUnitId = DefaultAdUnitId
-        if let recommendedAdUnitId = _recommendedAdUnitId {
-            adUnitId = recommendedAdUnitId
-        }
-        _adView = MAAdView(adUnitIdentifier: adUnitId)
-        _adView.delegate = self
 
+        Log("Loading \(selectedAdUnitId) insights: \(String(describing: _usedInsight))")
+        _adView = MAAdView(adUnitIdentifier: selectedAdUnitId)
+        _adView.delegate = self
         _adView.frame = CGRect(x: 0, y: 0, width: 320, height: 50)
-        _bannerPlaceholder.addSubview(_adView)
+        _viewController._bannerPlaceholder.addSubview(self._adView)
         _adView.loadAd()
     }
     
     func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-        ALNeftaMediationAdapter.onExternalMediationRequestFail(.banner, recommendedAdUnitId: _recommendedAdUnitId, calculatedFloorPrice: _calculatedBidFloor, adUnitIdentifier: adUnitIdentifier, error: error)
+        ALNeftaMediationAdapter.onExternalMediationRequestFail(.banner, adUnitIdentifier: adUnitIdentifier, usedInsight: _usedInsight, error: error)
         
-        SetInfo("didFailToLoadAd \(adUnitIdentifier): \(error)")
+        Log("didFailToLoadAd \(adUnitIdentifier): \(error)")
         
-        _showButton.isEnabled = true
-        _hideButton.isEnabled = false
+        _consecutiveAdFails += 1
+        // As per MAX recommendations, retry with exponentially higher delays up to 64s
+        // In case you would like to customize fill rate / revenue please contact our customer support
+        let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
+            self.GetInsightsAndLoad()
+        }
     }
     
     func didLoad(_ ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationRequestLoad(.banner, recommendedAdUnitId: _recommendedAdUnitId, calculatedFloorPrice: _calculatedBidFloor, ad: ad)
+        ALNeftaMediationAdapter.onExternalMediationRequestLoad(.banner, ad: ad, usedInsight: _usedInsight)
         
-        SetInfo("didLoad \(ad)")
+        Log("didLoad \(ad) at: \(ad.revenue)")
+        
+        _consecutiveAdFails = 0
     }
     
-    init(showButton: UIButton, hideButton: UIButton, status: UILabel, bannerPlaceholder: UIView) {
+    func didPayRevenue(for ad: MAAd) {
+        ALNeftaMediationAdapter.onExternalMediationImpression(ad)
+        
+        Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+    }
+    
+    init(viewController: ViewController, showButton: UIButton, hideButton: UIButton) {
+        _viewController = viewController
         _showButton = showButton
         _hideButton = hideButton
-        _status = status
-        _bannerPlaceholder = bannerPlaceholder
         
         super.init()
         
@@ -109,9 +90,8 @@ class Banner : NSObject, MAAdViewAdDelegate {
     }
 
     @objc func OnShowClick() {
+        Log("Loading...")
         GetInsightsAndLoad()
-        
-        SetInfo("Loading...")
         
         _showButton.isEnabled = false
         _hideButton.isEnabled = true
@@ -127,37 +107,30 @@ class Banner : NSObject, MAAdViewAdDelegate {
     }
 
     func didClick(_ ad: MAAd) {
-        SetInfo("didClick \(ad)")
+        Log("didClick \(ad)")
     }
 
     func didFail(toDisplay ad: MAAd, withError error: MAError) {
-        SetInfo("didFail \(ad)")
+        Log("didFail \(ad)")
     }
 
     func didExpand(_ ad: MAAd) {
-        SetInfo("didExpand \(ad)")
+        Log("didExpand \(ad)")
     }
 
     func didCollapse(_ ad: MAAd) {
-        SetInfo("didCollapse \(ad)")
+        Log("didCollapse \(ad)")
     }
     
     func didDisplay(_ ad: MAAd) {
-        SetInfo("didDisplay \(ad)")
+        Log("didDisplay \(ad)")
     }
     
     func didHide(_ ad: MAAd) {
-        SetInfo("didHide \(ad)")
+        Log("didHide \(ad)")
     }
     
-    func didPayRevenue(for ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationImpression(ad)
-        
-        SetInfo("didPayRevenue \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
-    }
-    
-    private func SetInfo(_ info: String) {
-        print(info)
-        _status.text = info
+    private func Log(_ log: String) {
+        _viewController.Log(type: 1, log: log)
     }
 }

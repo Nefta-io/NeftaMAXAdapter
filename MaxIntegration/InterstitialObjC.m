@@ -9,89 +9,65 @@
 #import "ALNeftaMediationAdapter.h"
 
 NSString * const DefaultAdUnitId = @"6d318f954e2630a8";
-
-NSString * const AdUnitIdInsightName = @"recommended_interstitial_ad_unit_id";
-NSString * const FloorPriceInsightName = @"calculated_user_floor_price_interstitial";
+const int TimeoutInSeconds = 5;
 
 @implementation InterstitialObjC
 
 - (void)GetInsightsAndLoad {
-    _isLoadRequested = true;
-    
-    [NeftaPlugin._instance GetBehaviourInsight: @[AdUnitIdInsightName, FloorPriceInsightName] callback: ^(NSDictionary<NSString *, Insight *> *insights) {
-        [self OnBehaviourInsight: insights];
-    }];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        if (self.isLoadRequested) {
-            self.recommendedAdUnitId = nil;
-            self.calculatedBidFloor = 0;
-            [self Load];
-        }
-    });
+    [NeftaPlugin._instance GetInsights: Insights.Interstitial callback: ^(Insights * insights) {
+        [self Load: insights];
+    } timeout: TimeoutInSeconds];
 }
 
--(void)OnBehaviourInsight:(NSDictionary<NSString *, Insight *> *)insights {
-    _recommendedAdUnitId = nil;
-    _calculatedBidFloor = 0;
-    
-    Insight* recommendAdUnitInsight = insights[AdUnitIdInsightName];
-    if (recommendAdUnitInsight != nil) {
-        _recommendedAdUnitId = recommendAdUnitInsight._string;
+-(void)Load:(Insights *) insights {
+    NSString *selectedAdUnitId = DefaultAdUnitId;
+    _usedInsight = insights._interstitial;
+    if (_usedInsight != nil && _usedInsight._adUnit != nil) {
+        selectedAdUnitId = _usedInsight._adUnit;
     }
-    Insight* floorPriceInsight = insights[FloorPriceInsightName];
-    if (floorPriceInsight != nil) {
-        _calculatedBidFloor = floorPriceInsight._float;
-    }
-    
-    NSLog(@"OnBehaviourInsight for Interstitial recommended AdUnit: %@ calculated bid floor: %f", _recommendedAdUnitId, _calculatedBidFloor);
-    
-    if (_isLoadRequested) {
-        [self Load];
-    }
-}
 
-- (void)Load {
-    _isLoadRequested = false;
-    
-    NSString* adUnitId = DefaultAdUnitId;
-    if (_recommendedAdUnitId != nil && _recommendedAdUnitId.length > 0) {
-        adUnitId = _recommendedAdUnitId;
-    }
-    
-    _interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: adUnitId];
+    NSLog(@"Loading %@ insights %@", selectedAdUnitId, _usedInsight);
+    _interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: selectedAdUnitId];
     _interstitial.delegate = self;
+    [_interstitial setExtraParameterForKey: @"disable_auto_retries" value: @"true"];
     [_interstitial loadAd];
 }
 
 - (void)didFailToLoadAdForAdUnitIdentifier:(NSString *)adUnitIdentifier withError:(MAError *)error {
-    [ALNeftaMediationAdapter OnExternalMediationRequestFail: AdTypeInterstitial recommendedAdUnitId: _recommendedAdUnitId calculatedFloorPrice: _calculatedBidFloor adUnitIdentifier: adUnitIdentifier error: error];
+    [ALNeftaMediationAdapter OnExternalMediationRequestFail: AdTypeInterstitial adUnitIdentifier: adUnitIdentifier usedInsight: _usedInsight error: error];
     
-    [self SetInfo: @"didFailToLoadAdForAdUnitIdentifier %@: %@", adUnitIdentifier, error];
+    NSLog(@"didFailToLoadAdForAdUnitIdentifier %@: %@", adUnitIdentifier, error);
     
     _consecutiveAdFails++;
     // As per MAX recommendations, retry with exponentially higher delays up to 64s
-         // In case you would like to customize fill rate / revenue please contact our customer support
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int[]){ 0, 2, 4, 8, 32, 64 }[MIN(_consecutiveAdFails, 5)] * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    // In case you would like to customize fill rate / revenue please contact our customer support
+    int delayInSeconds = (int[]){ 0, 2, 4, 8, 16, 32, 64 }[MIN(_consecutiveAdFails, 6)];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         [self GetInsightsAndLoad];
     });
 }
 
 - (void)didLoadAd:(MAAd *)ad {
-    [ALNeftaMediationAdapter OnExternalMediationRequestLoad: AdTypeInterstitial recommendedAdUnitId: _recommendedAdUnitId calculatedFloorPrice: _calculatedBidFloor ad: ad];
+    [ALNeftaMediationAdapter OnExternalMediationRequestLoad: AdTypeInterstitial ad: ad usedInsight: _usedInsight];
     
-    [self SetInfo: @"didFailToLoadAdForAdUnitIdentifier %@: %f", ad, ad.revenue];
+    NSLog(@"didLoadAd %@: %f", ad, ad.revenue);
     
     _consecutiveAdFails = 0;
     _showButton.enabled = true;
 }
 
--(instancetype)initWith:(UIButton *)loadButton showButton:(UIButton *)showButton status:(UILabel *)status {
+- (void)didPayRevenueForAd:(nonnull MAAd *)ad {
+    [ALNeftaMediationAdapter OnExternalMediationImpression: ad];
+    
+    NSLog(@"didPayRevenueForAd %@ revenue: %f network: %@", ad.adUnitIdentifier, ad.revenue, ad.networkName);
+}
+
+-(instancetype)initWith:(UIView *)placeholder loadButton:(UIButton *)loadButton showButton:(UIButton *)showButton {
     self = [super init];
     if (self) {
+        _placeholder = placeholder;
         _loadButton = loadButton;
         _showButton = showButton;
-        _status = status;
         
         [_loadButton addTarget:self action:@selector(OnLoadClick:) forControlEvents:UIControlEventTouchUpInside];
         [_showButton addTarget:self action:@selector(OnShowClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -102,7 +78,9 @@ NSString * const FloorPriceInsightName = @"calculated_user_floor_price_interstit
 }
 
 - (void)OnLoadClick:(UIButton *)sender {
+    NSLog(@"GetInsightsAndLoad...");
     [self GetInsightsAndLoad];
+    _loadButton.enabled = false;
 }
 
 - (void)OnShowClick:(UIButton *)sender {
@@ -112,35 +90,20 @@ NSString * const FloorPriceInsightName = @"calculated_user_floor_price_interstit
 }
 
 - (void)didDisplayAd:(MAAd *)ad {
-    [self SetInfo: @"didDisplayAd %@", ad];
+    NSLog(@"didDisplayAd %@", ad);
 }
 
 - (void)didClickAd:(MAAd *)ad {
-    [self SetInfo: @"didClickAd %@", ad];
+    NSLog(@"didClickAd %@", ad);
 }
 
 - (void)didHideAd:(MAAd *)ad {
-    [self SetInfo: @"didHideAd %@", ad];
+    NSLog(@"didHideAd %@", ad);
+    _loadButton.enabled = true;
 }
 
 - (void)didFailToDisplayAd:(MAAd *)ad withError:(MAError *)error {
-    [self SetInfo: @"didFailToDisplayAd %@: %@", ad, error];
-}
-
-- (void)didPayRevenueForAd:(nonnull MAAd *)ad {
-    [ALNeftaMediationAdapter OnExternalMediationImpression: ad];
-    
-    [self SetInfo: @"didPayRevenueForAd %@ revenue: %f network: %@", ad.adUnitIdentifier, ad.revenue, ad.networkName];
-}
-
--(void)SetInfo:(NSString *)format, ... {
-    va_list args;
-    va_start(args, format);
-    
-    NSString *info = [[NSString alloc] initWithFormat:format arguments:args];
-    
-    NSLog(@"Integration InterstitialObjC: %@", info);
-    _status.text = info;
+    NSLog(@"didFailToDisplayAd %@: %@", ad, error);
 }
 
 @end

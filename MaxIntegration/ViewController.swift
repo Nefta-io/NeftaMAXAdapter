@@ -12,7 +12,8 @@ import AppLovinSDK
 import AdSupport
 import AppTrackingTransparency
 
-class ViewController: UIViewController {
+@objc(ViewController)
+public class ViewController: UIViewController {
 
     var _plugin: NeftaPlugin!
     
@@ -33,7 +34,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var _interstitialStatus: UILabel!
     @IBOutlet weak var _rewardedStatus: UILabel!
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
 
         NeftaPlugin.EnableLogging(enable: true)
@@ -45,11 +46,10 @@ class ViewController: UIViewController {
         _plugin = NeftaPlugin.Init(appId: "5661184053215232")
 
         _title.text = "Nefta Adapter for MAX"
-        _banner = Banner(showButton: _showBanner, hideButton: _hideBanner, status: _bannerStatus, bannerPlaceholder: _bannerPlaceholder)
-        _interstitial = Interstitial(loadButton: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus, onDisplay: OnFullScreenAdDisplay)
-        //_interstitialObjC = InterstitialObjC(_loadInterstitial, show: _showInterstitial, status: _interstitialStatus)
-        
-        _rewardedVideo = Rewarded(loadButton: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus, onDisplay: OnFullScreenAdDisplay)
+        _banner = Banner(viewController: self, showButton: _showBanner, hideButton: _hideBanner)
+        _interstitial = Interstitial(viewController: self, loadButton: _loadInterstitial, showButton: _showInterstitial)
+        //_interstitialObjC = InterstitialObjC(_bannerPlaceholder, load: _loadInterstitial, show: _showInterstitial)
+        _rewardedVideo = Rewarded(viewController: self, loadButton: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.checkTrackingAndInitializeMax()
@@ -72,7 +72,13 @@ class ViewController: UIViewController {
         ALPrivacySettings.setHasUserConsent(isTrackingEnabled)
         
         let max = ALSdk.shared()
-        
+        let adUnits = [
+          // interstitials
+          "6d318f954e2630a8", "37146915dc4c7740", "e5dc3548d4a0913f",
+          // rewarded
+          "918acf84edf9c034", "37163b1a07c4aaa0", "e0b0d20088d60ec5"
+        ]
+        max.settings.setExtraParameterForKey("disable_b2b_ad_unit_ids", value: adUnits.joined(separator: ","))
         max.settings.setExtraParameterForKey("google_max_ad_content_rating", value: "MA")
         
         max.settings.isVerboseLoggingEnabled = true
@@ -84,8 +90,23 @@ class ViewController: UIViewController {
         }
     }
     
-    private func OnFullScreenAdDisplay(displayed: Bool) {
+    @objc func OnFullScreenAdDisplay(displayed: Bool) {
         _banner.SetAutoRefresh(refresh: !displayed)
+    }
+    
+    @objc func Log(type: Int, log: String) {
+        var tag: String = ""
+        if type == 1 {
+            _bannerStatus.text = log
+            tag = "Banner"
+        } else if type == 2 {
+            _interstitialStatus.text = log
+            tag = "Interstitial"
+        } else if type == 3 {
+            _rewardedStatus.text = log
+            tag = "Rewarded"
+        }
+        print("NeftaPluginINT \(tag): \(log)")
     }
 }
 
