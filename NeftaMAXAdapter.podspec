@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.0'
 
-  s.source_files     = 'NeftaMAXAdapter/**/*.{h,m}'
+  s.source_files     = 'NeftaMAXAdapter/**/AL*.{h,m}'
 
   s.dependency 'NeftaSDK', '= 4.3.0'
   s.dependency 'AppLovinSDK', '>= 12.0.0'
