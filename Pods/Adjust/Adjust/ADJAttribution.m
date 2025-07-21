@@ -8,18 +8,15 @@
 
 #import "ADJUtil.h"
 #import "ADJAttribution.h"
-#import "NSString+ADJAdditions.h"
-#import "NSNumber+ADJAdditions.h"
+#import "ADJAdditions.h"
 
 @implementation ADJAttribution
 
-+ (ADJAttribution *)dataWithJsonDict:(NSDictionary *)jsonDict
-                                adid:(NSString *)adid {
-    return [[ADJAttribution alloc] initWithJsonDict:jsonDict adid:adid];
++ (BOOL)supportsSecureCoding {
+    return YES;
 }
 
-- (id)initWithJsonDict:(NSDictionary *)jsonDict
-                  adid:(NSString *)adid {
+- (id)initWithJsonDict:(NSDictionary *)jsonDict {
     self = [super init];
     if (self == nil) {
         return nil;
@@ -35,10 +32,10 @@
     self.adgroup = [jsonDict objectForKey:@"adgroup"];
     self.creative = [jsonDict objectForKey:@"creative"];
     self.clickLabel = [jsonDict objectForKey:@"click_label"];
-    self.adid = adid;
     self.costType = [jsonDict objectForKey:@"cost_type"];
     self.costAmount = [jsonDict objectForKey:@"cost_amount"];
     self.costCurrency = [jsonDict objectForKey:@"cost_currency"];
+    self.jsonResponse = jsonDict;
 
     return self;
 }
@@ -47,37 +44,34 @@
     if (attribution == nil) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.trackerToken toString:attribution.trackerToken]) {
+    if (![ADJAdditions adjIsStringEqual:self.trackerToken toString:attribution.trackerToken]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.trackerName toString:attribution.trackerName]) {
+    if (![ADJAdditions adjIsStringEqual:self.trackerName toString:attribution.trackerName]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.network toString:attribution.network]) {
+    if (![ADJAdditions adjIsStringEqual:self.network toString:attribution.network]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.campaign toString:attribution.campaign]) {
+    if (![ADJAdditions adjIsStringEqual:self.campaign toString:attribution.campaign]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.adgroup toString:attribution.adgroup]) {
+    if (![ADJAdditions adjIsStringEqual:self.adgroup toString:attribution.adgroup]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.creative toString:attribution.creative]) {
+    if (![ADJAdditions adjIsStringEqual:self.creative toString:attribution.creative]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.clickLabel toString:attribution.clickLabel]) {
+    if (![ADJAdditions adjIsStringEqual:self.clickLabel toString:attribution.clickLabel]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.adid toString:attribution.adid]) {
+    if (![ADJAdditions adjIsStringEqual:self.costType toString:attribution.costType]) {
         return NO;
     }
-    if (![NSString adjIsEqual:self.costType toString:attribution.costType]) {
+    if (![ADJAdditions adjIsNumberEqual:self.costAmount toNumber:attribution.costAmount]) {
         return NO;
     }
-    if (![NSNumber adjIsEqual:self.costAmount toNumber:attribution.costAmount]) {
-        return NO;
-    }
-    if (![NSString adjIsEqual:self.costCurrency toString:attribution.costCurrency]) {
+    if (![ADJAdditions adjIsStringEqual:self.costCurrency toString:attribution.costCurrency]) {
         return NO;
     }
 
@@ -108,9 +102,6 @@
     if (self.clickLabel != nil) {
         [responseDataDic setObject:self.clickLabel forKey:@"click_label"];
     }
-    if (self.adid != nil) {
-        [responseDataDic setObject:self.adid forKey:@"adid"];
-    }
     if (self.costType != nil) {
         [responseDataDic setObject:self.costType forKey:@"costType"];
     }
@@ -120,14 +111,17 @@
     if (self.costCurrency != nil) {
         [responseDataDic setObject:self.costCurrency forKey:@"costCurrency"];
     }
+    if (self.jsonResponse != nil) {
+        [responseDataDic setObject:self.jsonResponse forKey:@"jsonResponse"];
+    }
 
     return responseDataDic;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"tt:%@ tn:%@ net:%@ cam:%@ adg:%@ cre:%@ cl:%@ adid:%@ ct:%@ ca:%@ cc:%@",
+    return [NSString stringWithFormat:@"tt:%@ tn:%@ net:%@ cam:%@ adg:%@ cre:%@ cl:%@ ct:%@ ca:%@ cc:%@",
             self.trackerToken, self.trackerName, self.network, self.campaign,
-            self.adgroup, self.creative, self.clickLabel, self.adid, self.costType,
+            self.adgroup, self.creative, self.clickLabel, self.costType,
             self.costAmount, self.costCurrency];
 }
 
@@ -162,10 +156,10 @@
         copy.adgroup = [self.adgroup copyWithZone:zone];
         copy.creative = [self.creative copyWithZone:zone];
         copy.clickLabel = [self.clickLabel copyWithZone:zone];
-        copy.adid = [self.adid copyWithZone:zone];
         copy.costType = [self.costType copyWithZone:zone];
         copy.costAmount = [self.costAmount copyWithZone:zone];
         copy.costCurrency = [self.costCurrency copyWithZone:zone];
+        copy.jsonResponse = [self.jsonResponse copyWithZone:zone];
     }
 
     return copy;
@@ -180,18 +174,19 @@
         return nil;
     }
 
-    self.trackerToken = [decoder decodeObjectForKey:@"trackerToken"];
-    self.trackerName = [decoder decodeObjectForKey:@"trackerName"];
-    self.network = [decoder decodeObjectForKey:@"network"];
-    self.campaign = [decoder decodeObjectForKey:@"campaign"];
-    self.adgroup = [decoder decodeObjectForKey:@"adgroup"];
-    self.creative = [decoder decodeObjectForKey:@"creative"];
-    self.clickLabel = [decoder decodeObjectForKey:@"click_label"];
-    self.adid = [decoder decodeObjectForKey:@"adid"];
-    self.costType = [decoder decodeObjectForKey:@"costType"];
-    self.costAmount = [decoder decodeObjectForKey:@"costAmount"];
-    self.costCurrency = [decoder decodeObjectForKey:@"costCurrency"];
-
+    self.trackerToken = [decoder decodeObjectOfClass:[NSString class] forKey:@"trackerToken"];
+    self.trackerName = [decoder decodeObjectOfClass:[NSString class] forKey:@"trackerName"];
+    self.network = [decoder decodeObjectOfClass:[NSString class] forKey:@"network"];
+    self.campaign = [decoder decodeObjectOfClass:[NSString class] forKey:@"campaign"];
+    self.adgroup = [decoder decodeObjectOfClass:[NSString class] forKey:@"adgroup"];
+    self.creative = [decoder decodeObjectOfClass:[NSString class] forKey:@"creative"];
+    self.clickLabel = [decoder decodeObjectOfClass:[NSString class] forKey:@"click_label"];
+    self.costType = [decoder decodeObjectOfClass:[NSString class] forKey:@"costType"];
+    self.costAmount = [decoder decodeObjectOfClass:[NSNumber class] forKey:@"costAmount"];
+    self.costCurrency = [decoder decodeObjectOfClass:[NSString class] forKey:@"costCurrency"];
+    NSSet<Class> *allowedClasses = [NSSet setWithObjects:[NSDictionary class],
+                                    [NSString class], [NSNumber class], nil];
+    self.jsonResponse = [decoder decodeObjectOfClasses:allowedClasses forKey:@"jsonResponse"];
     return self;
 }
 
@@ -203,10 +198,10 @@
     [encoder encodeObject:self.adgroup forKey:@"adgroup"];
     [encoder encodeObject:self.creative forKey:@"creative"];
     [encoder encodeObject:self.clickLabel forKey:@"click_label"];
-    [encoder encodeObject:self.adid forKey:@"adid"];
     [encoder encodeObject:self.costType forKey:@"costType"];
     [encoder encodeObject:self.costAmount forKey:@"costAmount"];
     [encoder encodeObject:self.costCurrency forKey:@"costCurrency"];
+    [encoder encodeObject:self.jsonResponse forKey:@"jsonResponse"];
 }
 
 @end

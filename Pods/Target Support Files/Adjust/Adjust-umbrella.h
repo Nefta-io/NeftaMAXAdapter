@@ -10,46 +10,25 @@
 #endif
 #endif
 
-#import "ADJActivityHandler.h"
-#import "ADJActivityKind.h"
-#import "ADJActivityPackage.h"
-#import "ADJActivityState.h"
-#import "ADJAdjustFactory.h"
 #import "ADJAdRevenue.h"
+#import "ADJAppStorePurchase.h"
+#import "ADJAppStoreSubscription.h"
 #import "ADJAttribution.h"
-#import "ADJAttributionHandler.h"
-#import "ADJBackoffStrategy.h"
 #import "ADJConfig.h"
+#import "ADJDeeplink.h"
 #import "ADJEvent.h"
 #import "ADJEventFailure.h"
 #import "ADJEventSuccess.h"
 #import "ADJLinkResolution.h"
 #import "ADJLogger.h"
-#import "ADJPackageBuilder.h"
-#import "ADJPackageHandler.h"
-#import "ADJPackageParams.h"
-#import "ADJPurchase.h"
-#import "ADJPurchaseVerificationHandler.h"
 #import "ADJPurchaseVerificationResult.h"
-#import "ADJRequestHandler.h"
-#import "ADJResponseData.h"
-#import "ADJSdkClickHandler.h"
 #import "ADJSessionFailure.h"
-#import "ADJSessionParameters.h"
 #import "ADJSessionSuccess.h"
-#import "ADJSKAdNetwork.h"
-#import "ADJSubscription.h"
+#import "ADJStoreInfo.h"
 #import "ADJThirdPartySharing.h"
-#import "ADJTimerCycle.h"
-#import "ADJTimerOnce.h"
-#import "ADJUrlStrategy.h"
-#import "ADJUserDefaults.h"
 #import "Adjust.h"
-#import "ADJUtil.h"
-#import "NSData+ADJAdditions.h"
-#import "NSNumber+ADJAdditions.h"
-#import "NSString+ADJAdditions.h"
+#import "AdjustSdk.h"
 
-FOUNDATION_EXPORT double AdjustVersionNumber;
-FOUNDATION_EXPORT const unsigned char AdjustVersionString[];
+FOUNDATION_EXPORT double AdjustSdkVersionNumber;
+FOUNDATION_EXPORT const unsigned char AdjustSdkVersionString[];
 

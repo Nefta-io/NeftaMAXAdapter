@@ -1,0 +1,6 @@
+framework module NeftaMAXAdapter {
+  umbrella header "NeftaMAXAdapter-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,4 +1,4 @@
-framework module Adjust {
+framework module AdjustSdk {
   umbrella header "Adjust-umbrella.h"
 
   export *

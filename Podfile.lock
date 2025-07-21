@@ -1,22 +1,38 @@
 PODS:
-  - Adjust (4.38.4):
-    - Adjust/Core (= 4.38.4)
-  - Adjust/Core (4.38.4)
-  - AppLovinSDK (13.0.1)
+  - Adjust (5.4.1):
+    - Adjust/Adjust (= 5.4.1)
+  - Adjust/Adjust (5.4.1):
+    - AdjustSignature (= 3.47.0)
+  - AdjustSignature (3.47.0)
+  - AppLovinSDK (13.3.1)
+  - NeftaMAXAdapter (4.3.0):
+    - AppLovinSDK (>= 12.0.0)
+    - NeftaSDK (= 4.3.0)
+  - NeftaSDK (4.3.0)
 
 DEPENDENCIES:
   - Adjust
   - AppLovinSDK
+  - NeftaMAXAdapter (from `.`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - Adjust
+    - AdjustSignature
     - AppLovinSDK
+    - NeftaSDK
+
+EXTERNAL SOURCES:
+  NeftaMAXAdapter:
+    :path: "."
 
 SPEC CHECKSUMS:
-  Adjust: afda46df69f035fd216310fb85f399c40c61830a
-  AppLovinSDK: fdae6a4361c9c9b09f8d7d18ede792368221d987
+  Adjust: 1ff981e84ae1306f8cce30e0661b3997dad1b85c
+  AdjustSignature: d634fc6b66295c38807f3b4e50978c1f72355950
+  AppLovinSDK: 5075837afdee4fb429121799b8cbcc5918ef3a23
+  NeftaMAXAdapter: d80abfdb70a9b87a2dac8604f7e9e96f7e952d73
+  NeftaSDK: d74f5a580ac7b726152e6c53a911467ac05d5408
 
-PODFILE CHECKSUM: 0631e0acfd6683fdf1a11f8a233dc57d07ac07c2
+PODFILE CHECKSUM: 8c74dda4b030b4961085f37d84407d02cb41624f
 
 COCOAPODS: 1.16.2

@@ -7,13 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		901313882C09B0EF0096EC21 /* ALNeftaMediationAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53CD2C0879CE0041E63B /* ALNeftaMediationAdapter.m */; };
-		9013138D2C09B1060096EC21 /* ALNeftaMediationAdapter.h in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53CC2C0879CE0041E63B /* ALNeftaMediationAdapter.h */; };
 		907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 907C22EA2DE0335900857E06 /* InterstitialObjC.m */; };
-		90B9D5762CAE6981004F0561 /* ALNeftaBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B9D5752CAE697E004F0561 /* ALNeftaBanner.m */; };
-		90B9D5792CAE6991004F0561 /* ALNeftaInterstitial.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B9D5782CAE698C004F0561 /* ALNeftaInterstitial.m */; };
-		90B9D57C2CAE699E004F0561 /* ALNeftaRewarded.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B9D57B2CAE699A004F0561 /* ALNeftaRewarded.m */; };
-		90B9D58F2CAE6D43004F0561 /* ALNeftaAd.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B9D58E2CAE6D43004F0561 /* ALNeftaAd.m */; };
 		90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA539F2C0871DD0041E63B /* AppDelegate.swift */; };
 		90DA53AD2C0871DD0041E63B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A02C0871DD0041E63B /* Assets.xcassets */; };
 		90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A12C0871DD0041E63B /* Banner.swift */; };
@@ -23,36 +17,9 @@
 		90DA53B32C0871DD0041E63B /* Rewarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A82C0871DD0041E63B /* Rewarded.swift */; };
 		90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A92C0871DD0041E63B /* SceneDelegate.swift */; };
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
-		90DA53D12C0879E30041E63B /* NeftaSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53D02C0879E30041E63B /* NeftaSDK.framework */; };
-		90DA53D22C0879E30041E63B /* NeftaSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53D02C0879E30041E63B /* NeftaSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		90DA53E12C087B3E0041E63B /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */; };
-		90DA53E22C087B3E0041E63B /* Pods_MaxIntegration.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		90EB37262DA5146900BC227C /* AdUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90EB37252DA5143B00BC227C /* AdUnit.swift */; };
+		9A801C2F5EFFF3DFA977C04D /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DBCD073453FB3BF54072601 /* Pods_MaxIntegration.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		90DA53DB2C087A680041E63B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7FF5C62DF1E2D492F272FD7D2A1EF4A3;
-			remoteInfo = Adjust;
-		};
-		90DA53DD2C087A680041E63B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = B6C339432292171DF9AF35D79D97FF46;
-			remoteInfo = "Adjust-Adjust";
-		};
-		90DA53DF2C087A680041E63B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 46BCF8680C410BE2966DFB5A4206ACB2;
-			remoteInfo = "Pods-MaxIntegration";
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		90DA53D32C0879E30041E63B /* Embed Frameworks */ = {
@@ -61,8 +28,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				90DA53E22C087B3E0041E63B /* Pods_MaxIntegration.framework in Embed Frameworks */,
-				90DA53D22C0879E30041E63B /* NeftaSDK.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -70,20 +35,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
-		407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
+		4DBCD073453FB3BF54072601 /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9026575D2BEC9B8900EA4F62 /* MaxIntegration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaxIntegration.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		907C22E92DE0332B00857E06 /* InterstitialObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterstitialObjC.h; sourceTree = "<group>"; };
 		907C22EA2DE0335900857E06 /* InterstitialObjC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InterstitialObjC.m; sourceTree = "<group>"; };
 		90B643722D4CBAEE00446480 /* MaxIntegration-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaxIntegration-Bridging-Header.h"; sourceTree = "<group>"; };
-		90B9D5742CAE6975004F0561 /* ALNeftaBanner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaBanner.h; sourceTree = "<group>"; };
-		90B9D5752CAE697E004F0561 /* ALNeftaBanner.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaBanner.m; sourceTree = "<group>"; };
-		90B9D5772CAE6984004F0561 /* ALNeftaInterstitial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaInterstitial.h; sourceTree = "<group>"; };
-		90B9D5782CAE698C004F0561 /* ALNeftaInterstitial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaInterstitial.m; sourceTree = "<group>"; };
-		90B9D57A2CAE6994004F0561 /* ALNeftaRewarded.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaRewarded.h; sourceTree = "<group>"; };
-		90B9D57B2CAE699A004F0561 /* ALNeftaRewarded.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaRewarded.m; sourceTree = "<group>"; };
-		90B9D58D2CAE6D43004F0561 /* ALNeftaAd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaAd.h; sourceTree = "<group>"; };
-		90B9D58E2CAE6D43004F0561 /* ALNeftaAd.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaAd.m; sourceTree = "<group>"; };
 		90DA539F2C0871DD0041E63B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90DA53A02C0871DD0041E63B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90DA53A12C0871DD0041E63B /* Banner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Banner.swift; sourceTree = "<group>"; };
@@ -94,12 +50,9 @@
 		90DA53A92C0871DD0041E63B /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		90DA53CC2C0879CE0041E63B /* ALNeftaMediationAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALNeftaMediationAdapter.h; sourceTree = "<group>"; };
-		90DA53CD2C0879CE0041E63B /* ALNeftaMediationAdapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALNeftaMediationAdapter.m; sourceTree = "<group>"; };
-		90DA53D02C0879E30041E63B /* NeftaSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NeftaSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		90DA53D42C087A680041E63B /* Pods.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Pods.xcodeproj; path = Pods/Pods.xcodeproj; sourceTree = "<group>"; };
 		90EB37252DA5143B00BC227C /* AdUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdUnit.swift; sourceTree = "<group>"; };
-		DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		98D655A22714DF5C2A8358D0 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
+		D2272465BD002F044E8E3019 /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,33 +60,31 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90DA53E12C087B3E0041E63B /* Pods_MaxIntegration.framework in Frameworks */,
-				90DA53D12C0879E30041E63B /* NeftaSDK.framework in Frameworks */,
+				9A801C2F5EFFF3DFA977C04D /* Pods_MaxIntegration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		864A835197C7F57B6007B655 /* Pods */ = {
+		5E2626618C592861CDB6AED2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */,
-				407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */,
+				D2272465BD002F044E8E3019 /* Pods-MaxIntegration.debug.xcconfig */,
+				98D655A22714DF5C2A8358D0 /* Pods-MaxIntegration.release.xcconfig */,
 			);
+			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
-				90DA53D42C087A680041E63B /* Pods.xcodeproj */,
-				90DA53CF2C0879CE0041E63B /* MaxAdapter */,
 				90DA53C52C0878D20041E63B /* Info.plist */,
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
 				9026575E2BEC9B8900EA4F62 /* Products */,
-				BDD989115C3FB8BAA759FA16 /* Frameworks */,
-				864A835197C7F57B6007B655 /* Pods */,
+				5E2626618C592861CDB6AED2 /* Pods */,
+				B53F640E5E1FA918794D95B5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -165,39 +116,10 @@
 			path = MaxIntegration;
 			sourceTree = "<group>";
 		};
-		90DA53CF2C0879CE0041E63B /* MaxAdapter */ = {
+		B53F640E5E1FA918794D95B5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				90B9D58D2CAE6D43004F0561 /* ALNeftaAd.h */,
-				90B9D58E2CAE6D43004F0561 /* ALNeftaAd.m */,
-				90B9D57B2CAE699A004F0561 /* ALNeftaRewarded.m */,
-				90B9D57A2CAE6994004F0561 /* ALNeftaRewarded.h */,
-				90B9D5782CAE698C004F0561 /* ALNeftaInterstitial.m */,
-				90B9D5772CAE6984004F0561 /* ALNeftaInterstitial.h */,
-				90B9D5752CAE697E004F0561 /* ALNeftaBanner.m */,
-				90B9D5742CAE6975004F0561 /* ALNeftaBanner.h */,
-				90DA53CC2C0879CE0041E63B /* ALNeftaMediationAdapter.h */,
-				90DA53CD2C0879CE0041E63B /* ALNeftaMediationAdapter.m */,
-			);
-			name = MaxAdapter;
-			path = ../MaxAdapter/MaxAdapter;
-			sourceTree = "<group>";
-		};
-		90DA53D52C087A680041E63B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				90DA53DC2C087A680041E63B /* Adjust.framework */,
-				90DA53DE2C087A680041E63B /* Adjust.bundle */,
-				90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		BDD989115C3FB8BAA759FA16 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				90DA53D02C0879E30041E63B /* NeftaSDK.framework */,
-				DAA978CB77BA0ADD54C7125C /* Pods_MaxIntegration.framework */,
+				4DBCD073453FB3BF54072601 /* Pods_MaxIntegration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -209,12 +131,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 902657712BEC9B8A00EA4F62 /* Build configuration list for PBXNativeTarget "MaxIntegration" */;
 			buildPhases = (
-				ACBB05DDECEACAD792F738F4 /* [CP] Check Pods Manifest.lock */,
+				1F5E1298594B12ADBFC99A42 /* [CP] Check Pods Manifest.lock */,
 				902657592BEC9B8900EA4F62 /* Sources */,
 				9026575A2BEC9B8900EA4F62 /* Frameworks */,
 				9026575B2BEC9B8900EA4F62 /* Resources */,
-				44551742761E378368D66DA9 /* [CP] Embed Pods Frameworks */,
 				90DA53D32C0879E30041E63B /* Embed Frameworks */,
+				B9BA80EDDE485FD82AF4ED68 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -251,42 +173,12 @@
 			mainGroup = 902657542BEC9B8900EA4F62;
 			productRefGroup = 9026575E2BEC9B8900EA4F62 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 90DA53D52C087A680041E63B /* Products */;
-					ProjectRef = 90DA53D42C087A680041E63B /* Pods.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				9026575C2BEC9B8900EA4F62 /* MaxIntegration */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		90DA53DC2C087A680041E63B /* Adjust.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Adjust.framework;
-			remoteRef = 90DA53DB2C087A680041E63B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		90DA53DE2C087A680041E63B /* Adjust.bundle */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = Adjust.bundle;
-			remoteRef = 90DA53DD2C087A680041E63B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		90DA53E02C087A680041E63B /* Pods_MaxIntegration.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Pods_MaxIntegration.framework;
-			remoteRef = 90DA53DF2C087A680041E63B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		9026575B2BEC9B8900EA4F62 /* Resources */ = {
@@ -302,24 +194,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		44551742761E378368D66DA9 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		ACBB05DDECEACAD792F738F4 /* [CP] Check Pods Manifest.lock */ = {
+		1F5E1298594B12ADBFC99A42 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -341,6 +216,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		B9BA80EDDE485FD82AF4ED68 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -348,19 +240,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90B9D5762CAE6981004F0561 /* ALNeftaBanner.m in Sources */,
-				9013138D2C09B1060096EC21 /* ALNeftaMediationAdapter.h in Sources */,
 				90DA53B32C0871DD0041E63B /* Rewarded.swift in Sources */,
 				907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */,
 				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,
 				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
-				90B9D5792CAE6991004F0561 /* ALNeftaInterstitial.m in Sources */,
-				90B9D58F2CAE6D43004F0561 /* ALNeftaAd.m in Sources */,
 				90EB37262DA5146900BC227C /* AdUnit.swift in Sources */,
 				90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */,
 				90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */,
-				901313882C09B0EF0096EC21 /* ALNeftaMediationAdapter.m in Sources */,
-				90B9D57C2CAE699E004F0561 /* ALNeftaRewarded.m in Sources */,
 				90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -508,7 +394,7 @@
 		};
 		902657722BEC9B8A00EA4F62 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DDA1B68DD6305121CB612FC /* Pods-MaxIntegration.debug.xcconfig */;
+			baseConfigurationReference = D2272465BD002F044E8E3019 /* Pods-MaxIntegration.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -542,7 +428,7 @@
 		};
 		902657732BEC9B8A00EA4F62 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 407773CD1E517CD286A831D6 /* Pods-MaxIntegration.release.xcconfig */;
+			baseConfigurationReference = 98D655A22714DF5C2A8358D0 /* Pods-MaxIntegration.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
