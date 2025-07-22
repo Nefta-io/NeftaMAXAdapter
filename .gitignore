@@ -1,6 +1,53 @@
-xcuserdata/
-*.xcworkspace/
-*.xcuserstate
-*.xcuserdatad
-*.xccheckout
+# Xcode
 build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# SwiftPM
+/.build/
+/Packages/
+/.swiftpm/xcode/package.xcworkspace/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+
+# Archives
+*.xcarchive
+
+# Xcode automatic backup files
+*.xcuserstate
+
+# Simulator logs
+coreSimulatorLogs/
+
+# Lock files and DS_Store
+*.lock
+.DS_Store
+
+# IDE helpers
+.idea/
+*.iml
+
+# Bundler
+.bundle/
+
+# Package manager environments
+.env
+
+/out*

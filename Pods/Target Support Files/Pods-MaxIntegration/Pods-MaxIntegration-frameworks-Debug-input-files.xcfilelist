@@ -1,6 +1,0 @@
-${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks.sh
-${BUILT_PRODUCTS_DIR}/Adjust/AdjustSdk.framework
-${BUILT_PRODUCTS_DIR}/NeftaMAXAdapter/NeftaMAXAdapter.framework
-${PODS_XCFRAMEWORKS_BUILD_DIR}/AdjustSignature/AdjustSigSdk.framework/AdjustSigSdk
-${PODS_XCFRAMEWORKS_BUILD_DIR}/AppLovinSDK/AppLovinSDK.framework/AppLovinSDK
-${PODS_XCFRAMEWORKS_BUILD_DIR}/NeftaSDK/NeftaSDK.framework/NeftaSDK
