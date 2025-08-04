@@ -15,6 +15,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     private var _rewarded: MARewardedAd?
     private var _usedInsight: AdInsight?
     private var _consecutiveAdFails = 0
+    private var _isLoading = false
     
     private let _viewController: ViewController
     private let _loadButton: UIButton
@@ -50,7 +51,9 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
         // In case you would like to customize fill rate / revenue please contact our customer support
         let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
-            self.GetInsightsAndLoad()
+            if self._isLoading {
+                self.GetInsightsAndLoad()
+            }
         }
     }
     
@@ -60,6 +63,8 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
         Log("didLoad \(ad) at: \(ad.revenue)")
         
         _consecutiveAdFails = 0
+        SetLoadingButton(isLoading: false)
+        _loadButton.isEnabled = false
         _showButton.isEnabled = true
     }
     
@@ -83,9 +88,13 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     }
     
     @objc private func OnLoadClick() {
-        Log("GetInsightsAndLoad...")
-        GetInsightsAndLoad()
-        _loadButton.isEnabled = false
+        if _isLoading {
+            SetLoadingButton(isLoading: false)
+        } else {
+            Log("GetInsightsAndLoad...")
+            GetInsightsAndLoad()
+            SetLoadingButton(isLoading: true)
+        }
     }
     
     @objc private func OnShowClick() {
@@ -106,7 +115,6 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     func didHide(_ ad: MAAd) {
         Log("didHide \(ad)")
         _viewController.OnFullScreenAdDisplay(displayed: false)
-        _loadButton.isEnabled = true
     }
 
     func didFail(toDisplay ad: MAAd, withError error: MAError) {
@@ -119,5 +127,14 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     
     private func Log(_ log: String) {
         _viewController.Log(type: 3, log: log)
+    }
+    
+    private func SetLoadingButton(isLoading: Bool) {
+        _isLoading = isLoading
+        if isLoading {
+            _loadButton.setTitle("Cancel", for: .normal)
+        } else {
+            _loadButton.setTitle("Load Interstitial", for: .normal)
+        }
     }
 }
