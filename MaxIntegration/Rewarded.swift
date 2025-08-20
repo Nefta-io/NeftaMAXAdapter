@@ -40,7 +40,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             _dynamicAdUnitInsight = insight
             let bidFloor = String(format: "%.10f", insight._floorPrice)
             
-            Log("Loading DynamicBid with floor: \(bidFloor)")
+            Log("Loading Dynamic with floor: \(bidFloor)")
             _dynamicRewarded = MARewardedAd.shared(withAdUnitIdentifier: DynamicAdUnitId)
             _dynamicRewarded!.delegate = self
             _dynamicRewarded!.setExtraParameterForKey("disable_auto_retries", value: "true")
@@ -62,6 +62,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             
             Log("Load failed Dynamic \(adUnitIdentifier): \(error)")
             
+            _dynamicRewarded = nil
             _consecutiveDynamicBidAdFails += 1
             // As per MAX recommendations, retry with exponentially higher delays up to 64s
             // In case you would like to customize fill rate / revenue please contact our customer support
@@ -76,6 +77,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             
             Log("Load failed Default \(adUnitIdentifier): \(error)")
             
+            _defaultRewarded = nil
             if _loadSwitch.isOn {
                 LoadDefault()
             }
@@ -124,11 +126,18 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     }
     
     @objc private func OnShowClick() {
-        if _dynamicRewarded != nil && _dynamicRewarded!.isReady {
-            _dynamicRewarded!.show()
+        var isShown = false
+        if _dynamicRewarded != nil {
+            if _dynamicRewarded!.isReady {
+                _dynamicRewarded!.show()
+                isShown = true
+            }
             _dynamicRewarded = nil
-        } else if _defaultRewarded != nil && _defaultRewarded!.isReady {
-            _defaultRewarded!.show()
+        }
+        if !isShown && _defaultRewarded != nil {
+            if _defaultRewarded!.isReady {
+                _defaultRewarded!.show()
+            }
             _defaultRewarded = nil
         }
         
