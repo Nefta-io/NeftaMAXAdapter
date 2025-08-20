@@ -27,7 +27,7 @@ public class ViewController: UIViewController {
     @IBOutlet weak var _hideBanner: UIButton!
     @IBOutlet weak var _loadInterstitial: UIButton!
     @IBOutlet weak var _showInterstitial: UIButton!
-    @IBOutlet weak var _loadRewarded: UIButton!
+    @IBOutlet weak var _loadRewarded: UISwitch!
     @IBOutlet weak var _showRewarded: UIButton!
     @IBOutlet weak var _title: UILabel!
     @IBOutlet weak var _bannerStatus: UILabel!
@@ -49,7 +49,7 @@ public class ViewController: UIViewController {
         _banner = Banner(viewController: self, showButton: _showBanner, hideButton: _hideBanner)
         _interstitial = Interstitial(viewController: self, loadButton: _loadInterstitial, showButton: _showInterstitial)
         //_interstitialObjC = InterstitialObjC(_bannerPlaceholder, load: _loadInterstitial, show: _showInterstitial)
-        _rewardedVideo = Rewarded(viewController: self, loadButton: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
+        _rewardedVideo = Rewarded(viewController: self, loadSwitch: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.checkTrackingAndInitializeMax()
