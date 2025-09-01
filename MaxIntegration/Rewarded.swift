@@ -9,14 +9,16 @@ import Foundation
 import AppLovinSDK
 
 class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
-    private let DefaultAdUnitId = "918acf84edf9c034"
     private let DynamicAdUnitId = "e0b0d20088d60ec5"
+    private let DefaultAdUnitId = "918acf84edf9c034"
     private let TimeoutInSeconds = 5
     
     private var _dynamicRewarded: MARewardedAd?
-    private var _defaultRewarded: MARewardedAd?
+    private var _isDynamicLoaded = false
     private var _dynamicAdUnitInsight: AdInsight?
     private var _consecutiveDynamicBidAdFails = 0
+    private var _defaultRewarded: MARewardedAd?
+    private var _isDefaultLoaded = false
     
     private let _viewController: ViewController
     private let _loadSwitch: UISwitch
@@ -91,10 +93,13 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             Log("Loaded Dyanamic \(ad) at: \(ad.revenue)")
             
             _consecutiveDynamicBidAdFails = 0
+            _isDynamicLoaded = true
         } else {
             ALNeftaMediationAdapter.onExternalMediationRequestLoad(.rewarded, ad: ad, usedInsight: nil)
             
             Log("Loaded Default \(ad) at: \(ad.revenue)")
+            
+            _isDefaultLoaded = true
         }
         
         UpdateShowButton()
@@ -127,17 +132,19 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     
     @objc private func OnShowClick() {
         var isShown = false
-        if _dynamicRewarded != nil {
+        if _isDynamicLoaded {
             if _dynamicRewarded!.isReady {
                 _dynamicRewarded!.show()
                 isShown = true
             }
+            _isDynamicLoaded = false
             _dynamicRewarded = nil
         }
-        if !isShown && _defaultRewarded != nil {
+        if !isShown && _isDefaultLoaded {
             if _defaultRewarded!.isReady {
                 _defaultRewarded!.show()
             }
+            _isDefaultLoaded = false
             _defaultRewarded = nil
         }
         
@@ -172,7 +179,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     }
     
     func UpdateShowButton() {
-        _showButton.isEnabled = _dynamicRewarded != nil && _dynamicRewarded!.isReady || _defaultRewarded != nil && _defaultRewarded!.isReady
+        _showButton.isEnabled = _isDynamicLoaded || _isDefaultLoaded
     }
     
     private func Log(_ log: String) {

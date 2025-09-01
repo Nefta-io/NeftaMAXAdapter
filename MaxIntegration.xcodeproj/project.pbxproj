@@ -17,7 +17,6 @@
 		90DA53B32C0871DD0041E63B /* Rewarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A82C0871DD0041E63B /* Rewarded.swift */; };
 		90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A92C0871DD0041E63B /* SceneDelegate.swift */; };
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
-		90EB37262DA5146900BC227C /* AdUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90EB37252DA5143B00BC227C /* AdUnit.swift */; };
 		9A801C2F5EFFF3DFA977C04D /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DBCD073453FB3BF54072601 /* Pods_MaxIntegration.framework */; };
 /* End PBXBuildFile section */
 
@@ -50,7 +49,6 @@
 		90DA53A92C0871DD0041E63B /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		90EB37252DA5143B00BC227C /* AdUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdUnit.swift; sourceTree = "<group>"; };
 		98D655A22714DF5C2A8358D0 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 		D2272465BD002F044E8E3019 /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -73,7 +71,6 @@
 				D2272465BD002F044E8E3019 /* Pods-MaxIntegration.debug.xcconfig */,
 				98D655A22714DF5C2A8358D0 /* Pods-MaxIntegration.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -111,7 +108,6 @@
 				90DA53A82C0871DD0041E63B /* Rewarded.swift */,
 				90DA53A92C0871DD0041E63B /* SceneDelegate.swift */,
 				90DA53AA2C0871DD0041E63B /* ViewController.swift */,
-				90EB37252DA5143B00BC227C /* AdUnit.swift */,
 			);
 			path = MaxIntegration;
 			sourceTree = "<group>";
@@ -244,7 +240,6 @@
 				907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */,
 				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,
 				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
-				90EB37262DA5146900BC227C /* AdUnit.swift in Sources */,
 				90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */,
 				90DA53AE2C0871DD0041E63B /* Banner.swift in Sources */,
 				90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */,
