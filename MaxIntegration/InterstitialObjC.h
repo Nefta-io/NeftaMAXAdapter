@@ -11,15 +11,16 @@
 
 @interface InterstitialObjC : NSObject<MAAdDelegate, MAAdRevenueDelegate>
 
-@property (nonatomic, strong) MAInterstitialAd *interstitial;
-@property (nonatomic, strong) AdInsight *usedInsight;
-@property (nonatomic, assign) int consecutiveAdFails;
+@property (nonatomic, strong) MAInterstitialAd * _Nullable dynamicInterstitial;
+@property (nonatomic, assign) double dynamicAdRevenue;
+@property (nonatomic, strong) AdInsight * _Nullable dynamicInsight;
+@property (nonatomic, assign) int consecutiveDynamicFails;
+@property (nonatomic, strong) MAInterstitialAd * _Nullable defaultInterstitial;
+@property (nonatomic, assign) double defaultAdRevenue;
 
 @property (weak, nonatomic) UIView *placeholder;
-@property (weak, nonatomic) UIButton *loadButton;
+@property (weak, nonatomic) UISwitch *loadSwitch;
 @property (weak, nonatomic) UIButton *showButton;
 
--(void)GetInsightsAndLoad;
--(void)Load:(Insights *)insights;
--(instancetype)initWith:(UIView *)placeholder loadButton:(UIButton *)loadButton showButton:(UIButton *)showButton;
+-(instancetype _Nonnull)initWith:(UIView * _Nonnull)placeholder loadSwitch:(UISwitch * _Nonnull)loadSwitch showButton:(UIButton * _Nonnull)showButton;
 @end

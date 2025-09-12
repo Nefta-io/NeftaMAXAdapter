@@ -21,7 +21,7 @@ class Banner : NSObject, MAAdViewAdDelegate, MAAdRevenueDelegate {
     private let _hideButton: UIButton
     
     private func GetInsightsAndLoad() {
-        NeftaPlugin._instance.GetInsights(Insights.Banner, callback: Load, timeout: TimeoutInSeconds)
+        NeftaPlugin._instance.GetInsights(Insights.Banner, previousInsight: _usedInsight, callback: Load, timeout: TimeoutInSeconds)
     }
     
     private func Load(insights: Insights) {
@@ -37,10 +37,12 @@ class Banner : NSObject, MAAdViewAdDelegate, MAAdRevenueDelegate {
         _adView.frame = CGRect(x: 0, y: 0, width: 320, height: 50)
         _viewController._bannerPlaceholder.addSubview(self._adView)
         _adView.loadAd()
+        
+        ALNeftaMediationAdapter.onExternalMediationRequest(withBanner: _adView, insight: _usedInsight)
     }
     
     func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-        ALNeftaMediationAdapter.onExternalMediationRequestFail(.banner, adUnitIdentifier: adUnitIdentifier, usedInsight: _usedInsight, error: error)
+        ALNeftaMediationAdapter.onExternalMediationRequestFail(withBanner: _adView, error: error)
         
         Log("didFailToLoadAd \(adUnitIdentifier): \(error)")
         
@@ -54,7 +56,7 @@ class Banner : NSObject, MAAdViewAdDelegate, MAAdRevenueDelegate {
     }
     
     func didLoad(_ ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationRequestLoad(.banner, ad: ad, usedInsight: _usedInsight)
+        ALNeftaMediationAdapter.onExternalMediationRequestLoad(withBanner: _adView, ad: ad)
         
         Log("didLoad \(ad) at: \(ad.revenue)")
         
@@ -65,6 +67,12 @@ class Banner : NSObject, MAAdViewAdDelegate, MAAdRevenueDelegate {
         ALNeftaMediationAdapter.onExternalMediationImpression(ad)
         
         Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+    }
+    
+    func didClick(_ ad: MAAd) {
+        ALNeftaMediationAdapter.onExternalMediationClick(ad)
+        
+        Log("didClick \(ad)")
     }
     
     init(viewController: ViewController, showButton: UIButton, hideButton: UIButton) {
@@ -104,10 +112,6 @@ class Banner : NSObject, MAAdViewAdDelegate, MAAdRevenueDelegate {
         
         _showButton.isEnabled = true
         _hideButton.isEnabled = false
-    }
-
-    func didClick(_ ad: MAAd) {
-        Log("didClick \(ad)")
     }
 
     func didFail(toDisplay ad: MAAd, withError error: MAError) {
