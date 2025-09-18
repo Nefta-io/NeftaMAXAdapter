@@ -24,6 +24,7 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
     private let _viewController: ViewController
     private let _loadSwitch: UISwitch
     private let _showButton: UIButton
+    private let _status: UILabel
     
     private func StartLoading() {
         if _dynamicInterstitial == nil {
@@ -122,10 +123,11 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
         Log("didClick \(ad)")
     }
     
-    init(viewController: ViewController, loadSwitch: UISwitch, showButton: UIButton) {
+    init(viewController: ViewController, loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
         _viewController = viewController
         _loadSwitch = loadSwitch
         _showButton = showButton
+        _status = status
         
         super.init()
         
@@ -184,12 +186,10 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
 
     func didDisplay(_ ad: MAAd) {
         Log("didDisplay \(ad)")
-        _viewController.OnFullScreenAdDisplay(displayed: true)
     }
 
     func didHide(_ ad: MAAd) {
         Log("didHide \(ad)")
-        _viewController.OnFullScreenAdDisplay(displayed: false)
         _presentingInterstitial = nil
         
         // start new cycle
@@ -207,6 +207,7 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
     }
     
     private func Log(_ log: String) {
-        _viewController.Log(type: 2, log: log)
+        _status.text = log
+        print("NeftaPluginMAX Interstitial: \(log)")
     }
 }

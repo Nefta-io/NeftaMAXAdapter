@@ -21,6 +21,7 @@
 @property (weak, nonatomic) UIView *placeholder;
 @property (weak, nonatomic) UISwitch *loadSwitch;
 @property (weak, nonatomic) UIButton *showButton;
+@property (weak, nonatomic) UILabel *status;
 
--(instancetype _Nonnull)initWith:(UIView * _Nonnull)placeholder loadSwitch:(UISwitch * _Nonnull)loadSwitch showButton:(UIButton * _Nonnull)showButton;
+-(instancetype _Nonnull)initWith:(UIView * _Nonnull)placeholder loadSwitch:(UISwitch * _Nonnull)loadSwitch showButton:(UIButton * _Nonnull)showButton status:(UILabel * _Nonnull)status;
 @end

@@ -17,7 +17,6 @@ public class ViewController: UIViewController {
 
     var _plugin: NeftaPlugin!
     
-    var _banner: Banner!
     var _interstitial: Interstitial!
     var _interstitialObjC: InterstitialObjC!
     var _rewardedVideo: Rewarded!
@@ -60,9 +59,8 @@ public class ViewController: UIViewController {
         }
 
         _title.text = "Nefta Adapter for MAX"
-        _banner = Banner(viewController: self, showButton: _showBanner, hideButton: _hideBanner)
-        _interstitial = Interstitial(viewController: self, loadSwitch: _loadInterstitial, showButton: _showInterstitial)
-        //_interstitialObjC = InterstitialObjC(_bannerPlaceholder, load: _loadInterstitial, show: _showInterstitial)
+        _interstitial = Interstitial(viewController: self, loadSwitch: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus)
+        //_interstitialObjC = InterstitialObjC(_bannerPlaceholder, load: _loadInterstitial, show: _showInterstitial, status: _interstitialStatus)
         _rewardedVideo = Rewarded(viewController: self, loadSwitch: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
@@ -96,25 +94,6 @@ public class ViewController: UIViewController {
         max.initialize(with: initConfig) { sdkConfig in
 
         }
-    }
-    
-    @objc func OnFullScreenAdDisplay(displayed: Bool) {
-        _banner.SetAutoRefresh(refresh: !displayed)
-    }
-    
-    @objc func Log(type: Int, log: String) {
-        var tag: String = ""
-        if type == 1 {
-            _bannerStatus.text = log
-            tag = "Banner"
-        } else if type == 2 {
-            _interstitialStatus.text = log
-            tag = "Interstitial"
-        } else if type == 3 {
-            _rewardedStatus.text = log
-            tag = "Rewarded"
-        }
-        print("NeftaPluginMAX \(tag): \(log)")
     }
 }
 

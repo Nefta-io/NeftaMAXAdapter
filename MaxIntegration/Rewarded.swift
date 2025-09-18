@@ -23,6 +23,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     private let _viewController: ViewController
     private let _loadSwitch: UISwitch
     private let _showButton: UIButton
+    private let _status: UILabel
     
     private func StartLoading() {
         if _dynamicRewarded == nil {
@@ -124,6 +125,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
         _viewController = viewController
         _loadSwitch = loadSwitch
         _showButton = showButton
+        _status = status
         
         super.init()
         
@@ -180,12 +182,10 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
 
     func didDisplay(_ ad: MAAd) {
         Log("didDisplay \(ad)")
-        _viewController.OnFullScreenAdDisplay(displayed: true)
     }
 
     func didHide(_ ad: MAAd) {
         Log("didHide \(ad)")
-        _viewController.OnFullScreenAdDisplay(displayed: false)
         
         // start new load cycle
         if (_loadSwitch.isOn) {
@@ -206,6 +206,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     }
     
     private func Log(_ log: String) {
-        _viewController.Log(type: 3, log: log)
+        _status.text = log
+        print("NeftaPluginMAX Rewarded: \(log)")
     }
 }
