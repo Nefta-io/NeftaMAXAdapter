@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u8a-Yk-iEH" userLabel="bannerPlaceholder">
-                                <rect key="frame" x="36.666666666666657" y="69" width="320" height="50"/>
+                                <rect key="frame" x="36.666666666666657" y="128" width="320" height="50"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" id="Tr2-k9-TXd"/>
@@ -26,71 +26,62 @@
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3DT-XR-XY2">
-                                <rect key="frame" x="36.666666666666657" y="139" width="320" height="38.333333333333343"/>
+                                <rect key="frame" x="36.666666666666657" y="198" width="320" height="38.333333333333343"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="320" id="ML1-KY-XmL"/>
+                                    <constraint firstAttribute="width" priority="990" constant="320" id="ML1-KY-XmL"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="32"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pw6-f8-J1A" userLabel="Scroll">
-                                <rect key="frame" x="21.333333333333343" y="197.33333333333331" width="350.66666666666663" height="590.66666666666674"/>
+                                <rect key="frame" x="15.333333333333343" y="256.33333333333326" width="362.66666666666663" height="497.66666666666674"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="top" axis="vertical" distribution="fillProportionally" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="sgf-TX-Yq0" userLabel="Container">
-                                        <rect key="frame" x="10" y="0.0" width="330.66666666666669" height="300"/>
+                                        <rect key="frame" x="10" y="0.0" width="342.66666666666669" height="300"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="TopLeft" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Banner status" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Fw-PD-ho2" userLabel="BannerStatus">
-                                                <rect key="frame" x="0.0" y="0.0" width="320" height="33.333333333333336"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="320" id="Hq7-is-wMa"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="QpV-48-gBC">
-                                                <rect key="frame" x="0.0" y="33.333333333333314" width="330.66666666666669" height="59.666666666666657"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="342.66666666666669" height="61"/>
                                                 <subviews>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="sBa-iP-qpl">
-                                                        <rect key="frame" x="0.0" y="14.333333333333343" width="51" height="31"/>
+                                                        <rect key="frame" x="0.0" y="16.666666666666686" width="63" height="28"/>
                                                     </switch>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Load Interstitial" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f1I-Ej-BO7">
-                                                        <rect key="frame" x="59.000000000000007" y="19.666666666666686" width="116.66666666666669" height="20.333333333333329"/>
+                                                        <rect key="frame" x="71" y="20.333333333333371" width="116.66666666666669" height="20.333333333333329"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hkF-49-Vrt" userLabel="Show Interstitial">
-                                                        <rect key="frame" x="185.66666666666663" y="12.666666666666686" width="145" height="34.333333333333336"/>
+                                                        <rect key="frame" x="197.66666666666663" y="13.333333333333371" width="145" height="34.333333333333336"/>
                                                         <state key="normal" title="Button"/>
                                                         <buttonConfiguration key="configuration" style="plain" title="Show Interstitial"/>
                                                     </button>
                                                 </subviews>
                                             </stackView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="TopLeft" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Interstitial status" lineBreakMode="characterWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M0k-CK-2ng" userLabel="InterstitialStatus">
-                                                <rect key="frame" x="0.0" y="92.999999999999972" width="320" height="33.333333333333343"/>
+                                                <rect key="frame" x="0.0" y="61" width="320" height="34.333333333333343"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" constant="320" id="tgB-5c-obw"/>
+                                                    <constraint firstAttribute="width" priority="990" constant="320" id="tgB-5c-obw"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="HqQ-jZ-yQu">
-                                                <rect key="frame" x="0.0" y="126.33333333333334" width="269" height="81"/>
+                                                <rect key="frame" x="0.0" y="95.333333333333371" width="281" height="95.666666666666686"/>
                                                 <subviews>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="lnF-AG-qrh" userLabel="Load Rewarded">
-                                                        <rect key="frame" x="0.0" y="25" width="51" height="31"/>
+                                                        <rect key="frame" x="0.0" y="34" width="63" height="28"/>
                                                     </switch>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Load Video" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gKV-Nf-Lbo" userLabel="Load Rewarded">
-                                                        <rect key="frame" x="59.000000000000007" y="30.333333333333314" width="85.666666666666686" height="20.333333333333329"/>
+                                                        <rect key="frame" x="71" y="37.666666666666629" width="85.666666666666686" height="20.333333333333329"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="URP-hD-8K9" userLabel="Show Video">
-                                                        <rect key="frame" x="154.66666666666666" y="23.333333333333346" width="114.33333333333334" height="34.333333333333343"/>
+                                                        <rect key="frame" x="166.66666666666666" y="30.666666666666661" width="114.33333333333334" height="34.333333333333343"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <state key="normal" title="Button"/>
                                                         <buttonConfiguration key="configuration" style="plain" title="Show Video"/>
@@ -98,9 +89,9 @@
                                                 </subviews>
                                             </stackView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="TopLeft" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rewarded status" lineBreakMode="characterWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mc4-Zn-xah" userLabel="RewardedStatus">
-                                                <rect key="frame" x="0.0" y="207.33333333333334" width="320" height="92.666666666666657"/>
+                                                <rect key="frame" x="0.0" y="191" width="320" height="109"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" constant="320" id="Olz-NH-MXg"/>
+                                                    <constraint firstAttribute="width" priority="990" constant="320" id="Olz-NH-MXg"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                 <nil key="textColor"/>
@@ -137,7 +128,6 @@
                     </view>
                     <connections>
                         <outlet property="_bannerPlaceholder" destination="u8a-Yk-iEH" id="bHi-LA-aIj"/>
-                        <outlet property="_bannerStatus" destination="8Fw-PD-ho2" id="bcb-pl-exf"/>
                         <outlet property="_interstitialStatus" destination="M0k-CK-2ng" id="kVO-mP-5zQ"/>
                         <outlet property="_loadInterstitial" destination="sBa-iP-qpl" id="Ds9-XP-1rO"/>
                         <outlet property="_loadRewarded" destination="lnF-AG-qrh" id="g0H-02-79T"/>
