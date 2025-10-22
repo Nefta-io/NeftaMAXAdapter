@@ -14,11 +14,16 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
     private let TimeoutInSeconds = 5
     
     private var _dynamicInterstitial: MAInterstitialAd?
-    private var _dynamicAdRevenue: Float64 = -1
     private var _dynamicInsight: AdInsight?
     private var _consecutiveDynamicFails = 0
+    private var _dynamicAdRevenue: Float64 = -1
+    
     private var _defaultInterstitial: MAInterstitialAd?
+    private var _defaultLoadStart: UInt64 = 0
+    private var _consecutiveDefaultFails = 0
     private var _defaultAdRevenue: Float64 = -1
+    
+    // Holding reference to presenting ad, so it does not get released, to ensure impression and click callbacks
     private var _presentingInterstitial: MAInterstitialAd?
     
     private let _viewController: ViewController
@@ -49,19 +54,22 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
             _dynamicInterstitial!.delegate = self
             _dynamicInterstitial!.setExtraParameterForKey("disable_auto_retries", value: "true")
             _dynamicInterstitial!.setExtraParameterForKey("jC7Fp", value: bidFloorParam)
-            _dynamicInterstitial!.load()
             
             ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: _dynamicInterstitial!, insight: insight)
+            
+            _dynamicInterstitial!.load()
         }
     }
     
     private func LoadDefault() {
         Log("Loading Default Interstitial")
+        _defaultLoadStart = DispatchTime.now().uptimeNanoseconds
         _defaultInterstitial = MAInterstitialAd(adUnitIdentifier: DefaultAdUnitId)
         _defaultInterstitial!.delegate = self
-        _defaultInterstitial!.load()
         
         ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: _defaultInterstitial!)
+        
+        _defaultInterstitial!.load()
     }
     
     func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
@@ -72,10 +80,9 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
             
             _dynamicInterstitial = nil
             _consecutiveDynamicFails += 1
-            // As per MAX recommendations, retry with exponentially higher delays up to 64s
-            // In case you would like to customize fill rate / revenue please contact our customer support
-            let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveDynamicFails, 6)]
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
+
+            let delayInSeconds = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDynamicFails)
+            DispatchQueue.main.asyncAfter(deadline: .now() + delayInSeconds) {
                 if self._loadSwitch.isOn {
                     self.GetInsightsAndLoad(previousInsight: self._dynamicInsight)
                 }
@@ -86,10 +93,29 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
             Log("Load failed Default \(adUnitIdentifier): \(error)")
             
             _defaultInterstitial = nil
+            _consecutiveDefaultFails += 1
+            
             if _loadSwitch.isOn {
-                LoadDefault()
+                // In rare cases where mediation returns failed load early (OnAdFailedEvent is invoked in ms after load):
+                // Make sure to wait at least 2 seconds since LoadDefault()
+                // (This is different from delay on dynamic track, where the delay starts from OnAdFailedEvent())
+                let timeSinceAdLoad = Double(DispatchTime.now().uptimeNanoseconds - _defaultLoadStart) / 1_000_000_000
+                let remainingWaitTime = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDefaultFails) - timeSinceAdLoad;
+                if remainingWaitTime > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + remainingWaitTime) {
+                        self.LoadDefault()
+                    }
+                } else {
+                    LoadDefault()
+                }
             }
         }
+    }
+    
+    func GetMinWaitTime(numberOfConsecutiveFails: Int) -> Double {
+        // As per MAX recommendations, retry with exponentially higher delays up to 64s
+        // In case you would like to customize fill rate / revenue please contact our customer support
+        return [0, 2, 4, 8, 16, 32, 64][min(numberOfConsecutiveFails, 6)]
     }
     
     func didLoad(_ ad: MAAd) {
@@ -105,6 +131,7 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
             
             Log("Load Dyanmic \(ad) at: \(ad.revenue)")
             
+            _consecutiveDefaultFails = 0
             _defaultAdRevenue = ad.revenue
         }
         

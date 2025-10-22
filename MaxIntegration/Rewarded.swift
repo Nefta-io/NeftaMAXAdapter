@@ -14,10 +14,13 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     private let TimeoutInSeconds = 5
     
     private var _dynamicRewarded: MARewardedAd?
-    private var _dynamicAdRevenue: Float64 = -1
     private var _dynamicInsight: AdInsight?
     private var _consecutiveDynamicFails = 0
+    private var _dynamicAdRevenue: Float64 = -1
+    
     private var _defaultRewarded: MARewardedAd?
+    private var _defaultLoadStart: UInt64 = 0
+    private var _consecutiveDefaultFails = 0
     private var _defaultAdRevenue: Float64 = -1
     
     private let _viewController: ViewController
@@ -48,18 +51,21 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             _dynamicRewarded!.delegate = self
             _dynamicRewarded!.setExtraParameterForKey("disable_auto_retries", value: "true")
             _dynamicRewarded!.setExtraParameterForKey("jC7Fp", value: bidFloorParam)
-            _dynamicRewarded!.load()
             
             ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: _dynamicRewarded!, insight: insight)
+            
+            _dynamicRewarded!.load()
         }
     }
     
     private func LoadDefault() {
+        Log("Loading Default Rewarded")
         _defaultRewarded = MARewardedAd.shared(withAdUnitIdentifier: DefaultAdUnitId)
         _defaultRewarded!.delegate = self
-        _defaultRewarded!.load()
         
         ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: _defaultRewarded!)
+        
+        _defaultRewarded!.load()
     }
     
     func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
@@ -70,9 +76,8 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             
             _dynamicRewarded = nil
             _consecutiveDynamicFails += 1
-            // As per MAX recommendations, retry with exponentially higher delays up to 64s
-            // In case you would like to customize fill rate / revenue please contact our customer support
-            let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveDynamicFails, 6)]
+
+            let delayInSeconds = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDynamicFails)
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
                 if self._loadSwitch.isOn {
                     self.GetInsightsAndLoad(previousInsight: self._dynamicInsight)
@@ -84,10 +89,29 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             Log("Load failed Default \(adUnitIdentifier): \(error)")
             
             _defaultRewarded = nil
+            _consecutiveDefaultFails += 1
+            
             if _loadSwitch.isOn {
-                LoadDefault()
+                // In rare cases where mediation returns failed load early (OnAdFailedEvent is invoked in ms after load):
+                // Make sure to wait at least 2 seconds since LoadDefault()
+                // (This is different from delay on dynamic track, where the delay starts from OnAdFailedEvent())
+                let timeSinceAdLoad = Double(DispatchTime.now().uptimeNanoseconds - _defaultLoadStart) / 1_000_000_000
+                let remainingWaitTime = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDefaultFails) - timeSinceAdLoad;
+                if remainingWaitTime > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + remainingWaitTime) {
+                        self.LoadDefault()
+                    }
+                } else {
+                    LoadDefault()
+                }
             }
         }
+    }
+    
+    func GetMinWaitTime(numberOfConsecutiveFails: Int) -> Double {
+        // As per MAX recommendations, retry with exponentially higher delays up to 64s
+        // In case you would like to customize fill rate / revenue please contact our customer support
+        return [0, 2, 4, 8, 16, 32, 64][min(numberOfConsecutiveFails, 6)]
     }
     
     func didLoad(_ ad: MAAd) {
@@ -103,6 +127,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
             
             Log("Load Default \(ad) at: \(ad.revenue)")
             
+            _consecutiveDefaultFails = 0
             _defaultAdRevenue = ad.revenue
         }
 
