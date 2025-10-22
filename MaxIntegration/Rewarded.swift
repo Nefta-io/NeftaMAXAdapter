@@ -60,6 +60,7 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     
     private func LoadDefault() {
         Log("Loading Default Rewarded")
+        _defaultLoadStart = DispatchTime.now().uptimeNanoseconds
         _defaultRewarded = MARewardedAd.shared(withAdUnitIdentifier: DefaultAdUnitId)
         _defaultRewarded!.delegate = self
         
