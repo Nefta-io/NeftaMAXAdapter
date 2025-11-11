@@ -8,146 +8,153 @@
 import Foundation
 import AppLovinSDK
 
-class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
-    private let DynamicAdUnitId = "e5dc3548d4a0913f"
-    private let DefaultAdUnitId = "6d318f954e2630a8"
+class Interstitial {
+    private let AdUnitA = "e5dc3548d4a0913f"
+    private let AdUnitB = "6d318f954e2630a8"
     private let TimeoutInSeconds = 5
     
-    private var _dynamicInterstitial: MAInterstitialAd?
-    private var _dynamicInsight: AdInsight?
-    private var _consecutiveDynamicFails = 0
-    private var _dynamicAdRevenue: Float64 = -1
+    public enum State {
+        case Idle
+        case LoadingWithInsights
+        case Loading
+        case Ready
+    }
     
-    private var _defaultInterstitial: MAInterstitialAd?
-    private var _defaultLoadStart: UInt64 = 0
-    private var _consecutiveDefaultFails = 0
-    private var _defaultAdRevenue: Float64 = -1
+    public class AdRequest : NSObject, MAAdDelegate, MAAdRevenueDelegate {
+        public let _adUnitId: String
+        public var _interstitial: MAInterstitialAd? = nil
+        public var _state: State = State.Idle
+        public var _insight: AdInsight? = nil
+        public var _revenue: Float64 = -1
+        public var _consecutiveAdFails: Int = 0
+        
+        public init(adUnitId: String) {
+            _adUnitId = adUnitId
+        }
+        
+        func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
+            ALNeftaMediationAdapter.onExternalMediationRequestFail(withInterstitial: _interstitial!, error: error)
+            
+            Interstitial.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
+            
+            _interstitial = nil
+            _consecutiveAdFails += 1
+            retryLoad()
+            
+            Interstitial.Instance.OnTrackLoad(false)
+        }
+        
+        func didLoad(_ ad: MAAd) {
+            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withInterstitial: _interstitial!, ad: ad)
+            
+            Interstitial.Instance.Log("Loaded \(ad) at: \(ad.revenue)")
+            
+            _insight = nil
+            _consecutiveAdFails = 0
+            _revenue = ad.revenue
+            _state = State.Ready
+            
+            Interstitial.Instance.OnTrackLoad(true)
+        }
+        
+        func retryLoad() {
+            // As per MAX recommendations, retry with exponentially higher delays up to 64s
+            // In case you would like to customize fill rate / revenue please contact our customer support
+            let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
+                self._state = State.Idle
+                Interstitial.Instance.RetryLoading()
+            }
+        }
+        
+        func didPayRevenue(for ad: MAAd) {
+            ALNeftaMediationAdapter.onExternalMediationImpression(ad)
+            
+            Interstitial.Instance.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+        }
+        
+        func didClick(_ ad: MAAd) {
+            ALNeftaMediationAdapter.onExternalMediationClick(ad)
+            
+            Interstitial.Instance.Log("didClick \(ad)")
+        }
+        
+        func didFail(toDisplay ad: MAAd, withError error: MAError) {
+            Interstitial.Instance.Log("didFail \(ad)")
+        }
+        
+        func didDisplay(_ ad: MAAd) {
+            Interstitial.Instance.Log("didDisplay \(ad)")
+        }
+
+        func didHide(_ ad: MAAd) {
+            Interstitial.Instance.Log("didHide \(ad)")
+            
+            Interstitial.Instance.OnHide()
+        }
+    }
     
-    // Holding reference to presenting ad, so it does not get released, to ensure impression and click callbacks
-    private var _presentingInterstitial: MAInterstitialAd?
+    private var _adRequestA: AdRequest
+    private var _adRequestB: AdRequest
+    private var _isFirstResponseRecieved = false
     
     private let _viewController: ViewController
     private let _loadSwitch: UISwitch
     private let _showButton: UIButton
     private let _status: UILabel
     
+    public static var Instance: Interstitial!
+    
     private func StartLoading() {
-        if _dynamicInterstitial == nil {
-            GetInsightsAndLoad(previousInsight: nil)
-        }
-        if _defaultInterstitial == nil {
-            LoadDefault()
-        }
+        Load(request: _adRequestA, otherState: _adRequestB._state)
+        Load(request: _adRequestB, otherState: _adRequestA._state)
     }
     
-    private func GetInsightsAndLoad(previousInsight: AdInsight?) {
-        NeftaPlugin._instance.GetInsights(Insights.Interstitial, previousInsight: previousInsight, callback: LoadWithInsights, timeout: TimeoutInSeconds)
-    }
-    
-    private func LoadWithInsights(insights: Insights) {
-        _dynamicInsight = insights._interstitial
-        if let insight = _dynamicInsight {
-            let bidFloorParam = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
-            
-            Log("Loading Dynamic Interstitial with insights: \(insight) floor: \(bidFloorParam)")
-            _dynamicInterstitial = MAInterstitialAd(adUnitIdentifier: DynamicAdUnitId)
-            _dynamicInterstitial!.delegate = self
-            _dynamicInterstitial!.setExtraParameterForKey("disable_auto_retries", value: "true")
-            _dynamicInterstitial!.setExtraParameterForKey("jC7Fp", value: bidFloorParam)
-            
-            ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: _dynamicInterstitial!, insight: insight)
-            
-            _dynamicInterstitial!.load()
-        }
-    }
-    
-    private func LoadDefault() {
-        Log("Loading Default Interstitial")
-        _defaultLoadStart = DispatchTime.now().uptimeNanoseconds
-        _defaultInterstitial = MAInterstitialAd(adUnitIdentifier: DefaultAdUnitId)
-        _defaultInterstitial!.delegate = self
-        
-        ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: _defaultInterstitial!)
-        
-        _defaultInterstitial!.load()
-    }
-    
-    func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-        if adUnitIdentifier == DynamicAdUnitId {
-            ALNeftaMediationAdapter.onExternalMediationRequestFail(withInterstitial: _dynamicInterstitial!, error: error)
-            
-            Log("Load failed Dynamic \(adUnitIdentifier): \(error)")
-            
-            _dynamicInterstitial = nil
-            _consecutiveDynamicFails += 1
-
-            let delayInSeconds = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDynamicFails)
-            DispatchQueue.main.asyncAfter(deadline: .now() + delayInSeconds) {
-                if self._loadSwitch.isOn {
-                    self.GetInsightsAndLoad(previousInsight: self._dynamicInsight)
-                }
-            }
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequestFail(withInterstitial: _defaultInterstitial!, error: error)
-            
-            Log("Load failed Default \(adUnitIdentifier): \(error)")
-            
-            _defaultInterstitial = nil
-            _consecutiveDefaultFails += 1
-            
-            if _loadSwitch.isOn {
-                // In rare cases where mediation returns failed load early (OnAdFailedEvent is invoked in ms after load):
-                // Make sure to wait at least 2 seconds since LoadDefault()
-                // (This is different from delay on dynamic track, where the delay starts from OnAdFailedEvent())
-                let timeSinceAdLoad = Double(DispatchTime.now().uptimeNanoseconds - _defaultLoadStart) / 1_000_000_000
-                let remainingWaitTime = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDefaultFails) - timeSinceAdLoad;
-                if remainingWaitTime > 0 {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + remainingWaitTime) {
-                        self.LoadDefault()
-                    }
-                } else {
-                    LoadDefault()
-                }
+    private func Load(request: AdRequest, otherState: State) {
+        if request._state == State.Idle {
+            if otherState != State.LoadingWithInsights {
+                GetInsightsAndLoad(adRequest: request)
+            } else if (_isFirstResponseRecieved) {
+                LoadDefault(adRequest: request)
             }
         }
     }
     
-    func GetMinWaitTime(numberOfConsecutiveFails: Int) -> Double {
-        // As per MAX recommendations, retry with exponentially higher delays up to 64s
-        // In case you would like to customize fill rate / revenue please contact our customer support
-        return [0, 2, 4, 8, 16, 32, 64][min(numberOfConsecutiveFails, 6)]
+    private func GetInsightsAndLoad(adRequest: AdRequest) {
+        adRequest._state = State.LoadingWithInsights
+        
+        NeftaPlugin._instance.GetInsights(Insights.Interstitial, previousInsight: adRequest._insight, callback: { insights in
+            self.Log("Load with insights: \(insights)")
+            if let insight = insights._interstitial {
+                adRequest._insight = insight
+                let bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                adRequest._interstitial = MAInterstitialAd(adUnitIdentifier: adRequest._adUnitId)
+                adRequest._interstitial!.delegate = adRequest
+                adRequest._interstitial!.setExtraParameterForKey("disable_auto_retries", value: "true")
+                adRequest._interstitial!.setExtraParameterForKey("jC7Fp", value: bidFloor)
+                
+                ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: adRequest._interstitial!, insight: insight)
+                
+                self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
+                adRequest._interstitial!.load()
+            } else {
+                adRequest._consecutiveAdFails += 1
+                adRequest.retryLoad()
+            }
+        }, timeout: TimeoutInSeconds)
     }
     
-    func didLoad(_ ad: MAAd) {
-        if ad.adUnitIdentifier == DynamicAdUnitId {
-            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withInterstitial: _dynamicInterstitial!, ad: ad)
-            
-            Log("Load Dynamic \(ad) at: \(ad.revenue)")
-            
-            _consecutiveDynamicFails = 0
-            _dynamicAdRevenue = ad.revenue
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withInterstitial: _defaultInterstitial!, ad: ad)
-            
-            Log("Load Dyanmic \(ad) at: \(ad.revenue)")
-            
-            _consecutiveDefaultFails = 0
-            _defaultAdRevenue = ad.revenue
-        }
+    private func LoadDefault(adRequest: AdRequest) {
+        adRequest._state = State.Loading
         
-        UpdateShowButton()
-    }
-    
-    func didPayRevenue(for ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationImpression(ad)
+        Log("Loading \(adRequest._adUnitId) as Default")
         
-        Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
-    }
-    
-    func didClick(_ ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationClick(ad)
+        adRequest._interstitial = MAInterstitialAd(adUnitIdentifier: adRequest._adUnitId)
+        adRequest._interstitial!.delegate = adRequest
         
-        Log("didClick \(ad)")
+        ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: adRequest._interstitial!)
+        
+        adRequest._interstitial!.load()
     }
     
     init(viewController: ViewController, loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
@@ -156,7 +163,10 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
         _showButton = showButton
         _status = status
         
-        super.init()
+        _adRequestA = AdRequest(adUnitId: AdUnitA)
+        _adRequestB = AdRequest(adUnitId: AdUnitB)
+        
+        Interstitial.Instance = self
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
         _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
@@ -172,69 +182,61 @@ class Interstitial : NSObject, MAAdDelegate, MAAdRevenueDelegate {
     
     @objc private func OnShowClick() {
         var isShown = false
-        if _dynamicAdRevenue >= 0 {
-            if _defaultAdRevenue > _dynamicAdRevenue {
-                isShown = TryShowDefault()
+        if _adRequestA._state == State.Ready {
+            if _adRequestB._state == State.Ready && _adRequestB._revenue > _adRequestA._revenue {
+                isShown = TryShow(adRequest: _adRequestB)
             }
             if !isShown {
-                isShown = TryShowDynamic()
+                isShown = TryShow(adRequest: _adRequestA)
             }
         }
-        if !isShown && _defaultAdRevenue >= 0 {
-            isShown = TryShowDefault()
+        if !isShown && _adRequestB._state == State.Ready {
+            isShown = TryShow(adRequest: _adRequestB)
         }
         
         UpdateShowButton()
     }
     
-    private func TryShowDynamic() -> Bool {
-        var isShown = false
-        if _dynamicInterstitial!.isReady {
-            _dynamicInterstitial!.show()
-            isShown = true
+    private func TryShow(adRequest: AdRequest) -> Bool {
+        adRequest._state = State.Idle
+        adRequest._revenue = -1
+
+        if adRequest._interstitial!.isReady {
+            adRequest._interstitial!.show()
+            return true
         }
-        _dynamicAdRevenue = -1
-        _presentingInterstitial = _dynamicInterstitial
-        _dynamicInterstitial = nil
-        return isShown
+        return false
     }
     
-    private func TryShowDefault() -> Bool {
-        var isShown = false
-        if _defaultInterstitial!.isReady {
-            _defaultInterstitial!.show()
-            isShown = true
-        }
-        _defaultAdRevenue = -1
-        _presentingInterstitial = _defaultInterstitial
-        _defaultInterstitial = nil
-        return isShown
-    }
-
-    func didDisplay(_ ad: MAAd) {
-        Log("didDisplay \(ad)")
-    }
-
-    func didHide(_ ad: MAAd) {
-        Log("didHide \(ad)")
-        _presentingInterstitial = nil
-        
-        // start new cycle
+    private func RetryLoading() {
         if _loadSwitch.isOn {
             StartLoading()
         }
     }
-
-    func didFail(toDisplay ad: MAAd, withError error: MAError) {
-        Log("didFail \(ad)")
+    
+    private func OnTrackLoad(_ success: Bool) {
+        if success {
+            UpdateShowButton()
+        }
+        
+        _isFirstResponseRecieved = true
+        if _loadSwitch.isOn {
+            StartLoading()
+        }
     }
     
-    func UpdateShowButton() {
-        _showButton.isEnabled = _dynamicAdRevenue >= 0 || _defaultAdRevenue >= 0
+    private func UpdateShowButton() {
+        _showButton.isEnabled = _adRequestA._state == State.Ready || _adRequestB._state == State.Ready
+    }
+    
+    private func OnHide() {
+        if _loadSwitch.isOn {
+            StartLoading()
+        }
     }
     
     private func Log(_ log: String) {
         _status.text = log
-        print("NeftaPluginMAX Interstitial: \(log)")
+        ViewController._log.info("NeftaPluginMAX Interstitial: \(log, privacy: .public)")
     }
 }

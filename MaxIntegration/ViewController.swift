@@ -11,10 +11,13 @@ import NeftaSDK
 import AppLovinSDK
 import AdSupport
 import AppTrackingTransparency
+import OSLog
 
 @objc(ViewController)
 public class ViewController: UIViewController {
 
+    public static var _log = Logger(subsystem: "com.nefta.max", category: "general")
+    
     var _plugin: NeftaPlugin!
     
     var _interstitial: Interstitial!
@@ -27,27 +30,18 @@ public class ViewController: UIViewController {
         "e0b0d20088d60ec5"
     ]
     
-    @IBOutlet weak var _bannerPlaceholder: UIView!
-    @IBOutlet weak var _showBanner: UIButton!
-    @IBOutlet weak var _hideBanner: UIButton!
     @IBOutlet weak var _loadInterstitial: UISwitch!
     @IBOutlet weak var _showInterstitial: UIButton!
     @IBOutlet weak var _showRewarded: UIButton!
     @IBOutlet weak var _loadRewarded: UISwitch!
     @IBOutlet weak var _title: UILabel!
-    @IBOutlet weak var _bannerStatus: UILabel!
     @IBOutlet weak var _interstitialStatus: UILabel!
     @IBOutlet weak var _rewardedStatus: UILabel!
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        _ = DebugServer(viewController: self)
-
-        let arguments = ProcessInfo.processInfo.arguments
-        if arguments.count > 1 {
-            NeftaPlugin.SetOverride(url: arguments[1])
-        }
+        DebugServer.Init(viewController: self)
         
         NeftaPlugin.EnableLogging(enable: true)
         NeftaPlugin.SetExtraParameter(key: NeftaPlugin.ExtParam_TestGroup, value: "split-max")
@@ -58,7 +52,9 @@ public class ViewController: UIViewController {
             }
         }
 
-        _title.text = "Nefta Adapter for MAX"
+        let titleTap = UITapGestureRecognizer(target: self, action: #selector(toSimulationMode))
+        _title.addGestureRecognizer(titleTap)
+        
         _interstitial = Interstitial(viewController: self, loadSwitch: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus)
         //_interstitialObjC = InterstitialObjC(_bannerPlaceholder, load: _loadInterstitial, show: _showInterstitial, status: _interstitialStatus)
         _rewardedVideo = Rewarded(viewController: self, loadSwitch: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
@@ -94,6 +90,10 @@ public class ViewController: UIViewController {
         max.initialize(with: initConfig) { sdkConfig in
 
         }
+    }
+    
+    @objc private func toSimulationMode() {
+        
     }
 }
 

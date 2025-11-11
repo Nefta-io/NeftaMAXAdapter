@@ -8,3 +8,4 @@
 #import "ALNeftaMediationAdapter.h"
 
 #import "InterstitialObjC.h"
+#import "SimMAAd.h"

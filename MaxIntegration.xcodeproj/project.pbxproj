@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		904466FC2EC37BA700689575 /* SimMAAd.m in Sources */ = {isa = PBXBuildFile; fileRef = 904466FA2EC37BA700689575 /* SimMAAd.m */; };
+		904466FD2EC37BA700689575 /* SimulatorAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466FB2EC37BA700689575 /* SimulatorAd.swift */; };
+		904466FE2EC37BA700689575 /* InterstitialSim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466F72EC37BA700689575 /* InterstitialSim.swift */; };
+		904466FF2EC37BA700689575 /* RewardedSim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466F82EC37BA700689575 /* RewardedSim.swift */; };
 		907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 907C22EA2DE0335900857E06 /* InterstitialObjC.m */; };
 		90A1693B2E7405CE00BB253D /* DebugServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A1693A2E7405CE00BB253D /* DebugServer.swift */; };
 		90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA539F2C0871DD0041E63B /* AppDelegate.swift */; };
@@ -37,6 +41,11 @@
 		18974D572C6B660FC18148FC /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 		76E968EA639F540F79300913 /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9026575D2BEC9B8900EA4F62 /* MaxIntegration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaxIntegration.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		904466F72EC37BA700689575 /* InterstitialSim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterstitialSim.swift; sourceTree = "<group>"; };
+		904466F82EC37BA700689575 /* RewardedSim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedSim.swift; sourceTree = "<group>"; };
+		904466F92EC37BA700689575 /* SimMAAd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimMAAd.h; sourceTree = "<group>"; };
+		904466FA2EC37BA700689575 /* SimMAAd.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimMAAd.m; sourceTree = "<group>"; };
+		904466FB2EC37BA700689575 /* SimulatorAd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorAd.swift; sourceTree = "<group>"; };
 		907C22E92DE0332B00857E06 /* InterstitialObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterstitialObjC.h; sourceTree = "<group>"; };
 		907C22EA2DE0335900857E06 /* InterstitialObjC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InterstitialObjC.m; sourceTree = "<group>"; };
 		90A1693A2E7405CE00BB253D /* DebugServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugServer.swift; sourceTree = "<group>"; };
@@ -104,6 +113,11 @@
 		90DA53AB2C0871DD0041E63B /* MaxIntegration */ = {
 			isa = PBXGroup;
 			children = (
+				904466F72EC37BA700689575 /* InterstitialSim.swift */,
+				904466F82EC37BA700689575 /* RewardedSim.swift */,
+				904466F92EC37BA700689575 /* SimMAAd.h */,
+				904466FA2EC37BA700689575 /* SimMAAd.m */,
+				904466FB2EC37BA700689575 /* SimulatorAd.swift */,
 				90A1693A2E7405CE00BB253D /* DebugServer.swift */,
 				907C22EA2DE0335900857E06 /* InterstitialObjC.m */,
 				907C22E92DE0332B00857E06 /* InterstitialObjC.h */,
@@ -220,9 +234,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -237,6 +255,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				90DA53B32C0871DD0041E63B /* Rewarded.swift in Sources */,
+				904466FC2EC37BA700689575 /* SimMAAd.m in Sources */,
+				904466FD2EC37BA700689575 /* SimulatorAd.swift in Sources */,
+				904466FE2EC37BA700689575 /* InterstitialSim.swift in Sources */,
+				904466FF2EC37BA700689575 /* RewardedSim.swift in Sources */,
 				907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */,
 				90A1693B2E7405CE00BB253D /* DebugServer.swift in Sources */,
 				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,

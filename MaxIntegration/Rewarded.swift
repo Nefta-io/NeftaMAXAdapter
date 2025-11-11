@@ -8,143 +8,157 @@
 import Foundation
 import AppLovinSDK
 
-class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
-    private let DynamicAdUnitId = "e0b0d20088d60ec5"
-    private let DefaultAdUnitId = "918acf84edf9c034"
+class Rewarded {
+    private let AdUnitA = "e0b0d20088d60ec5"
+    private let AdUnitB = "918acf84edf9c034"
     private let TimeoutInSeconds = 5
     
-    private var _dynamicRewarded: MARewardedAd?
-    private var _dynamicInsight: AdInsight?
-    private var _consecutiveDynamicFails = 0
-    private var _dynamicAdRevenue: Float64 = -1
+    public enum State {
+        case Idle
+        case LoadingWithInsights
+        case Loading
+        case Ready
+    }
     
-    private var _defaultRewarded: MARewardedAd?
-    private var _defaultLoadStart: UInt64 = 0
-    private var _consecutiveDefaultFails = 0
-    private var _defaultAdRevenue: Float64 = -1
+    public class AdRequest : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
+        public let _adUnitId: String
+        public var _rewarded: MARewardedAd? = nil
+        public var _state: State = State.Idle
+        public var _insight: AdInsight? = nil
+        public var _revenue: Float64 = -1
+        public var _consecutiveAdFails: Int = 0
+        
+        public init(adUnitId: String) {
+            _adUnitId = adUnitId
+        }
+        
+        func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
+            ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _rewarded!, error: error)
+            
+            Rewarded.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
+            
+            _rewarded = nil
+            _consecutiveAdFails += 1
+            retryLoad()
+            
+            Rewarded.Instance.OnTrackLoad(false)
+        }
+        
+        func didLoad(_ ad: MAAd) {
+            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _rewarded!, ad: ad)
+            
+            Rewarded.Instance.Log("Loaded \(ad) at: \(ad.revenue)")
+            
+            _insight = nil
+            _consecutiveAdFails = 0
+            _revenue = ad.revenue
+            _state = State.Ready
+            
+            Rewarded.Instance.OnTrackLoad(true)
+        }
+        
+        func retryLoad() {
+            // As per MAX recommendations, retry with exponentially higher delays up to 64s
+            // In case you would like to customize fill rate / revenue please contact our customer support
+            let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
+                self._state = State.Idle
+                Rewarded.Instance.RetryLoading()
+            }
+        }
+        
+        func didPayRevenue(for ad: MAAd) {
+            ALNeftaMediationAdapter.onExternalMediationImpression(ad)
+            
+            Rewarded.Instance.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+        }
+        
+        func didClick(_ ad: MAAd) {
+            ALNeftaMediationAdapter.onExternalMediationClick(ad)
+            
+            Rewarded.Instance.Log("didClick \(ad)")
+        }
+        
+        func didFail(toDisplay ad: MAAd, withError error: MAError) {
+            Rewarded.Instance.Log("didFail \(ad)")
+        }
+        
+        func didDisplay(_ ad: MAAd) {
+            Rewarded.Instance.Log("didDisplay \(ad)")
+        }
+        
+        func didRewardUser(for ad: MAAd, with reward: MAReward) {
+            Rewarded.Instance.Log("didRewardUser \(ad) \(reward)")
+        }
+
+        func didHide(_ ad: MAAd) {
+            Rewarded.Instance.Log("didHide \(ad)")
+            
+            Rewarded.Instance.OnHide()
+        }
+    }
+    
+    private var _adRequestA: AdRequest
+    private var _adRequestB: AdRequest
+    private var _isFirstResponseRecieved = false
     
     private let _viewController: ViewController
     private let _loadSwitch: UISwitch
     private let _showButton: UIButton
     private let _status: UILabel
     
+    public static var Instance: Rewarded!
+    
     private func StartLoading() {
-        if _dynamicRewarded == nil {
-            GetInsightsAndLoad(previousInsight: nil)
-        }
-        if _defaultRewarded == nil {
-            LoadDefault()
-        }
+        Load(request: _adRequestA, otherState: _adRequestB._state)
+        Load(request: _adRequestB, otherState: _adRequestA._state)
     }
     
-    private func GetInsightsAndLoad(previousInsight: AdInsight?) {
-        NeftaPlugin._instance.GetInsights(Insights.Rewarded, previousInsight: previousInsight, callback: LoadWithInsights, timeout: TimeoutInSeconds)
-    }
-    
-    private func LoadWithInsights(insights: Insights) {
-        _dynamicInsight = insights._rewarded
-        if let insight =  _dynamicInsight {
-            let bidFloorParam = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
-            
-            Log("Loading Dynamic Rewarded with insight \(insight) floor: \(bidFloorParam)")
-            _dynamicRewarded = MARewardedAd.shared(withAdUnitIdentifier: DynamicAdUnitId)
-            _dynamicRewarded!.delegate = self
-            _dynamicRewarded!.setExtraParameterForKey("disable_auto_retries", value: "true")
-            _dynamicRewarded!.setExtraParameterForKey("jC7Fp", value: bidFloorParam)
-            
-            ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: _dynamicRewarded!, insight: insight)
-            
-            _dynamicRewarded!.load()
-        }
-    }
-    
-    private func LoadDefault() {
-        Log("Loading Default Rewarded")
-        _defaultLoadStart = DispatchTime.now().uptimeNanoseconds
-        _defaultRewarded = MARewardedAd.shared(withAdUnitIdentifier: DefaultAdUnitId)
-        _defaultRewarded!.delegate = self
-        
-        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: _defaultRewarded!)
-        
-        _defaultRewarded!.load()
-    }
-    
-    func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-        if adUnitIdentifier == DynamicAdUnitId {
-            ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _dynamicRewarded!, error: error)
-            
-            Log("Load failed Dynamic \(adUnitIdentifier): \(error)")
-            
-            _dynamicRewarded = nil
-            _consecutiveDynamicFails += 1
-
-            let delayInSeconds = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDynamicFails)
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
-                if self._loadSwitch.isOn {
-                    self.GetInsightsAndLoad(previousInsight: self._dynamicInsight)
-                }
-            }
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _defaultRewarded!, error: error)
-            
-            Log("Load failed Default \(adUnitIdentifier): \(error)")
-            
-            _defaultRewarded = nil
-            _consecutiveDefaultFails += 1
-            
-            if _loadSwitch.isOn {
-                // In rare cases where mediation returns failed load early (OnAdFailedEvent is invoked in ms after load):
-                // Make sure to wait at least 2 seconds since LoadDefault()
-                // (This is different from delay on dynamic track, where the delay starts from OnAdFailedEvent())
-                let timeSinceAdLoad = Double(DispatchTime.now().uptimeNanoseconds - _defaultLoadStart) / 1_000_000_000
-                let remainingWaitTime = GetMinWaitTime(numberOfConsecutiveFails: _consecutiveDefaultFails) - timeSinceAdLoad;
-                if remainingWaitTime > 0 {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + remainingWaitTime) {
-                        self.LoadDefault()
-                    }
-                } else {
-                    LoadDefault()
-                }
+    private func Load(request: AdRequest, otherState: State) {
+        if request._state == State.Idle {
+            if otherState != State.LoadingWithInsights {
+                GetInsightsAndLoad(adRequest: request)
+            } else if (_isFirstResponseRecieved) {
+                LoadDefault(adRequest: request)
             }
         }
     }
     
-    func GetMinWaitTime(numberOfConsecutiveFails: Int) -> Double {
-        // As per MAX recommendations, retry with exponentially higher delays up to 64s
-        // In case you would like to customize fill rate / revenue please contact our customer support
-        return [0, 2, 4, 8, 16, 32, 64][min(numberOfConsecutiveFails, 6)]
-    }
-    
-    func didLoad(_ ad: MAAd) {
-        if ad.adUnitIdentifier == DynamicAdUnitId {
-            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _dynamicRewarded!, ad: ad)
-            
-            Log("Load Dynamic \(ad) at: \(ad.revenue)")
-            
-            _consecutiveDynamicFails = 0
-            _dynamicAdRevenue = ad.revenue
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _defaultRewarded!, ad: ad)
-            
-            Log("Load Default \(ad) at: \(ad.revenue)")
-            
-            _consecutiveDefaultFails = 0
-            _defaultAdRevenue = ad.revenue
-        }
-
-        UpdateShowButton()
-    }
-    
-    func didPayRevenue(for ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationImpression(ad)
+    private func GetInsightsAndLoad(adRequest: AdRequest) {
+        adRequest._state = State.LoadingWithInsights
         
-        Log("didPayRevenue \(ad.adUnitIdentifier) revenue: \(ad.revenue)")
+        NeftaPlugin._instance.GetInsights(Insights.Rewarded, previousInsight: adRequest._insight, callback: { insights in
+            self.Log("Load with insights: \(insights)")
+            if let insight = insights._interstitial {
+                adRequest._insight = insight
+                let bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                adRequest._rewarded = MARewardedAd.shared(withAdUnitIdentifier: adRequest._adUnitId)
+                adRequest._rewarded!.delegate = adRequest
+                adRequest._rewarded!.setExtraParameterForKey("disable_auto_retries", value: "true")
+                adRequest._rewarded!.setExtraParameterForKey("jC7Fp", value: bidFloor)
+                
+                ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded!, insight: insight)
+                
+                self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
+                adRequest._rewarded!.load()
+            } else {
+                adRequest._consecutiveAdFails += 1
+                adRequest.retryLoad()
+            }
+        }, timeout: TimeoutInSeconds)
     }
     
-    func didClick(_ ad: MAAd) {
-        ALNeftaMediationAdapter.onExternalMediationClick(ad)
+    private func LoadDefault(adRequest: AdRequest) {
+        adRequest._state = State.Loading
         
-        Log("didClick \(ad)")
+        Log("Loading \(adRequest._adUnitId) as Default")
+        
+        adRequest._rewarded = MARewardedAd.shared(withAdUnitIdentifier: adRequest._adUnitId)
+        adRequest._rewarded!.delegate = adRequest
+        
+        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded!)
+        
+        adRequest._rewarded!.load()
     }
     
     init(viewController: ViewController, loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
@@ -153,7 +167,10 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
         _showButton = showButton
         _status = status
         
-        super.init()
+        _adRequestA = AdRequest(adUnitId: AdUnitA)
+        _adRequestB = AdRequest(adUnitId: AdUnitB)
+        
+        Rewarded.Instance = self
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
         _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
@@ -169,70 +186,62 @@ class Rewarded : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
     
     @objc private func OnShowClick() {
         var isShown = false
-        if _dynamicAdRevenue >= 0 {
-            if _defaultAdRevenue > _dynamicAdRevenue {
-                isShown = TryShowDefault()
+        if _adRequestA._state == State.Ready {
+            if _adRequestB._state == State.Ready && _adRequestB._revenue > _adRequestA._revenue {
+                isShown = TryShow(adRequest: _adRequestB)
             }
             if !isShown {
-                isShown = TryShowDynamic()
+                isShown = TryShow(adRequest: _adRequestA)
             }
         }
-        if !isShown && _defaultAdRevenue >= 0 {
-            isShown = TryShowDefault()
+        if !isShown && _adRequestB._state == State.Ready {
+            isShown = TryShow(adRequest: _adRequestB)
         }
         
         UpdateShowButton()
     }
     
-    private func TryShowDynamic() -> Bool {
-        var isShown = false
-        if _dynamicRewarded!.isReady {
-            _dynamicRewarded!.show()
-            isShown = true
+    private func TryShow(adRequest: AdRequest) -> Bool {
+        adRequest._state = State.Idle
+        adRequest._revenue = -1
+        
+        if adRequest._rewarded!.isReady {
+            adRequest._rewarded!.show()
+            return true
         }
-        _dynamicAdRevenue = -1
-        _dynamicRewarded = nil
-        return isShown
+        return false
     }
     
-    private func TryShowDefault() -> Bool {
-        var isShown = false
-        if _defaultRewarded!.isReady {
-            _defaultRewarded!.show()
-            isShown = true
+    private func RetryLoading() {
+        if _loadSwitch.isOn {
+            StartLoading()
         }
-        _defaultAdRevenue = -1
-        _defaultRewarded = nil
-        return isShown
     }
-
-    func didDisplay(_ ad: MAAd) {
-        Log("didDisplay \(ad)")
-    }
-
-    func didHide(_ ad: MAAd) {
-        Log("didHide \(ad)")
+    
+    private func OnTrackLoad(_ success: Bool) {
+        if success {
+            UpdateShowButton()
+        }
         
-        // start new load cycle
+        _isFirstResponseRecieved = true
+        if _loadSwitch.isOn {
+            StartLoading()
+        }
+    }
+    
+    func UpdateShowButton() {
+        _showButton.isEnabled = _adRequestA._state == State.Ready || _adRequestB._state == State.Ready
+    }
+    
+    func OnHide() {
         if (_loadSwitch.isOn) {
             StartLoading();
         }
     }
 
-    func didFail(toDisplay ad: MAAd, withError error: MAError) {
-        Log("didFail \(ad)")
-    }
-
-    func didRewardUser(for ad: MAAd, with reward: MAReward) {
-        Log("didRewardUser \(ad) \(reward)")
-    }
-    
-    func UpdateShowButton() {
-        _showButton.isEnabled = _dynamicAdRevenue >= 0 || _defaultAdRevenue >= 0
-    }
     
     private func Log(_ log: String) {
         _status.text = log
-        print("NeftaPluginMAX Rewarded: \(log)")
+        ViewController._log.info("NeftaPluginMAX Rewarded: \(log, privacy: .public)")
     }
 }
