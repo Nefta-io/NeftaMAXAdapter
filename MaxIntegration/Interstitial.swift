@@ -205,6 +205,9 @@ class Interstitial {
             adRequest._interstitial!.show()
             return true
         }
+        if _loadSwitch.isOn {
+            StartLoading()
+        }
         return false
     }
     

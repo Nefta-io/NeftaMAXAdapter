@@ -209,6 +209,9 @@ class Rewarded {
             adRequest._rewarded!.show()
             return true
         }
+        if _loadSwitch.isOn {
+            StartLoading()
+        }
         return false
     }
     

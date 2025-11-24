@@ -9,6 +9,7 @@ public class InterstitialSim : UIView {
     public static let AdUnitA = "Track A"
     public static let AdUnitB = "Track B"
     private let TimeoutInSeconds = 5
+    private let DefaultBackgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
     private let DefaultColor = UIColor(red: 0.6509804, green: 0.1490196, blue: 0.7490196, alpha: 1.0)
     private let FillColor = UIColor.green
     private let NoFillColor = UIColor.red
@@ -189,30 +190,30 @@ public class InterstitialSim : UIView {
         
         ToggleTrackA(isOn: false)
         _aFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(adRequest: self._adRequestA, revenue: 2)
+            self.SimOnAdLoadedEvent(request: self._adRequestA, revenue: 2)
         }, for: .touchUpInside)
         _aFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(adRequest: self._adRequestA, revenue: 1)
+            self.SimOnAdLoadedEvent(request: self._adRequestA, revenue: 1)
         }, for: .touchUpInside)
         _aNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(adRequest: self._adRequestA, status: 2)
+            self.SimOnAdFailedEvent(request: self._adRequestA, status: 2)
         }, for: .touchUpInside)
         _aOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(adRequest: self._adRequestA, status: 0)
+            self.SimOnAdFailedEvent(request: self._adRequestA, status: 0)
         }, for: .touchUpInside)
         
         ToggleTrackB(isOn: false)
         _bFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(adRequest: self._adRequestB, revenue: 2)
+            self.SimOnAdLoadedEvent(request: self._adRequestB, revenue: 2)
         }, for: .touchUpInside)
         _bFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(adRequest: self._adRequestB, revenue: 1)
+            self.SimOnAdLoadedEvent(request: self._adRequestB, revenue: 1)
         }, for: .touchUpInside)
         _bNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(adRequest: self._adRequestB, status: 2)
+            self.SimOnAdFailedEvent(request: self._adRequestB, status: 2)
         }, for: .touchUpInside)
         _bOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(adRequest: self._adRequestB, status: 0)
+            self.SimOnAdFailedEvent(request: self._adRequestB, status: 0)
         }, for: .touchUpInside)
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
@@ -251,6 +252,9 @@ public class InterstitialSim : UIView {
         if adRequest._interstitial!.isReady {
             adRequest._interstitial!.show()
             return true
+        }
+        if _loadSwitch.isOn {
+            StartLoading()
         }
         return false
     }
@@ -368,9 +372,13 @@ public class InterstitialSim : UIView {
         
         if isOn {
             _aFill2.tintColor = DefaultColor
+            _aFill2.backgroundColor = DefaultBackgroundColor
             _aFill1.tintColor = DefaultColor
+            _aFill1.backgroundColor = DefaultBackgroundColor
             _aNoFill.tintColor = DefaultColor
+            _aNoFill.backgroundColor = DefaultBackgroundColor
             _aOther.tintColor = DefaultColor
+            _aOther.backgroundColor = DefaultBackgroundColor
         }
     }
     
@@ -382,65 +390,105 @@ public class InterstitialSim : UIView {
         
         if isOn {
             _bFill2.tintColor = DefaultColor
+            _bFill2.backgroundColor = DefaultBackgroundColor
             _bFill1.tintColor = DefaultColor
+            _bFill1.backgroundColor = DefaultBackgroundColor
             _bNoFill.tintColor = DefaultColor
+            _bNoFill.backgroundColor = DefaultBackgroundColor
             _bOther.tintColor = DefaultColor
+            _bOther.backgroundColor = DefaultBackgroundColor
         }
     }
     
-    func SimOnAdLoadedEvent(adRequest: AdRequest, revenue: Double) {
+    func SimOnAdLoadedEvent(request: AdRequest, revenue: Double) {
+        if request._interstitial!._ad != nil {
+            request._interstitial!._ad = nil
+            
+            if request._adUnitId == InterstitialSim.AdUnitA {
+                if revenue >= 2 {
+                    _aFill2.tintColor = DefaultColor
+                    _aFill2.backgroundColor = DefaultColor
+                    _aFill2.isEnabled = false
+                } else{
+                    _aFill1.tintColor = DefaultColor
+                    _aFill1.backgroundColor = DefaultColor
+                    _aFill1.isEnabled = false
+                }
+            } else {
+                if revenue >= 2 {
+                    _bFill2.tintColor = DefaultColor
+                    _bFill2.backgroundColor = DefaultColor
+                    _bFill2.isEnabled = false
+                } else{
+                    _bFill1.tintColor = DefaultColor
+                    _bFill1.backgroundColor = DefaultColor
+                    _bFill1.isEnabled = false
+                }
+            }
+            return
+        }
+        
         let ad = SimMAAd.create()!
-        ad.simAdUnitIdentifier = adRequest._adUnitId
+        ad.simAdUnitIdentifier = request._adUnitId
         ad.simFormat = MAAdFormat.interstitial
         ad.simNetworkName = "simulator"
         ad.simRevenue = revenue
         ad.simRevenuePrecision = "exact"
         
-        if adRequest._adUnitId == InterstitialSim.AdUnitA {
+        if request._adUnitId == InterstitialSim.AdUnitA {
             ToggleTrackA(isOn: false)
             if revenue >= 2 {
                 _aFill2.tintColor = FillColor
+                _aFill2.backgroundColor = FillColor
+                _aFill2.isEnabled = true
             } else {
                 _aFill1.tintColor = FillColor
+                _aFill1.backgroundColor = FillColor
+                _aFill1.isEnabled = true
             }
-            SetStatusA("\(adRequest._adUnitId) loaded \(revenue)")
+            SetStatusA("\(request._adUnitId) loaded \(revenue)")
         } else {
             ToggleTrackB(isOn: false)
             if revenue >= 2 {
                 _bFill2.tintColor = FillColor
+                _bFill2.backgroundColor = FillColor
+                _bFill2.isEnabled = true
             } else {
                 _bFill1.tintColor = FillColor
+                _bFill1.backgroundColor = FillColor
+                _bFill1.isEnabled = true
             }
-            SetStatusB("\(adRequest._adUnitId) loaded \(revenue)")
+            SetStatusB("\(request._adUnitId) loaded \(revenue)")
         }
         
-        adRequest._interstitial!.SimLoad(ad: ad)
+        request._interstitial!.SimLoad(ad: ad)
     }
     
-    func SimOnAdFailedEvent(adRequest: AdRequest, status: Int) {
-        if adRequest._adUnitId == InterstitialSim.AdUnitA {
+    func SimOnAdFailedEvent(request: AdRequest, status: Int) {
+        if request._adUnitId == InterstitialSim.AdUnitA {
             if status == 2 {
                 _aNoFill.tintColor = NoFillColor
+                _aNoFill.backgroundColor = NoFillColor
             } else {
                 _aOther.tintColor = NoFillColor
+                _aOther.backgroundColor = NoFillColor
             }
             ToggleTrackA(isOn: false)
+            SetStatusA("\(request._adUnitId) failed")
         } else {
             if status == 2 {
-                _aNoFill.tintColor = NoFillColor
+                _bNoFill.tintColor = NoFillColor
+                _bNoFill.backgroundColor = NoFillColor
             } else {
-                _aOther.tintColor = NoFillColor
+                _bOther.tintColor = NoFillColor
+                _bOther.backgroundColor = NoFillColor
             }
             ToggleTrackB(isOn: false)
+            SetStatusB("\(request._adUnitId) failed")
         }
         
-        var err = MAAdapterError.unspecified
-        if (status == 2) {
-            err = MAAdapterError.noFill
-        } else {
-            err = MAAdapterError.noConnection
-        }
-        adRequest._interstitial!.SimFailLoad(error: err)
+        let error = status == 2 ? MAAdapterError.noFill : MAAdapterError.noConnection
+        request._interstitial!.SimFailLoad(error: error)
     }
     
     public func SetStatusA(_ status: String) {

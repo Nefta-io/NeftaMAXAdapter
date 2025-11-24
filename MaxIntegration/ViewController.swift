@@ -84,7 +84,12 @@ public class ViewController: UIViewController {
         max.settings.setExtraParameterForKey("google_max_ad_content_rating", value: "MA")
         
         max.settings.isVerboseLoggingEnabled = true
-        let initConfig = ALSdkInitializationConfiguration(sdkKey: "IAhBswbDpMg9GhQ8NEKffzNrXQP1H4ABNFvUA7ePIz2xmarVFcy_VB8UfGnC9IPMOgpQ3p8G5hBMebJiTHv3P9") { builder in
+        
+        var apiKey = ""
+        if let path = Bundle.main.path(forResource: "config", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) {
+            apiKey = dict["MAX_KEY"] as? String ?? ""
+        }
+        let initConfig = ALSdkInitializationConfiguration(sdkKey: apiKey) { builder in
             builder.mediationProvider = ALMediationProviderMAX
         }
         max.initialize(with: initConfig) { sdkConfig in
