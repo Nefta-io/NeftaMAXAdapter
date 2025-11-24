@@ -25,9 +25,11 @@ public class ViewController: UIViewController {
     var _rewardedVideo: Rewarded!
     var _dynamicAdUnits = [
         // interstitial
-        "e5dc3548d4a0913f",
+        "e5dc3548d4a0913f", // track A
+        "6d318f954e2630a8", // track B
         // rewarded
-        "e0b0d20088d60ec5"
+        "e0b0d20088d60ec5", // track A
+        "918acf84edf9c034"  // track B
     ]
     
     @IBOutlet weak var _loadInterstitial: UISwitch!
