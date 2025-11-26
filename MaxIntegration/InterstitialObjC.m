@@ -12,113 +12,136 @@ NSString * const DynamicAdUnitId = @"e5dc3548d4a0913f";
 NSString * const DefaultAdUnitId = @"6d318f954e2630a8";
 const int TimeoutInSeconds = 5;
 
-@implementation InterstitialObjC
-
-- (void) StartLoading {
-    if (_dynamicInterstitial == nil) {
-        [self GetInsightsAndLoad: nil];
-    }
-    if (_defaultInterstitial == nil) {
-        [self LoadDefault];
-    }
-}
-
-- (void)GetInsightsAndLoad:(AdInsight * _Nullable)previousInsight {
-    [NeftaPlugin._instance GetInsights: Insights.Interstitial previousInsight: previousInsight callback: ^(Insights * insights) {
-        [self LoadWithInsights: insights];
-    } timeout: TimeoutInSeconds];
-}
-
--(void)LoadWithInsights:(Insights *) insights {
-    _dynamicInsight = insights._interstitial;
-    if (_dynamicInsight != nil) {
-        NSString *bidFloorParam = [NSString stringWithFormat:@"%.10f", _dynamicInsight._floorPrice];
-    
-        [self log: @"Loading Interstitial with insight: %@ floor: %@", _dynamicInsight, bidFloorParam];
-        _dynamicInterstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: DynamicAdUnitId];
-        _dynamicInterstitial.delegate = self;
-        [_dynamicInterstitial setExtraParameterForKey: @"disable_auto_retries" value: @"true"];
-        [_dynamicInterstitial setExtraParameterForKey: @"jC7Fp" value: bidFloorParam];
-        [_dynamicInterstitial loadAd];
-        
-        [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: _dynamicInterstitial insight: _dynamicInsight];
-    }
-}
-
-- (void) LoadDefault {
-    [self log: @"Loading Default Interstitial"];
-    _defaultInterstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: DefaultAdUnitId];
-    _defaultInterstitial.delegate = self;
-    [_defaultInterstitial loadAd];
-    
-    [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: _defaultInterstitial];
-}
+@implementation AdRequestObjc
 
 - (void)didFailToLoadAdForAdUnitIdentifier:(NSString *)adUnitIdentifier withError:(MAError *)error {
-    if (adUnitIdentifier == DynamicAdUnitId) {
-        [ALNeftaMediationAdapter OnExternalMediationRequestFailWithInterstitial: _dynamicInterstitial error: error];
-        
-        [self log: @"Load failed Dynamic %@: %@", adUnitIdentifier, error];
-        
-        _consecutiveDynamicFails++;
-        // As per MAX recommendations, retry with exponentially higher delays up to 64s
-        // In case you would like to customize fill rate / revenue please contact our customer support
-        int delayInSeconds = (int[]){ 0, 2, 4, 8, 16, 32, 64 }[MIN(_consecutiveDynamicFails, 6)];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            if (self.loadSwitch.isOn) {
-                [self GetInsightsAndLoad: self.dynamicInsight];
-            }
-        });
-    } else {
-        [ALNeftaMediationAdapter OnExternalMediationRequestFailWithInterstitial: _defaultInterstitial error: error];
-        
-        [self log: @"Load failed Default %@: %@", adUnitIdentifier, error];
-        
-        _defaultInterstitial = nil;
-        if (_loadSwitch.isOn) {
-            [self LoadDefault];
-        }
-    }
-
+    [ALNeftaMediationAdapter OnExternalMediationRequestFailWithInterstitial: _interstitial error: error];
+    
+    [[InterstitialObjC sharedInstance] log: @"Load failed %@: %@", adUnitIdentifier, error];
+    
+    _interstitial = nil;
+    _consecutiveAdFails++;
+    [self retryLoad];
+    
+    [[InterstitialObjC sharedInstance] OnTrackLoad: false];
 }
 
 - (void)didLoadAd:(MAAd *)ad {
-    if (ad.adUnitIdentifier == DynamicAdUnitId) {
-        [ALNeftaMediationAdapter OnExternalMediationRequestLoadWithInterstitial: _dynamicInterstitial ad: ad];
-        
-        [self log: @"Load Dynamic %@: %f", ad, ad.revenue];
-        
-        _consecutiveDynamicFails = 0;
-        _dynamicAdRevenue = ad.revenue;
-    } else {
-        [ALNeftaMediationAdapter OnExternalMediationRequestLoadWithInterstitial: _defaultInterstitial ad: ad];
-        
-        [self log: @"Load Default %@: %f", ad, ad.revenue];
-        
-        _defaultAdRevenue = ad.revenue;
-    }
+    [ALNeftaMediationAdapter OnExternalMediationRequestLoadWithInterstitial: _interstitial ad: ad];
+    
+    [[InterstitialObjC sharedInstance] log: @"Loaded %@: %f", ad, ad.revenue];
+    
+    _insight = nil;
+    _consecutiveAdFails = 0;
+    _revenue = ad.revenue;
+    _state = Ready;
+    
+    [[InterstitialObjC sharedInstance] OnTrackLoad: false];
+}
 
-    [self UpdateShowButton];
+- (void)retryLoad {
+    // As per MAX recommendations, retry with exponentially higher delays up to 64s
+    // In case you would like to customize fill rate / revenue please contact our customer support
+    int delayInSeconds = (int[]){ 0, 2, 4, 8, 16, 32, 64 }[MIN(_consecutiveAdFails, 6)];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        self.state = Idle;
+        [[InterstitialObjC sharedInstance] RetryLoading];
+    });
 }
 
 - (void)didPayRevenueForAd:(nonnull MAAd *)ad {
     [ALNeftaMediationAdapter OnExternalMediationImpression: ad];
     
-    [self log: @"didPayRevenueForAd %@ revenue: %f network: %@", ad.adUnitIdentifier, ad.revenue, ad.networkName];
+    [[InterstitialObjC sharedInstance] log: @"didPayRevenueForAd %@ revenue: %f network: %@", ad.adUnitIdentifier, ad.revenue, ad.networkName];
 }
 
 - (void)didClickAd:(MAAd *)ad {
     [ALNeftaMediationAdapter OnExternalMediationClick: ad];
     
-    [self log: @"didClickAd %@", ad];
+    [[InterstitialObjC sharedInstance] log: @"didClickAd %@", ad];
 }
 
--(instancetype)initWith:(UIView *)placeholder loadSwitch:(UISwitch *)loadSwitch showButton:(UIButton *)showButton status:(UILabel *)status {
+- (void)didDisplayAd:(MAAd *)ad {
+    [[InterstitialObjC sharedInstance] log: @"didDisplayAd %@", ad];
+}
+
+- (void)didFailToDisplayAd:(MAAd *)ad withError:(MAError *)error {
+    [[InterstitialObjC sharedInstance] log: @"didFailToDisplayAd %@: %@", ad, error];
+}
+
+- (void)didHideAd:(MAAd *)ad {
+    [[InterstitialObjC sharedInstance] log: @"didHideAd %@", ad];
+    
+    [[InterstitialObjC sharedInstance] RetryLoading];
+}
+
+@end
+
+@implementation InterstitialObjC
+
+static InterstitialObjC *instance = nil;
+
+- (void)StartLoading {
+    [self Load: _adRequestA otherState: _adRequestB.state];
+    [self Load: _adRequestB otherState: _adRequestA.state];
+}
+
+- (void)Load:(AdRequestObjc * _Nonnull)request otherState:(State)otherState {
+    if (request.state == Idle) {
+        if (otherState != LoadingWithInsights) {
+            [self GetInsightsAndLoad: request];
+        } else if (_isFirstResponseReceived) {
+            [self LoadDefault: request];
+        }
+    }
+}
+
+- (void)GetInsightsAndLoad:(AdRequestObjc * _Nonnull)adRequest {
+    [NeftaPlugin._instance GetInsights: Insights.Interstitial previousInsight: adRequest.insight callback: ^(Insights * insights) {
+        [self log: @"Load with insight: %@", insights];
+        if (insights._interstitial != nil) {
+            adRequest.insight = insights._interstitial;
+            NSString *bidFloorParam = [NSString stringWithFormat:@"%.10f", adRequest.insight._floorPrice];
+            adRequest.interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: DynamicAdUnitId];
+            adRequest.interstitial.delegate = adRequest;
+            [adRequest.interstitial setExtraParameterForKey: @"disable_auto_retries" value: @"true"];
+            [adRequest.interstitial setExtraParameterForKey: @"jC7Fp" value: bidFloorParam];
+            
+            [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: adRequest.interstitial insight: adRequest.insight];
+            
+            [self log: @"Loading Interstitial with insight: %@ floor: %@", adRequest.insight, bidFloorParam];
+            [adRequest.interstitial loadAd];
+        } else {
+            adRequest.consecutiveAdFails++;
+            [adRequest retryLoad];
+        }
+    } timeout: TimeoutInSeconds];
+}
+
+- (void)LoadDefault:(AdRequestObjc * _Nonnull)adRequest {
+    adRequest.state = Loading;
+    
+    [self log: @"Loading %@ as Default", adRequest.adUnitId];
+    
+    adRequest.interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: adRequest.adUnitId];
+    adRequest.interstitial.delegate = adRequest;
+    
+    [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: adRequest.interstitial];
+    
+    [adRequest.interstitial loadAd];
+}
+
++ (InterstitialObjC *)sharedInstance {
+    return instance;
+}
+
+- (instancetype)initWithLoad:(UISwitch *)load show:(UIButton *)show status:(UILabel *)status {
     self = [super init];
     if (self) {
-        _placeholder = placeholder;
-        _loadSwitch = loadSwitch;
-        _showButton = showButton;
+        instance = self;
+        
+        _loadSwitch = load;
+        _showButton = show;
         _status = status;
         
         [_loadSwitch addTarget:self action:@selector(OnLoadSwitch:) forControlEvents:UIControlEventValueChanged];
@@ -137,62 +160,50 @@ const int TimeoutInSeconds = 5;
 
 - (void)OnShowClick:(UIButton *)sender {
     bool isShown = false;
-    if (_dynamicAdRevenue >= 0) {
-        if (_defaultAdRevenue > _dynamicAdRevenue) {
-            isShown = [self TryShowDefault];
+    if (_adRequestA.state == Ready) {
+        if (_adRequestB.state == Ready && _adRequestB.revenue > _adRequestA.revenue) {
+            isShown = [self TryShow: _adRequestB];
         }
         if (!isShown) {
-            isShown = [self TryShowDynamic];
+            isShown = [self TryShow: _adRequestA];
         }
     }
-    if (!isShown && _defaultAdRevenue >= 0) {
-        [self TryShowDefault];
+    if (!isShown && _adRequestB.state == Ready) {
+        isShown = [self TryShow: _adRequestB];
     }
     
     [self UpdateShowButton];
 }
 
-- (bool)TryShowDynamic {
-    bool isShown = false;
-    if (_dynamicInterstitial.ready) {
-        [_dynamicInterstitial showAd];
-        isShown = true;
-    }
-    _dynamicAdRevenue = -1;
-    _dynamicInterstitial = nil;
-    return isShown;
-}
-
-- (bool)TryShowDefault {
-    bool isShown = false;
-    if (_defaultInterstitial.ready) {
-        [_defaultInterstitial showAd];
-        isShown = true;
-    }
-    _defaultAdRevenue = -1;
-    _defaultInterstitial = nil;
-    return isShown;
-}
-
-- (void)didDisplayAd:(MAAd *)ad {
-    [self log: @"didDisplayAd %@", ad];
-}
-
-- (void)didHideAd:(MAAd *)ad {
-    [self log: @"didHideAd %@", ad];
+- (bool)TryShow:(AdRequestObjc *)adRequest {
+    adRequest.state = Idle;
+    adRequest.revenue = -1;
     
-    // start new cycle
+    if (adRequest.interstitial.ready) {
+        [adRequest.interstitial showAd];
+        return true;
+    }
+    [self RetryLoading];
+    return false;
+}
+
+- (void) RetryLoading {
     if (_loadSwitch.isOn) {
         [self StartLoading];
     }
 }
 
-- (void)didFailToDisplayAd:(MAAd *)ad withError:(MAError *)error {
-    [self log: @"didFailToDisplayAd %@: %@", ad, error];
+- (void) OnTrackLoad:(bool)success {
+    if (success) {
+        [self UpdateShowButton];
+    }
+    
+    _isFirstResponseReceived = true;
+    [self RetryLoading];
 }
 
 - (void)UpdateShowButton {
-    [_showButton setEnabled: _dynamicAdRevenue >= 0 || _defaultAdRevenue >= 0];
+    [_showButton setEnabled: _adRequestA.state == Ready || _adRequestB.state == Ready];
 }
 
 - (void)log:(NSString *)format, ... {

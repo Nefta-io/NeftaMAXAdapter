@@ -53,13 +53,10 @@ public class ViewController: UIViewController {
                 self._dynamicAdUnits = dynamicAdUnits
             }
         }
-
-        let titleTap = UITapGestureRecognizer(target: self, action: #selector(toSimulationMode))
-        _title.addGestureRecognizer(titleTap)
         
-        _interstitial = Interstitial(viewController: self, loadSwitch: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus)
-        //_interstitialObjC = InterstitialObjC(_bannerPlaceholder, load: _loadInterstitial, show: _showInterstitial, status: _interstitialStatus)
-        _rewardedVideo = Rewarded(viewController: self, loadSwitch: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
+        _interstitial = Interstitial(loadSwitch: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus)
+        //_interstitialObjC = InterstitialObjC(load: _loadInterstitial, show: _showInterstitial, status: _interstitialStatus)
+        _rewardedVideo = Rewarded(loadSwitch: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.checkTrackingAndInitializeMax()
@@ -97,10 +94,6 @@ public class ViewController: UIViewController {
         max.initialize(with: initConfig) { sdkConfig in
 
         }
-    }
-    
-    @objc private func toSimulationMode() {
-        
     }
 }
 

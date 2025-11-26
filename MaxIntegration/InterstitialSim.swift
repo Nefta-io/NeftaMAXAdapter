@@ -91,7 +91,7 @@ public class InterstitialSim : UIView {
         public func didHide(_ ad: MAAd) {
             InterstitialSim.Instance.Log("didHide \(ad)")
             
-            InterstitialSim.Instance.OnHide()
+            InterstitialSim.Instance.RetryLoading()
         }
     }
     
@@ -253,9 +253,7 @@ public class InterstitialSim : UIView {
             adRequest._interstitial!.show()
             return true
         }
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
+        RetryLoading()
         return false
     }
     
@@ -271,19 +269,11 @@ public class InterstitialSim : UIView {
         }
         
         _isFirstResponseRecieved = true
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
+        RetryLoading()
     }
     
     private func UpdateShowButton() {
         _showButton.isEnabled = _adRequestA._state == State.Ready || _adRequestB._state == State.Ready
-    }
-    
-    private func OnHide() {
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
     }
     
     private func Log(_ log: String) {

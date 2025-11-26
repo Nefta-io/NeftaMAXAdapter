@@ -94,7 +94,7 @@ class Rewarded {
         func didHide(_ ad: MAAd) {
             Rewarded.Instance.Log("didHide \(ad)")
             
-            Rewarded.Instance.OnHide()
+            Rewarded.Instance.RetryLoading()
         }
     }
     
@@ -102,7 +102,6 @@ class Rewarded {
     private var _adRequestB: AdRequest
     private var _isFirstResponseRecieved = false
     
-    private let _viewController: ViewController
     private let _loadSwitch: UISwitch
     private let _showButton: UIButton
     private let _status: UILabel
@@ -161,8 +160,7 @@ class Rewarded {
         adRequest._rewarded!.load()
     }
     
-    init(viewController: ViewController, loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
-        _viewController = viewController
+    init(loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
         _loadSwitch = loadSwitch
         _showButton = showButton
         _status = status
@@ -209,9 +207,7 @@ class Rewarded {
             adRequest._rewarded!.show()
             return true
         }
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
+        RetryLoading()
         return false
     }
     
@@ -227,22 +223,13 @@ class Rewarded {
         }
         
         _isFirstResponseRecieved = true
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
+        RetryLoading()
     }
     
     func UpdateShowButton() {
         _showButton.isEnabled = _adRequestA._state == State.Ready || _adRequestB._state == State.Ready
     }
-    
-    func OnHide() {
-        if (_loadSwitch.isOn) {
-            StartLoading();
-        }
-    }
-
-    
+        
     private func Log(_ log: String) {
         _status.text = log
         ViewController._log.info("NeftaPluginMAX Rewarded: \(log, privacy: .public)")

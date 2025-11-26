@@ -6,7 +6,6 @@
 //
 
 #import "SimMAAd.h"
-#import <objc/runtime.h>
 
 @implementation SimMAAd
 + (SimMAAd *)create {

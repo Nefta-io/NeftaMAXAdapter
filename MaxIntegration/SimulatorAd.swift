@@ -35,7 +35,7 @@ public class SimulatorAd : UIView {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            if let onReward = self._onReward {
+            if !self.isHidden, let onReward = self._onReward {
                 onReward()
                 self._onReward = nil
             }

@@ -90,7 +90,7 @@ class Interstitial {
         func didHide(_ ad: MAAd) {
             Interstitial.Instance.Log("didHide \(ad)")
             
-            Interstitial.Instance.OnHide()
+            Interstitial.Instance.RetryLoading()
         }
     }
     
@@ -98,7 +98,6 @@ class Interstitial {
     private var _adRequestB: AdRequest
     private var _isFirstResponseRecieved = false
     
-    private let _viewController: ViewController
     private let _loadSwitch: UISwitch
     private let _showButton: UIButton
     private let _status: UILabel
@@ -157,8 +156,7 @@ class Interstitial {
         adRequest._interstitial!.load()
     }
     
-    init(viewController: ViewController, loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
-        _viewController = viewController
+    init(loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
         _loadSwitch = loadSwitch
         _showButton = showButton
         _status = status
@@ -205,9 +203,7 @@ class Interstitial {
             adRequest._interstitial!.show()
             return true
         }
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
+        RetryLoading()
         return false
     }
     
@@ -223,19 +219,11 @@ class Interstitial {
         }
         
         _isFirstResponseRecieved = true
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
+        RetryLoading()
     }
     
     private func UpdateShowButton() {
         _showButton.isEnabled = _adRequestA._state == State.Ready || _adRequestB._state == State.Ready
-    }
-    
-    private func OnHide() {
-        if _loadSwitch.isOn {
-            StartLoading()
-        }
     }
     
     private func Log(_ log: String) {
