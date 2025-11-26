@@ -142,6 +142,7 @@ class Rewarded {
                 adRequest._rewarded!.load()
             } else {
                 adRequest._consecutiveAdFails += 1
+                self._isFirstResponseRecieved = true
                 adRequest.retryLoad()
             }
         }, timeout: TimeoutInSeconds)

@@ -113,6 +113,7 @@ static InterstitialObjC *instance = nil;
             [adRequest.interstitial loadAd];
         } else {
             adRequest.consecutiveAdFails++;
+            self.isFirstResponseReceived = true;
             [adRequest retryLoad];
         }
     } timeout: TimeoutInSeconds];

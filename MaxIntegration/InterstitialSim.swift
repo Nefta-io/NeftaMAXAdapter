@@ -153,6 +153,7 @@ public class InterstitialSim : UIView {
                 adRequest._interstitial!.load()
             } else {
                 adRequest._consecutiveAdFails += 1
+                self._isFirstResponseRecieved = true
                 adRequest.retryLoad()
             }
         }, timeout: TimeoutInSeconds)
