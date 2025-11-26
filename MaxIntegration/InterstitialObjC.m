@@ -8,11 +8,19 @@
 #import "InterstitialObjC.h"
 #import "ALNeftaMediationAdapter.h"
 
-NSString * const DynamicAdUnitId = @"e5dc3548d4a0913f";
-NSString * const DefaultAdUnitId = @"6d318f954e2630a8";
+NSString * const AdUnitA = @"e5dc3548d4a0913f";
+NSString * const AdUnitB = @"6d318f954e2630a8";
 const int TimeoutInSeconds = 5;
 
 @implementation AdRequestObjc
+
+- (instancetype)initWithAdUnit:(NSString *)adUnit {
+    self = [super init];
+    if (self) {
+        _adUnitId = [adUnit copy];
+    }
+    return self;
+}
 
 - (void)didFailToLoadAdForAdUnitIdentifier:(NSString *)adUnitIdentifier withError:(MAError *)error {
     [ALNeftaMediationAdapter OnExternalMediationRequestFailWithInterstitial: _interstitial error: error];
@@ -20,6 +28,10 @@ const int TimeoutInSeconds = 5;
     [[InterstitialObjC sharedInstance] log: @"Load failed %@: %@", adUnitIdentifier, error];
     
     _interstitial = nil;
+    [self OnLoadFail];
+}
+
+- (void)OnLoadFail {
     _consecutiveAdFails++;
     [self retryLoad];
     
@@ -67,6 +79,8 @@ const int TimeoutInSeconds = 5;
 
 - (void)didFailToDisplayAd:(MAAd *)ad withError:(MAError *)error {
     [[InterstitialObjC sharedInstance] log: @"didFailToDisplayAd %@: %@", ad, error];
+    
+    [[InterstitialObjC sharedInstance] RetryLoading];
 }
 
 - (void)didHideAd:(MAAd *)ad {
@@ -97,12 +111,14 @@ static InterstitialObjC *instance = nil;
 }
 
 - (void)GetInsightsAndLoad:(AdRequestObjc * _Nonnull)adRequest {
+    adRequest.state = LoadingWithInsights;
+    
     [NeftaPlugin._instance GetInsights: Insights.Interstitial previousInsight: adRequest.insight callback: ^(Insights * insights) {
         [self log: @"Load with insight: %@", insights];
         if (insights._interstitial != nil) {
             adRequest.insight = insights._interstitial;
             NSString *bidFloorParam = [NSString stringWithFormat:@"%.10f", adRequest.insight._floorPrice];
-            adRequest.interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: DynamicAdUnitId];
+            adRequest.interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: adRequest.adUnitId];
             adRequest.interstitial.delegate = adRequest;
             [adRequest.interstitial setExtraParameterForKey: @"disable_auto_retries" value: @"true"];
             [adRequest.interstitial setExtraParameterForKey: @"jC7Fp" value: bidFloorParam];
@@ -112,9 +128,7 @@ static InterstitialObjC *instance = nil;
             [self log: @"Loading Interstitial with insight: %@ floor: %@", adRequest.insight, bidFloorParam];
             [adRequest.interstitial loadAd];
         } else {
-            adRequest.consecutiveAdFails++;
-            self.isFirstResponseReceived = true;
-            [adRequest retryLoad];
+            [adRequest OnLoadFail];
         }
     } timeout: TimeoutInSeconds];
 }
@@ -144,6 +158,9 @@ static InterstitialObjC *instance = nil;
         _loadSwitch = load;
         _showButton = show;
         _status = status;
+        
+        _adRequestA = [[AdRequestObjc alloc] initWithAdUnit: AdUnitA];
+        _adRequestB = [[AdRequestObjc alloc] initWithAdUnit: AdUnitB];
         
         [_loadSwitch addTarget:self action:@selector(OnLoadSwitch:) forControlEvents:UIControlEventValueChanged];
         [_showButton addTarget:self action:@selector(OnShowClick:) forControlEvents:UIControlEventTouchUpInside];

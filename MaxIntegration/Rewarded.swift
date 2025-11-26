@@ -38,6 +38,10 @@ class Rewarded {
             Rewarded.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
             
             _rewarded = nil
+            OnLoadFail()
+        }
+        
+        public func OnLoadFail() {
             _consecutiveAdFails += 1
             retryLoad()
             
@@ -81,6 +85,8 @@ class Rewarded {
         
         func didFail(toDisplay ad: MAAd, withError error: MAError) {
             Rewarded.Instance.Log("didFail \(ad)")
+            
+            Rewarded.Instance.RetryLoading()
         }
         
         func didDisplay(_ ad: MAAd) {
@@ -141,9 +147,7 @@ class Rewarded {
                 self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
                 adRequest._rewarded!.load()
             } else {
-                adRequest._consecutiveAdFails += 1
-                self._isFirstResponseRecieved = true
-                adRequest.retryLoad()
+                adRequest.OnLoadFail()
             }
         }, timeout: TimeoutInSeconds)
     }

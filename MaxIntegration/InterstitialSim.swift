@@ -39,6 +39,10 @@ public class InterstitialSim : UIView {
             InterstitialSim.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
             
             _interstitial = nil
+            OnLoadFail()
+        }
+        
+        public func OnLoadFail() {
             _consecutiveAdFails += 1
             retryLoad()
             
@@ -82,6 +86,8 @@ public class InterstitialSim : UIView {
         
         public func didFail(toDisplay ad: MAAd, withError error: MAError) {
             InterstitialSim.Instance.Log("didFail \(ad)")
+            
+            InterstitialSim.Instance.RetryLoading()
         }
         
         public func didDisplay(_ ad: MAAd) {
@@ -152,9 +158,7 @@ public class InterstitialSim : UIView {
                 self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
                 adRequest._interstitial!.load()
             } else {
-                adRequest._consecutiveAdFails += 1
-                self._isFirstResponseRecieved = true
-                adRequest.retryLoad()
+                adRequest.OnLoadFail()
             }
         }, timeout: TimeoutInSeconds)
     }

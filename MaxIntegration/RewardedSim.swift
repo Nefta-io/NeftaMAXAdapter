@@ -40,6 +40,10 @@ public class RewardedSim : UIView {
             RewardedSim.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
             
             _rewarded = nil
+            OnLoadFail()
+        }
+        
+        public func OnLoadFail() {
             _consecutiveAdFails += 1
             retryLoad()
             
@@ -83,6 +87,8 @@ public class RewardedSim : UIView {
         
         public func didFail(toDisplay ad: MAAd, withError error: MAError) {
             RewardedSim.Instance.Log("didFail \(ad)")
+            
+            RewardedSim.Instance.RetryLoading()
         }
         
         public func didDisplay(_ ad: MAAd) {
@@ -157,9 +163,7 @@ public class RewardedSim : UIView {
                 self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
                 adRequest._rewarded!.load()
             } else {
-                adRequest._consecutiveAdFails += 1
-                self._isFirstResponseRecieved = true
-                adRequest.retryLoad()
+                adRequest.OnLoadFail()
             }
         }, timeout: TimeoutInSeconds)
     }
