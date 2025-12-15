@@ -26,6 +26,7 @@ import UIKit
     var _localPort: UInt16 = 0
     var _timer: Timer?
     var _logLines: [String] = []
+    var _isSimulator = false
     
     private static var _instance: DebugServer?
     
@@ -38,6 +39,18 @@ import UIKit
     init(viewController: UIViewController) {
         _viewController = viewController
         super.init()
+        
+        let title = _viewController.view.viewWithTag(10) as? UILabel
+        title!.text = "Nefta Adapter for\n MAX \(ALSdk.version())"
+        let onClickHandler = UITapGestureRecognizer(target: self, action: #selector(onTitleClick))
+        title!.isUserInteractionEnabled = true
+        title!.addGestureRecognizer(onClickHandler)
+        
+        var isSimulator: Bool = false
+        if let path = Bundle.main.path(forResource: "config", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) {
+            isSimulator = dict["IS_SIMULATOR"] as? Bool ?? false
+        }
+        ToggleUI(isSimulator: isSimulator)
 
         _name = UIDevice.current.model
 #if targetEnvironment(simulator)
@@ -97,6 +110,21 @@ import UIKit
             _listener!.cancel()
             _listener = nil
         }
+    }
+    
+    
+    @objc func onTitleClick() {
+        ToggleUI(isSimulator: !_isSimulator)
+    }
+    
+    private func ToggleUI(isSimulator: Bool) {
+        _isSimulator = isSimulator
+        
+        (_viewController.view.viewWithTag(11) as! InterstitialSim).isHidden = !isSimulator
+        (_viewController.view.viewWithTag(12) as! RewardedSim).isHidden = !isSimulator
+        
+        (_viewController.view.viewWithTag(13) as! Interstitial).isHidden = isSimulator
+        (_viewController.view.viewWithTag(14) as! Rewarded).isHidden = isSimulator
     }
     
     private func StartBroadcastServer() {
@@ -374,7 +402,7 @@ import UIKit
                         if segments.count > 12 {
                             networkStatus = segments[12]
                         }
-                        NeftaPlugin.OnExternalMediationResponse(provider, id: id1, id2: id2, revenue: revenue, precision: precision, status: status, providerStatus: providerStatus, networkStatus: networkStatus)
+                        NeftaPlugin.OnExternalMediationResponse(provider, id: id1, id2: id2, revenue: revenue, precision: precision, status: status, providerStatus: providerStatus, networkStatus: networkStatus, baseObject: nil)
                         self.SendUdp(connection: connection, to: sourceName, message: "return|add_external_mediation_request")
                     }
                 case "add_external_mediation_impression":

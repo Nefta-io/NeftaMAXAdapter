@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9035909B2EEFE8D100640456 /* config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9035909A2EEFE8D100640456 /* config.plist */; };
 		904466FC2EC37BA700689575 /* SimMAAd.m in Sources */ = {isa = PBXBuildFile; fileRef = 904466FA2EC37BA700689575 /* SimMAAd.m */; };
 		904466FD2EC37BA700689575 /* SimulatorAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466FB2EC37BA700689575 /* SimulatorAd.swift */; };
 		904466FE2EC37BA700689575 /* InterstitialSim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466F72EC37BA700689575 /* InterstitialSim.swift */; };
@@ -41,6 +42,7 @@
 		18974D572C6B660FC18148FC /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 		76E968EA639F540F79300913 /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9026575D2BEC9B8900EA4F62 /* MaxIntegration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaxIntegration.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9035909A2EEFE8D100640456 /* config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = config.plist; sourceTree = "<group>"; };
 		904466F72EC37BA700689575 /* InterstitialSim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterstitialSim.swift; sourceTree = "<group>"; };
 		904466F82EC37BA700689575 /* RewardedSim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedSim.swift; sourceTree = "<group>"; };
 		904466F92EC37BA700689575 /* SimMAAd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimMAAd.h; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
+				9035909A2EEFE8D100640456 /* config.plist */,
 				90DA53C52C0878D20041E63B /* Info.plist */,
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
 				9026575E2BEC9B8900EA4F62 /* Products */,
@@ -195,6 +198,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9035909B2EEFE8D100640456 /* config.plist in Resources */,
 				90DA53B12C0871DD0041E63B /* LaunchScreen.storyboard in Resources */,
 				90DA53AD2C0871DD0041E63B /* Assets.xcassets in Resources */,
 				90DA53B22C0871DD0041E63B /* Main.storyboard in Resources */,
@@ -234,9 +238,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -428,7 +436,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.3.0;
+				MARKETING_VERSION = 4.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nefta.max;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -462,7 +470,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.3.0;
+				MARKETING_VERSION = 4.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nefta.max;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

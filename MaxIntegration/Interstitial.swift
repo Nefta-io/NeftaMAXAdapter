@@ -8,7 +8,7 @@
 import Foundation
 import AppLovinSDK
 
-class Interstitial {
+class Interstitial : UIView {
     private let AdUnitA = "e5dc3548d4a0913f"
     private let AdUnitB = "6d318f954e2630a8"
     private let TimeoutInSeconds = 5
@@ -21,6 +21,8 @@ class Interstitial {
     }
     
     public class AdRequest : NSObject, MAAdDelegate, MAAdRevenueDelegate {
+        private let _controller: Interstitial
+        
         public let _adUnitId: String
         public var _interstitial: MAInterstitialAd? = nil
         public var _state: State = State.Idle
@@ -28,14 +30,15 @@ class Interstitial {
         public var _revenue: Float64 = -1
         public var _consecutiveAdFails: Int = 0
         
-        public init(adUnitId: String) {
+        public init(controller: Interstitial, adUnitId: String) {
+            _controller = controller
             _adUnitId = adUnitId
         }
         
         func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
             ALNeftaMediationAdapter.onExternalMediationRequestFail(withInterstitial: _interstitial!, error: error)
             
-            Interstitial.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
+            _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
             _interstitial = nil
             OnLoadFail()
@@ -45,20 +48,20 @@ class Interstitial {
             _consecutiveAdFails += 1
             retryLoad()
             
-            Interstitial.Instance.OnTrackLoad(false)
+            _controller.OnTrackLoad(false)
         }
         
         func didLoad(_ ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationRequestLoad(withInterstitial: _interstitial!, ad: ad)
             
-            Interstitial.Instance.Log("Loaded \(ad) at: \(ad.revenue)")
+            _controller.Log("Loaded \(ad) at: \(ad.revenue)")
             
             _insight = nil
             _consecutiveAdFails = 0
             _revenue = ad.revenue
             _state = State.Ready
             
-            Interstitial.Instance.OnTrackLoad(true)
+            _controller.OnTrackLoad(true)
         }
         
         func retryLoad() {
@@ -67,48 +70,46 @@ class Interstitial {
             let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
                 self._state = State.Idle
-                Interstitial.Instance.RetryLoading()
+                self._controller.RetryLoading()
             }
         }
         
         func didPayRevenue(for ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationImpression(ad)
             
-            Interstitial.Instance.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+            _controller.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
         }
         
         func didClick(_ ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationClick(ad)
             
-            Interstitial.Instance.Log("didClick \(ad)")
+            _controller.Log("didClick \(ad)")
         }
         
         func didFail(toDisplay ad: MAAd, withError error: MAError) {
-            Interstitial.Instance.Log("didFail \(ad)")
+            _controller.Log("didFail \(ad)")
             
-            Interstitial.Instance.RetryLoading()
+            _controller.RetryLoading()
         }
         
         func didDisplay(_ ad: MAAd) {
-            Interstitial.Instance.Log("didDisplay \(ad)")
+            _controller.Log("didDisplay \(ad)")
         }
 
         func didHide(_ ad: MAAd) {
-            Interstitial.Instance.Log("didHide \(ad)")
+            _controller.Log("didHide \(ad)")
             
-            Interstitial.Instance.RetryLoading()
+            _controller.RetryLoading()
         }
     }
     
-    private var _adRequestA: AdRequest
-    private var _adRequestB: AdRequest
-    private var _isFirstResponseRecieved = false
+    private var _adRequestA: AdRequest!
+    private var _adRequestB: AdRequest!
+    private var _isFirstResponseReceived = false
     
-    private let _loadSwitch: UISwitch
-    private let _showButton: UIButton
-    private let _status: UILabel
-    
-    public static var Instance: Interstitial!
+    @IBOutlet weak var _loadSwitch: UISwitch!
+    @IBOutlet weak var _showButton: UIButton!
+    @IBOutlet weak var _status: UILabel!
     
     private func StartLoading() {
         Load(request: _adRequestA, otherState: _adRequestB._state)
@@ -119,7 +120,7 @@ class Interstitial {
         if request._state == State.Idle {
             if otherState != State.LoadingWithInsights {
                 GetInsightsAndLoad(adRequest: request)
-            } else if (_isFirstResponseRecieved) {
+            } else if (_isFirstResponseReceived) {
                 LoadDefault(adRequest: request)
             }
         }
@@ -161,15 +162,11 @@ class Interstitial {
         adRequest._interstitial!.load()
     }
     
-    init(loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
-        _loadSwitch = loadSwitch
-        _showButton = showButton
-        _status = status
+    public override func awakeFromNib() {
+        super.awakeFromNib()
         
-        _adRequestA = AdRequest(adUnitId: AdUnitA)
-        _adRequestB = AdRequest(adUnitId: AdUnitB)
-        
-        Interstitial.Instance = self
+        _adRequestA = AdRequest(controller: self, adUnitId: AdUnitA)
+        _adRequestB = AdRequest(controller: self, adUnitId: AdUnitB)
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
         _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
@@ -223,7 +220,7 @@ class Interstitial {
             UpdateShowButton()
         }
         
-        _isFirstResponseRecieved = true
+        _isFirstResponseReceived = true
         RetryLoading()
     }
     

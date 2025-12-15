@@ -32,14 +32,6 @@ public class ViewController: UIViewController {
         "918acf84edf9c034"  // track B
     ]
     
-    @IBOutlet weak var _loadInterstitial: UISwitch!
-    @IBOutlet weak var _showInterstitial: UIButton!
-    @IBOutlet weak var _showRewarded: UIButton!
-    @IBOutlet weak var _loadRewarded: UISwitch!
-    @IBOutlet weak var _title: UILabel!
-    @IBOutlet weak var _interstitialStatus: UILabel!
-    @IBOutlet weak var _rewardedStatus: UILabel!
-    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -52,11 +44,10 @@ public class ViewController: UIViewController {
             if let dynamicAdUnits = initConfig.GetMediationProviderAdUnits() {
                 self._dynamicAdUnits = dynamicAdUnits
             }
+            
+            print("[NeftaPluginMAX] Should bypass Nefta optimization? \(initConfig._skipOptimization)")
         }
         
-        _interstitial = Interstitial(loadSwitch: _loadInterstitial, showButton: _showInterstitial, status: _interstitialStatus)
-        //_interstitialObjC = InterstitialObjC(load: _loadInterstitial, show: _showInterstitial, status: _interstitialStatus)
-        _rewardedVideo = Rewarded(loadSwitch: _loadRewarded, showButton: _showRewarded, status: _rewardedStatus)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.checkTrackingAndInitializeMax()
@@ -64,18 +55,22 @@ public class ViewController: UIViewController {
     }
     
     private func checkTrackingAndInitializeMax() {
-        if #available(iOS 14, *) {
-            ATTrackingManager.requestTrackingAuthorization { status in
-                DispatchQueue.main.async {
-                    self.initializeAdSdk(isTrackingEnabled: status == .authorized)
+        if let path = Bundle.main.path(forResource: "config", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) {
+            if let maxKey = dict["MAX_KEY"] as? String {
+                if #available(iOS 14, *) {
+                    ATTrackingManager.requestTrackingAuthorization { status in
+                        DispatchQueue.main.async {
+                            self.initializeAdSdk(maxKey: maxKey, isTrackingEnabled: status == .authorized)
+                        }
+                    }
+                } else {
+                    initializeAdSdk(maxKey: maxKey, isTrackingEnabled: ASIdentifierManager.shared().isAdvertisingTrackingEnabled)
                 }
             }
-        } else {
-            initializeAdSdk(isTrackingEnabled: ASIdentifierManager.shared().isAdvertisingTrackingEnabled)
         }
     }
     
-    private func initializeAdSdk(isTrackingEnabled: Bool) {
+    private func initializeAdSdk(maxKey: String, isTrackingEnabled: Bool) {
         ALPrivacySettings.setHasUserConsent(isTrackingEnabled)
         
         let max = ALSdk.shared()
@@ -84,11 +79,7 @@ public class ViewController: UIViewController {
         
         max.settings.isVerboseLoggingEnabled = true
         
-        var apiKey = ""
-        if let path = Bundle.main.path(forResource: "config", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) {
-            apiKey = dict["MAX_KEY"] as? String ?? ""
-        }
-        let initConfig = ALSdkInitializationConfiguration(sdkKey: apiKey) { builder in
+        let initConfig = ALSdkInitializationConfiguration(sdkKey: maxKey) { builder in
             builder.mediationProvider = ALMediationProviderMAX
         }
         max.initialize(with: initConfig) { sdkConfig in

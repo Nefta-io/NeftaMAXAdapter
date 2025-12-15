@@ -23,6 +23,8 @@ public class RewardedSim : UIView {
     }
     
     public class AdRequest : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
+        private let _controller: RewardedSim
+        
         public let _adUnitId: String
         public var _rewarded: SimRewarded? = nil
         public var _state: State = State.Idle
@@ -30,14 +32,15 @@ public class RewardedSim : UIView {
         public var _revenue: Float64 = -1
         public var _consecutiveAdFails: Int = 0
         
-        public init(adUnitId: String) {
+        public init(controller: RewardedSim ,adUnitId: String) {
+            _controller = controller
             _adUnitId = adUnitId
         }
         
         public func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
             ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _rewarded!, error: error)
             
-            RewardedSim.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
+            _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
             _rewarded = nil
             OnLoadFail()
@@ -47,20 +50,20 @@ public class RewardedSim : UIView {
             _consecutiveAdFails += 1
             retryLoad()
             
-            RewardedSim.Instance.OnTrackLoad(false)
+            _controller.OnTrackLoad(false)
         }
         
         public func didLoad(_ ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _rewarded!, ad: ad)
             
-            RewardedSim.Instance.Log("Loaded \(ad) at: \(ad.revenue)")
+            _controller.Log("Loaded \(ad) at: \(ad.revenue)")
             
             _insight = nil
             _consecutiveAdFails = 0
             _revenue = ad.revenue
             _state = State.Ready
             
-            RewardedSim.Instance.OnTrackLoad(true)
+            _controller.OnTrackLoad(true)
         }
         
         public func retryLoad() {
@@ -69,46 +72,46 @@ public class RewardedSim : UIView {
             let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
                 self._state = State.Idle
-                RewardedSim.Instance.RetryLoading()
+                self._controller.RetryLoading()
             }
         }
         
         public func didPayRevenue(for ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationImpression(ad)
             
-            RewardedSim.Instance.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+            _controller.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
         }
         
         public func didClick(_ ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationClick(ad)
             
-            RewardedSim.Instance.Log("didClick \(ad)")
+            _controller.Log("didClick \(ad)")
         }
         
         public func didFail(toDisplay ad: MAAd, withError error: MAError) {
             RewardedSim.Instance.Log("didFail \(ad)")
             
-            RewardedSim.Instance.RetryLoading()
+            _controller.RetryLoading()
         }
         
         public func didDisplay(_ ad: MAAd) {
-            RewardedSim.Instance.Log("didDisplay \(ad)")
+            _controller.Log("didDisplay \(ad)")
         }
         
         public func didRewardUser(for ad: MAAd, with reward: MAReward) {
-            RewardedSim.Instance.Log("didRewardUser \(ad) \(reward)")
+            _controller.Log("didRewardUser \(ad) \(reward)")
         }
 
         public func didHide(_ ad: MAAd) {
-            RewardedSim.Instance.Log("didHide \(ad)")
+            _controller.Log("didHide \(ad)")
             
-            RewardedSim.Instance.RetryLoading()
+            _controller.RetryLoading()
         }
     }
     
-    private var _adRequestA: AdRequest
-    private var _adRequestB: AdRequest
-    private var _isFirstResponseRecieved = false
+    private var _adRequestA: AdRequest!
+    private var _adRequestB: AdRequest!
+    private var _isFirstResponseReceived = false
     
     @IBOutlet weak var _loadSwitch: UISwitch!
     @IBOutlet weak var _showButton: UIButton!
@@ -139,7 +142,7 @@ public class RewardedSim : UIView {
         if request._state == State.Idle {
             if otherState != State.LoadingWithInsights {
                 GetInsightsAndLoad(adRequest: request)
-            } else if (_isFirstResponseRecieved) {
+            } else if (_isFirstResponseReceived) {
                 LoadDefault(adRequest: request)
             }
         }
@@ -181,29 +184,20 @@ public class RewardedSim : UIView {
         adRequest._rewarded!.load()
     }
     
-    required init?(coder: NSCoder) {
-        _adRequestA = AdRequest(adUnitId: RewardedSim.AdUnitA)
-        _adRequestB = AdRequest(adUnitId: RewardedSim.AdUnitB)
-        super.init(coder: coder)
-    }
-    
-    override init(frame: CGRect) {
-        _adRequestA = AdRequest(adUnitId: RewardedSim.AdUnitA)
-        _adRequestB = AdRequest(adUnitId: RewardedSim.AdUnitB)
-        super.init(frame: frame)
-    }
-    
     public override func awakeFromNib() {
         super.awakeFromNib()
         
         RewardedSim.Instance = self
         
+        _adRequestA = AdRequest(controller: self, adUnitId: RewardedSim.AdUnitA)
+        _adRequestB = AdRequest(controller: self, adUnitId: RewardedSim.AdUnitB)
+        
         ToggleTrackA(isOn: false)
         _aFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestA, revenue: 2)
+            self.SimOnAdLoadedEvent(request: self._adRequestA, isHigh: true)
         }, for: .touchUpInside)
         _aFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestA, revenue: 1)
+            self.SimOnAdLoadedEvent(request: self._adRequestA, isHigh: false)
         }, for: .touchUpInside)
         _aNoFill.addAction(UIAction { _ in
             self.SimOnAdFailedEvent(request: self._adRequestA, status: 2)
@@ -214,10 +208,10 @@ public class RewardedSim : UIView {
         
         ToggleTrackB(isOn: false)
         _bFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestB, revenue: 2)
+            self.SimOnAdLoadedEvent(request: self._adRequestB, isHigh: true)
         }, for: .touchUpInside)
         _bFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestB, revenue: 1)
+            self.SimOnAdLoadedEvent(request: self._adRequestB, isHigh: false)
         }, for: .touchUpInside)
         _bNoFill.addAction(UIAction { _ in
             self.SimOnAdFailedEvent(request: self._adRequestB, status: 2)
@@ -278,7 +272,7 @@ public class RewardedSim : UIView {
             UpdateShowButton()
         }
         
-        _isFirstResponseRecieved = true
+        _isFirstResponseReceived = true
         RetryLoading()
     }
     
@@ -298,7 +292,7 @@ public class RewardedSim : UIView {
         public var _delegate: MARewardedAdDelegate?
         
         public override class func shared(withAdUnitIdentifier adUnitId: String) -> Self {
-            let a = super.shared(withAdUnitIdentifier: adUnitId)!
+            let a = super.shared(withAdUnitIdentifier: adUnitId)
             a._adUnitId = adUnitId
             a._floor = -1
             return a
@@ -402,12 +396,13 @@ public class RewardedSim : UIView {
         }
     }
     
-    func SimOnAdLoadedEvent(request: AdRequest, revenue: Double) {
+    func SimOnAdLoadedEvent(request: AdRequest, isHigh: Bool) {
+        let revenue = isHigh ? 0.002 : 0.001
         if request._rewarded!._ad != nil {
             request._rewarded!._ad = nil
             
             if request._adUnitId == InterstitialSim.AdUnitA {
-                if revenue >= 2 {
+                if isHigh {
                     _aFill2.tintColor = DefaultColor
                     _aFill2.backgroundColor = DefaultColor
                     _aFill2.isEnabled = false
@@ -417,7 +412,7 @@ public class RewardedSim : UIView {
                     _aFill1.isEnabled = false
                 }
             } else {
-                if revenue >= 2 {
+                if isHigh {
                     _bFill2.tintColor = DefaultColor
                     _bFill2.backgroundColor = DefaultColor
                     _bFill2.isEnabled = false
@@ -430,16 +425,17 @@ public class RewardedSim : UIView {
             return
         }
         
-        let ad = SimMAAd.create()!
+        let ad = SimMAAd.create()
         ad.simAdUnitIdentifier = request._adUnitId
         ad.simFormat = MAAdFormat.rewarded
         ad.simNetworkName = "simulator"
         ad.simRevenue = revenue
         ad.simRevenuePrecision = "exact"
+        ad.simWaterfall = SimMAAd.getWaterfall("simulator waterfall", testName: "test name", responses: [NSNumber(value: MAAdLoadState.adLoaded.rawValue), NSNumber(value: MAAdLoadState.adLoadNotAttempted.rawValue)])
         
         if request._adUnitId == RewardedSim.AdUnitA {
             ToggleTrackA(isOn: false)
-            if revenue >= 2 {
+            if isHigh {
                 _aFill2.tintColor = FillColor
                 _aFill2.backgroundColor = FillColor
                 _aFill2.isEnabled = true
@@ -451,7 +447,7 @@ public class RewardedSim : UIView {
             SetStatusA("\(request._adUnitId) loaded \(revenue)")
         } else {
             ToggleTrackB(isOn: false)
-            if revenue >= 2 {
+            if isHigh {
                 _bFill2.tintColor = FillColor
                 _bFill2.backgroundColor = FillColor
                 _bFill2.isEnabled = true
@@ -487,7 +483,8 @@ public class RewardedSim : UIView {
             ToggleTrackB(isOn: false)
         }
         
-        let error = status == 2 ? MAAdapterError.noFill : MAAdapterError.noConnection
+        let error = SMAError.create(status, message: "simulator error")
+        error.simWaterfall = SimMAAd.getWaterfall("sim waterfall", testName: "sim test name", responses: [NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue), NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue)])
         request._rewarded!.SimFailLoad(error: error)
     }
     

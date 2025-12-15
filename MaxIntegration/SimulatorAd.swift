@@ -13,6 +13,9 @@ public class SimulatorAd : UIView {
     private var _onShow: (() -> Void)? = nil
     private var _onClick: (() -> Void)? = nil
     private var _onReward: (() -> Void)? = nil
+    private var _onClose: (() -> Void)? = nil
+    
+    private var _isInited: Bool = false
     
     public func Show(title: String, onShow: @escaping (() -> Void), onClick: @escaping (() -> Void), onReward: (() -> Void)?, onClose: @escaping (() -> Void)) {
         _title.text = title
@@ -20,15 +23,19 @@ public class SimulatorAd : UIView {
         _onShow = onShow
         _onClick = onClick
         _onReward = onReward
+        _onClose = onClose
 
-        isUserInteractionEnabled = true
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
-        addGestureRecognizer(tapGesture)
-        
-        _closeButton.addAction(UIAction { _ in
-            self.isHidden = true
-            onClose()
-        }, for: .touchUpInside)
+        if !_isInited {
+            _isInited = true
+            isUserInteractionEnabled = true
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+            addGestureRecognizer(tapGesture)
+            
+            _closeButton.addAction(UIAction { _ in
+                self.OnClose()
+                self.isHidden = true
+            }, for: .touchUpInside)
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self._onShow!()
@@ -46,5 +53,9 @@ public class SimulatorAd : UIView {
     
     @objc func viewTapped() {
         _onClick!()
+    }
+    
+    func OnClose() {
+        _onClose!()
     }
 }

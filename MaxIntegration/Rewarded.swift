@@ -8,7 +8,7 @@
 import Foundation
 import AppLovinSDK
 
-class Rewarded {
+class Rewarded : UIView {
     private let AdUnitA = "e0b0d20088d60ec5"
     private let AdUnitB = "918acf84edf9c034"
     private let TimeoutInSeconds = 5
@@ -21,6 +21,8 @@ class Rewarded {
     }
     
     public class AdRequest : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
+        private let _controller: Rewarded
+        
         public let _adUnitId: String
         public var _rewarded: MARewardedAd? = nil
         public var _state: State = State.Idle
@@ -28,14 +30,15 @@ class Rewarded {
         public var _revenue: Float64 = -1
         public var _consecutiveAdFails: Int = 0
         
-        public init(adUnitId: String) {
+        public init(controller: Rewarded, adUnitId: String) {
+            _controller = controller
             _adUnitId = adUnitId
         }
         
         func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
             ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _rewarded!, error: error)
             
-            Rewarded.Instance.Log("Load failed \(adUnitIdentifier): \(error)")
+            _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
             _rewarded = nil
             OnLoadFail()
@@ -45,20 +48,20 @@ class Rewarded {
             _consecutiveAdFails += 1
             retryLoad()
             
-            Rewarded.Instance.OnTrackLoad(false)
+            _controller.OnTrackLoad(false)
         }
         
         func didLoad(_ ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _rewarded!, ad: ad)
             
-            Rewarded.Instance.Log("Loaded \(ad) at: \(ad.revenue)")
+            _controller.Log("Loaded \(ad) at: \(ad.revenue)")
             
             _insight = nil
             _consecutiveAdFails = 0
             _revenue = ad.revenue
             _state = State.Ready
             
-            Rewarded.Instance.OnTrackLoad(true)
+            _controller.OnTrackLoad(true)
         }
         
         func retryLoad() {
@@ -67,52 +70,50 @@ class Rewarded {
             let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
                 self._state = State.Idle
-                Rewarded.Instance.RetryLoading()
+                self._controller.RetryLoading()
             }
         }
         
         func didPayRevenue(for ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationImpression(ad)
             
-            Rewarded.Instance.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
+            _controller.Log("didPayRevenueForAd \(ad.adUnitIdentifier) revenue: \(ad.revenue) network: \(ad.networkName)")
         }
         
         func didClick(_ ad: MAAd) {
             ALNeftaMediationAdapter.onExternalMediationClick(ad)
             
-            Rewarded.Instance.Log("didClick \(ad)")
+            _controller.Log("didClick \(ad)")
         }
         
         func didFail(toDisplay ad: MAAd, withError error: MAError) {
-            Rewarded.Instance.Log("didFail \(ad)")
+            _controller.Log("didFail \(ad)")
             
-            Rewarded.Instance.RetryLoading()
+            _controller.RetryLoading()
         }
         
         func didDisplay(_ ad: MAAd) {
-            Rewarded.Instance.Log("didDisplay \(ad)")
+            _controller.Log("didDisplay \(ad)")
         }
         
         func didRewardUser(for ad: MAAd, with reward: MAReward) {
-            Rewarded.Instance.Log("didRewardUser \(ad) \(reward)")
+            _controller.Log("didRewardUser \(ad) \(reward)")
         }
 
         func didHide(_ ad: MAAd) {
-            Rewarded.Instance.Log("didHide \(ad)")
+            _controller.Log("didHide \(ad)")
             
-            Rewarded.Instance.RetryLoading()
+            _controller.RetryLoading()
         }
     }
     
-    private var _adRequestA: AdRequest
-    private var _adRequestB: AdRequest
-    private var _isFirstResponseRecieved = false
+    private var _adRequestA: AdRequest!
+    private var _adRequestB: AdRequest!
+    private var _isFirstResponseReceived = false
     
-    private let _loadSwitch: UISwitch
-    private let _showButton: UIButton
-    private let _status: UILabel
-    
-    public static var Instance: Rewarded!
+    @IBOutlet weak var _loadSwitch: UISwitch!
+    @IBOutlet weak var _showButton: UIButton!
+    @IBOutlet weak var _status: UILabel!
     
     private func StartLoading() {
         Load(request: _adRequestA, otherState: _adRequestB._state)
@@ -123,7 +124,7 @@ class Rewarded {
         if request._state == State.Idle {
             if otherState != State.LoadingWithInsights {
                 GetInsightsAndLoad(adRequest: request)
-            } else if (_isFirstResponseRecieved) {
+            } else if (_isFirstResponseReceived) {
                 LoadDefault(adRequest: request)
             }
         }
@@ -165,15 +166,11 @@ class Rewarded {
         adRequest._rewarded!.load()
     }
     
-    init(loadSwitch: UISwitch, showButton: UIButton, status: UILabel) {
-        _loadSwitch = loadSwitch
-        _showButton = showButton
-        _status = status
+    public override func awakeFromNib() {
+        super.awakeFromNib()
         
-        _adRequestA = AdRequest(adUnitId: AdUnitA)
-        _adRequestB = AdRequest(adUnitId: AdUnitB)
-        
-        Rewarded.Instance = self
+        _adRequestA = AdRequest(controller: self, adUnitId: AdUnitA)
+        _adRequestB = AdRequest(controller: self, adUnitId: AdUnitB)
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
         _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
@@ -227,7 +224,7 @@ class Rewarded {
             UpdateShowButton()
         }
         
-        _isFirstResponseRecieved = true
+        _isFirstResponseReceived = true
         RetryLoading()
     }
     

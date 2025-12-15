@@ -51,3 +51,4 @@ coreSimulatorLogs/
 .env
 
 /out*
+config.plist

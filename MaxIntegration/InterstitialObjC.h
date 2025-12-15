@@ -26,14 +26,17 @@ typedef enum {
 @property (nonatomic, assign) double revenue;
 @property (nonatomic, assign) int consecutiveAdFails;
 
+- (instancetype)initWithAdUnit:(NSString * _Nonnull)adUnit;
+
+-(void)OnLoadFail;
 -(void)retryLoad;
 
 @end
 
 @interface InterstitialObjC : NSObject
 
-@property (nonatomic, assign) AdRequestObjc * _Nonnull adRequestA;
-@property (nonatomic, assign) AdRequestObjc * _Nonnull adRequestB;
+@property (nonatomic, copy, readonly) AdRequestObjc * _Nonnull adRequestA;
+@property (nonatomic, copy, readonly) AdRequestObjc * _Nonnull adRequestB;
 @property (nonatomic, assign) bool isFirstResponseReceived;
 
 
