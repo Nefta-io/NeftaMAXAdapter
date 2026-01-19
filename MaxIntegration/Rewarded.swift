@@ -24,7 +24,7 @@ class Rewarded : UIView {
         private let _controller: Rewarded
         
         public let _adUnitId: String
-        public var _rewarded: MARewardedAd? = nil
+        public var _rewarded: MARewardedAd
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
@@ -33,14 +33,19 @@ class Rewarded : UIView {
         public init(controller: Rewarded, adUnitId: String) {
             _controller = controller
             _adUnitId = adUnitId
+            
+            _rewarded = MARewardedAd.shared(withAdUnitIdentifier: _adUnitId)
+            
+            super.init()
+            
+            _rewarded.delegate = self
         }
         
         func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-            ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _rewarded!, error: error)
+            ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _rewarded, error: error)
             
             _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
-            _rewarded = nil
             OnLoadFail()
         }
         
@@ -52,7 +57,7 @@ class Rewarded : UIView {
         }
         
         func didLoad(_ ad: MAAd) {
-            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _rewarded!, ad: ad)
+            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _rewarded, ad: ad)
             
             _controller.Log("Loaded \(ad) at: \(ad.revenue)")
             
@@ -138,15 +143,14 @@ class Rewarded : UIView {
             if let insight = insights._rewarded {
                 adRequest._insight = insight
                 let bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
-                adRequest._rewarded = MARewardedAd.shared(withAdUnitIdentifier: adRequest._adUnitId)
-                adRequest._rewarded!.delegate = adRequest
-                adRequest._rewarded!.setExtraParameterForKey("disable_auto_retries", value: "true")
-                adRequest._rewarded!.setExtraParameterForKey("jC7Fp", value: bidFloor)
+   
+                adRequest._rewarded.setExtraParameterForKey("disable_auto_retries", value: "true")
+                adRequest._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
                 
-                ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded!, insight: insight)
+                ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded, insight: insight)
                 
                 self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
-                adRequest._rewarded!.load()
+                adRequest._rewarded.load()
             } else {
                 adRequest.OnLoadFail()
             }
@@ -158,12 +162,12 @@ class Rewarded : UIView {
         
         Log("Loading \(adRequest._adUnitId) as Default")
         
-        adRequest._rewarded = MARewardedAd.shared(withAdUnitIdentifier: adRequest._adUnitId)
-        adRequest._rewarded!.delegate = adRequest
+        adRequest._rewarded.setExtraParameterForKey("disable_auto_retries", value: "false")
+        adRequest._rewarded.setExtraParameterForKey("jC7Fp", value: "")
         
-        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded!)
+        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded)
         
-        adRequest._rewarded!.load()
+        adRequest._rewarded.load()
     }
     
     public override func awakeFromNib() {
@@ -205,8 +209,8 @@ class Rewarded : UIView {
         adRequest._state = State.Idle
         adRequest._revenue = -1
         
-        if adRequest._rewarded!.isReady {
-            adRequest._rewarded!.show()
+        if adRequest._rewarded.isReady {
+            adRequest._rewarded.show()
             return true
         }
         RetryLoading()
