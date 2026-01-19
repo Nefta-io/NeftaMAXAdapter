@@ -222,7 +222,7 @@ import UIKit
                     break
                 case "create":
                     let placementId = segments[4]
-                    for (pId, placement) in NeftaPlugin._instance._placements {
+                    for (pId, placement) in NeftaPlugin._instance!._placements {
                         if pId == placementId {
                             if placement._type == .Banner {
                                 let banner = NBanner(id: pId, position: NBanner.Position.Top)
@@ -244,7 +244,7 @@ import UIKit
                         var bidResponse : String = ""
                         let aId = segments[4]
                         let id = Int(aId)
-                        for ad in NeftaPlugin._instance._ads {
+                        for ad in NeftaPlugin._instance!._ads {
                             if ad.hashValue == id {
                                 let payload = ad.GetPartialBidRequest()
                                 let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
@@ -260,7 +260,7 @@ import UIKit
                 case "bid":
                     aId = segments[4]
                     let id = Int(aId)
-                    for ad in NeftaPlugin._instance._ads {
+                    for ad in NeftaPlugin._instance!._ads {
                         if ad.hashValue == id {
                             ad.Bid()
                             break
@@ -272,7 +272,7 @@ import UIKit
                     aId = segments[4]
                     let id = Int(aId)
                     let bidResponse = segments[5]
-                    for ad in NeftaPlugin._instance._ads {
+                    for ad in NeftaPlugin._instance!._ads {
                         if ad.hashValue == id {
                             ad.LoadWithBidResponse(bidResponse: bidResponse.data(using: .utf8)!)
                             break
@@ -283,7 +283,7 @@ import UIKit
                 case "load":
                     aId = segments[4]
                     let id = Int(aId)
-                    for ad in NeftaPlugin._instance._ads {
+                    for ad in NeftaPlugin._instance!._ads {
                         if ad.hashValue == id {
                             ad.Load()
                             break
@@ -294,7 +294,7 @@ import UIKit
                 case "show":
                     aId = segments[4]
                     let id = Int(aId)
-                    for ad in NeftaPlugin._instance._ads {
+                    for ad in NeftaPlugin._instance!._ads {
                         if ad.hashValue == id {
                             DispatchQueue.main.async {
                                 ad.Show(viewController: self._viewController)
@@ -322,7 +322,7 @@ import UIKit
                             if segments.count > 10 {
                                 customPayload = segments[10]
                             }
-                            NeftaPlugin._instance.Events.AddProgressionEvent(status: status, type: type, source: source, name: name, value: value, customPayload: customPayload)
+                            NeftaPlugin._instance!.Events.AddProgressionEvent(status: status, type: type, source: source, name: name, value: value, customPayload: customPayload)
                         } else if segments[4] == "receive" {
                             let category = self.ToResourceCategory(segments[5])
                             let method = self.ToReceiveMethod(segments[6])
@@ -335,7 +335,7 @@ import UIKit
                             if segments.count > 9 {
                                 customPayload = segments[9]
                             }
-                            NeftaPlugin._instance.Events.AddReceiveEvent(category: category, method: method, name: name, quantity: value, customPayload: customPayload)
+                            NeftaPlugin._instance!.Events.AddReceiveEvent(category: category, method: method, name: name, quantity: value, customPayload: customPayload)
                         } else if segments[4] == "spend" {
                             let category = self.ToResourceCategory(segments[5])
                             let method = self.ToSpendMethod(segments[6])
@@ -348,9 +348,9 @@ import UIKit
                             if segments.count > 9 {
                                 customPayload = segments[9]
                             }
-                            NeftaPlugin._instance.Events.AddSpendEvent(category: category, method: method, name: name, quantity: value, customPayload: customPayload)
+                            NeftaPlugin._instance!.Events.AddSpendEvent(category: category, method: method, name: name, quantity: value, customPayload: customPayload)
                             
-                            NeftaPlugin._instance.Events.AddSpendEvent(category: NeftaEvents.ResourceCategory.SoftCurrency, method: NeftaEvents.SpendMethod.Other, name: "coins", quantity: 5)
+                            NeftaPlugin._instance!.Events.AddSpendEvent(category: NeftaEvents.ResourceCategory.SoftCurrency, method: NeftaEvents.SpendMethod.Other, name: "coins", quantity: 5)
                         } else if segments[4] == "revenue" {
                             name = segments[5]
                             let price = Decimal(string: segments[6])!
@@ -358,7 +358,7 @@ import UIKit
                             if segments.count > 8 {
                                 customPayload = segments[8]
                             }
-                            NeftaPlugin._instance.Events.AddPurchaseEvent(name: name!, price: price, currency: currency, customPayload: customPayload)
+                            NeftaPlugin._instance!.Events.AddPurchaseEvent(name: name!, price: price, currency: currency, customPayload: customPayload)
                         }
                         self.SendUdp(connection: connection, to: sourceName, message: "return|add_event")
                     }
@@ -380,7 +380,7 @@ import UIKit
                         
                         for _ in 0..<repeatCount {
                             DispatchQueue.global(qos: .background).async {
-                                NeftaPlugin._instance.Record(type: type, category: category, subCategory: subCategory, name: name, value: value, customPayload: customPayload)
+                                NeftaPlugin._instance!.Record(type: type, category: category, subCategory: subCategory, name: name, value: value, customPayload: customPayload)
                             }
                         }
                         
@@ -418,7 +418,7 @@ import UIKit
                     let insights = Int(segments[4])!
                     let callbackIndex = Int(segments[5])!
                     
-                    NeftaPlugin._instance.GetInsights(insights, previousInsight: nil, callback: { insights in
+                    NeftaPlugin._instance!.GetInsights(insights, previousInsight: nil, callback: { insights in
                         self.ForwardInsights(index: callbackIndex, insights: insights)
                     }, timeout: 5)
                     
@@ -431,12 +431,12 @@ import UIKit
                         rest_url = nil
                     }
                     
-                    NeftaPlugin._instance._info._appId = app_id
+                    NeftaPlugin._instance!._info._appId = app_id
                     NeftaPlugin.SetOverride(url: rest_url)
-                    NeftaPlugin._instance._placements.removeAll()
-                    NeftaPlugin._instance._cachedInitRespose = nil
+                    NeftaPlugin._instance!._placements.removeAll()
+                    NeftaPlugin._instance!._cachedInitRespose = nil
                     if segments.count > 6 && !segments[6].isEmpty {
-                        NeftaPlugin._instance._state._nuid = segments[6]
+                        NeftaPlugin._instance!._state._nuid = segments[6]
                     }
                     
                     self.SendUdp(connection: connection, to: sourceName, message: "return|set_override")

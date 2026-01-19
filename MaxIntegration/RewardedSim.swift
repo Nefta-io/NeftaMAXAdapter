@@ -151,7 +151,7 @@ public class RewardedSim : UIView {
     private func GetInsightsAndLoad(adRequest: AdRequest) {
         adRequest._state = State.LoadingWithInsights
         
-        NeftaPlugin._instance.GetInsights(Insights.Rewarded, previousInsight: adRequest._insight, callback: { insights in
+        NeftaPlugin._instance!.GetInsights(Insights.Rewarded, previousInsight: adRequest._insight, callback: { insights in
             self.Log("Load with insights: \(insights)")
             if let insight = insights._rewarded {
                 adRequest._insight = insight

@@ -146,7 +146,7 @@ public class InterstitialSim : UIView {
     private func GetInsightsAndLoad(adRequest: AdRequest) {
         adRequest._state = State.LoadingWithInsights
         
-        NeftaPlugin._instance.GetInsights(Insights.Interstitial, previousInsight: adRequest._insight, callback: { insights in
+        NeftaPlugin._instance!.GetInsights(Insights.Interstitial, previousInsight: adRequest._insight, callback: { insights in
             self.Log("Load with insights: \(insights)")
             if let insight = insights._interstitial {
                 adRequest._insight = insight
