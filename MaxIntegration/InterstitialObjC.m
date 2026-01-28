@@ -12,12 +12,17 @@ NSString * const AdUnitA = @"e5dc3548d4a0913f";
 NSString * const AdUnitB = @"6d318f954e2630a8";
 const int TimeoutInSeconds = 5;
 
-@implementation AdRequestObjc
+@implementation TrackObjC
 
 - (instancetype)initWithAdUnit:(NSString *)adUnit {
     self = [super init];
     if (self) {
         _adUnitId = [adUnit copy];
+        
+        _interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: adUnit];
+    
+        _interstitial.delegate = self;
+        _interstitial.revenueDelegate = self;
     }
     return self;
 }
@@ -27,7 +32,6 @@ const int TimeoutInSeconds = 5;
     
     [[InterstitialObjC sharedInstance] log: @"Load failed %@: %@", adUnitIdentifier, error];
     
-    _interstitial = nil;
     [self OnLoadFail];
 }
 
@@ -57,7 +61,7 @@ const int TimeoutInSeconds = 5;
     int delayInSeconds = (int[]){ 0, 2, 4, 8, 16, 32, 64 }[MIN(_consecutiveAdFails, 6)];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         self.state = Idle;
-        [[InterstitialObjC sharedInstance] RetryLoading];
+        [[InterstitialObjC sharedInstance] RetryLoadTracks];
     });
 }
 
@@ -80,13 +84,15 @@ const int TimeoutInSeconds = 5;
 - (void)didFailToDisplayAd:(MAAd *)ad withError:(MAError *)error {
     [[InterstitialObjC sharedInstance] log: @"didFailToDisplayAd %@: %@", ad, error];
     
-    [[InterstitialObjC sharedInstance] RetryLoading];
+    [[InterstitialObjC sharedInstance] RetryLoadTracks];
 }
 
 - (void)didHideAd:(MAAd *)ad {
     [[InterstitialObjC sharedInstance] log: @"didHideAd %@", ad];
     
-    [[InterstitialObjC sharedInstance] RetryLoading];
+    _state = Idle;
+    
+    [[InterstitialObjC sharedInstance] RetryLoadTracks];
 }
 
 @end
@@ -95,55 +101,56 @@ const int TimeoutInSeconds = 5;
 
 static InterstitialObjC *instance = nil;
 
-- (void)StartLoading {
-    [self Load: _adRequestA otherState: _adRequestB.state];
-    [self Load: _adRequestB otherState: _adRequestA.state];
+- (void)LoadTracks {
+    [self LoadTrack: _trackA otherState: _trackB.state];
+    [self LoadTrack: _trackB otherState: _trackA.state];
 }
 
-- (void)Load:(AdRequestObjc * _Nonnull)request otherState:(State)otherState {
-    if (request.state == Idle) {
-        if (otherState != LoadingWithInsights) {
-            [self GetInsightsAndLoad: request];
-        } else if (_isFirstResponseReceived) {
-            [self LoadDefault: request];
+- (void)LoadTrack:(TrackObjC * _Nonnull)track otherState:(State)otherState {
+    if (track.state == Idle) {
+        if (otherState == LoadingWithInsights) {
+            if (_isFirstResponseReceived) {
+                [self LoadDefault: track];
+            }
+        } else {
+            [self GetInsightsAndLoad: track];
         }
     }
 }
 
-- (void)GetInsightsAndLoad:(AdRequestObjc * _Nonnull)adRequest {
-    adRequest.state = LoadingWithInsights;
+- (void)GetInsightsAndLoad:(TrackObjC * _Nonnull)track {
+    track.state = LoadingWithInsights;
     
-    [NeftaPlugin._instance GetInsights: Insights.Interstitial previousInsight: adRequest.insight callback: ^(Insights * insights) {
+    [NeftaPlugin._instance GetInsights: Insights.Interstitial previousInsight: track.insight callback: ^(Insights * insights) {
         [self log: @"Load with insight: %@", insights];
         if (insights._interstitial != nil) {
-            adRequest.insight = insights._interstitial;
-            NSString *bidFloorParam = [NSString stringWithFormat:@"%.10f", adRequest.insight._floorPrice];
-            adRequest.interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: adRequest.adUnitId];
-            adRequest.interstitial.delegate = adRequest;
-            [adRequest.interstitial setExtraParameterForKey: @"disable_auto_retries" value: @"true"];
-            [adRequest.interstitial setExtraParameterForKey: @"jC7Fp" value: bidFloorParam];
+            track.insight = insights._interstitial;
+            NSString *bidFloorParam = [NSString stringWithFormat:@"%.10f", track.insight._floorPrice];
+
+            [track.interstitial setExtraParameterForKey: @"disable_auto_retries" value: @"true"];
+            [track.interstitial setExtraParameterForKey: @"jC7Fp" value: bidFloorParam];
             
-            [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: adRequest.interstitial insight: adRequest.insight];
+            [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: track.interstitial insight: track.insight];
             
-            [self log: @"Loading Interstitial with insight: %@ floor: %@", adRequest.insight, bidFloorParam];
-            [adRequest.interstitial loadAd];
+            [self log: @"Loading Interstitial with insight: %@ floor: %@", track.insight, bidFloorParam];
+            [track.interstitial loadAd];
         } else {
-            [adRequest OnLoadFail];
+            [track OnLoadFail];
         }
     } timeout: TimeoutInSeconds];
 }
 
-- (void)LoadDefault:(AdRequestObjc * _Nonnull)adRequest {
-    adRequest.state = Loading;
+- (void)LoadDefault:(TrackObjC * _Nonnull)track {
+    track.state = Loading;
     
-    [self log: @"Loading %@ as Default", adRequest.adUnitId];
+    [self log: @"Loading %@ as Default", track.adUnitId];
     
-    adRequest.interstitial = [[MAInterstitialAd alloc] initWithAdUnitIdentifier: adRequest.adUnitId];
-    adRequest.interstitial.delegate = adRequest;
+    [track.interstitial setExtraParameterForKey: @"disable_auto_retries" value: @"false"];
+    [track.interstitial setExtraParameterForKey: @"jC7Fp" value: @""];
     
-    [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: adRequest.interstitial];
+    [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: track.interstitial];
     
-    [adRequest.interstitial loadAd];
+    [track.interstitial loadAd];
 }
 
 + (InterstitialObjC *)sharedInstance {
@@ -159,8 +166,8 @@ static InterstitialObjC *instance = nil;
         _showButton = show;
         _status = status;
         
-        _adRequestA = [[AdRequestObjc alloc] initWithAdUnit: AdUnitA];
-        _adRequestB = [[AdRequestObjc alloc] initWithAdUnit: AdUnitB];
+        _trackA = [[TrackObjC alloc] initWithAdUnit: AdUnitA];
+        _trackB = [[TrackObjC alloc] initWithAdUnit: AdUnitB];
         
         [_loadSwitch addTarget:self action:@selector(OnLoadSwitch:) forControlEvents:UIControlEventValueChanged];
         [_showButton addTarget:self action:@selector(OnShowClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -172,42 +179,42 @@ static InterstitialObjC *instance = nil;
 
 - (void)OnLoadSwitch:(UISwitch *)sender {
     if (sender.isOn) {
-        [self StartLoading];
+        [self LoadTracks];
     }
 }
 
 - (void)OnShowClick:(UIButton *)sender {
     bool isShown = false;
-    if (_adRequestA.state == Ready) {
-        if (_adRequestB.state == Ready && _adRequestB.revenue > _adRequestA.revenue) {
-            isShown = [self TryShow: _adRequestB];
+    if (_trackA.state == Ready) {
+        if (_trackB.state == Ready && _trackB.revenue > _trackA.revenue) {
+            isShown = [self TryShow: _trackB];
         }
         if (!isShown) {
-            isShown = [self TryShow: _adRequestA];
+            isShown = [self TryShow: _trackA];
         }
     }
-    if (!isShown && _adRequestB.state == Ready) {
-        isShown = [self TryShow: _adRequestB];
+    if (!isShown && _trackB.state == Ready) {
+        isShown = [self TryShow: _trackB];
     }
     
     [self UpdateShowButton];
 }
 
-- (bool)TryShow:(AdRequestObjc *)adRequest {
-    adRequest.state = Idle;
-    adRequest.revenue = -1;
-    
-    if (adRequest.interstitial.ready) {
-        [adRequest.interstitial showAd];
+- (bool)TryShow:(TrackObjC *)track {
+    track.revenue = -1;
+    if (track.interstitial.ready) {
+        track.state = Shown;
+        [track.interstitial showAd];
         return true;
     }
-    [self RetryLoading];
+    track.state = Idle;
+    [self RetryLoadTracks];
     return false;
 }
 
-- (void) RetryLoading {
+- (void) RetryLoadTracks {
     if (_loadSwitch.isOn) {
-        [self StartLoading];
+        [self LoadTracks];
     }
 }
 
@@ -217,11 +224,11 @@ static InterstitialObjC *instance = nil;
     }
     
     _isFirstResponseReceived = true;
-    [self RetryLoading];
+    [self RetryLoadTracks];
 }
 
 - (void)UpdateShowButton {
-    [_showButton setEnabled: _adRequestA.state == Ready || _adRequestB.state == Ready];
+    [_showButton setEnabled: _trackA.state == Ready || _trackB.state == Ready];
 }
 
 - (void)log:(NSString *)format, ... {

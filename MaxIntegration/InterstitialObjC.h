@@ -13,20 +13,21 @@ typedef enum {
     Idle,
     LoadingWithInsights,
     Loading,
-    Ready
+    Ready,
+    Shown
 } State;
 
 
-@interface AdRequestObjc : NSObject<MAAdDelegate, MAAdRevenueDelegate>
+@interface TrackObjC : NSObject<MAAdDelegate, MAAdRevenueDelegate>
 
 @property (nonatomic, strong) NSString * _Nonnull adUnitId;
-@property (nonatomic, strong) MAInterstitialAd * _Nullable interstitial;
+@property (nonatomic, strong) MAInterstitialAd * _Nonnull interstitial;
 @property (nonatomic, assign) State state;
 @property (nonatomic, strong) AdInsight * _Nullable insight;
 @property (nonatomic, assign) double revenue;
 @property (nonatomic, assign) int consecutiveAdFails;
 
-- (instancetype)initWithAdUnit:(NSString * _Nonnull)adUnit;
+- (instancetype _Nonnull )initWithAdUnit:(NSString * _Nonnull)adUnit;
 
 -(void)OnLoadFail;
 -(void)retryLoad;
@@ -35,8 +36,8 @@ typedef enum {
 
 @interface InterstitialObjC : NSObject
 
-@property (nonatomic, copy, readonly) AdRequestObjc * _Nonnull adRequestA;
-@property (nonatomic, copy, readonly) AdRequestObjc * _Nonnull adRequestB;
+@property (nonatomic, copy, readonly) TrackObjC * _Nonnull trackA;
+@property (nonatomic, copy, readonly) TrackObjC * _Nonnull trackB;
 @property (nonatomic, assign) bool isFirstResponseReceived;
 
 
@@ -47,8 +48,8 @@ typedef enum {
 +(InterstitialObjC * _Nonnull)sharedInstance;
 
 -(instancetype _Nonnull)initWithLoad:(UISwitch * _Nonnull)load show:(UIButton * _Nonnull)show status:(UILabel * _Nonnull)status;
--(void)Load:(AdRequestObjc * _Nonnull)request otherState:(State)otherState;
+-(void)LoadTrack:(TrackObjC * _Nonnull)track otherState:(State)otherState;
 -(void)OnTrackLoad:(bool)success;
--(void)RetryLoading;
+-(void)RetryLoadTracks;
 -(void)log:(NSString * _Nonnull)format, ...;
 @end
