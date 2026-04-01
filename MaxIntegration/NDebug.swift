@@ -1,5 +1,5 @@
 //
-//  DebugServer.swift
+//  NDebug.swift
 //  DirectIntegration
 //
 //  Created by Tomaz Treven on 13. 8. 24.
@@ -9,24 +9,153 @@ import Foundation
 import Network
 import NeftaSDK
 import UIKit
+import OSLog
+
+@objc public class NDebug : NSObject {
+    
+    static var _title: String?
+    static var _onClick: (() -> Void)? = nil
+    static var _onClose: (() -> Void)? = nil
+    static var _onReward: (() -> Void)? = nil
+    
+    @objc public static func Open(title: String,
+                                   viewController: UIViewController,
+                                   onShow: @escaping () -> Void,
+                                   onClick: @escaping () -> Void,
+                                   onClose: @escaping () -> Void,
+                                   onReward: (() -> Void)? = nil) {
+        
+        _title = title
+        _onClick = onClick
+        _onClose = onClose
+        _onReward = onReward
+        
+        onShow()
+        
+        let adViewController = AdViewController()
+        adViewController.modalPresentationStyle = .fullScreen
+        viewController.present(adViewController, animated: false, completion: nil)
+    }
+}
+
+public class AdViewController : UIViewController {
+    
+    private var delayedTask: DispatchWorkItem?
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
+    public override func viewDidLoad() {
+        view.backgroundColor = .white
+                
+        let screenBounds = UIScreen.main.bounds
+        
+        let titleLabel = UILabel()
+        titleLabel.text = NDebug._title!
+        titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        titleLabel.textAlignment = .center
+        titleLabel.sizeToFit()
+        let labelWidth: CGFloat = 300
+        titleLabel.frame = CGRect(
+            x: (screenBounds.width - labelWidth) / 2,
+            y: 80 + view.safeAreaInsets.top,
+            width: labelWidth,
+            height: titleLabel.frame.height
+        )
+        view.addSubview(titleLabel)
+    
+        let closeButton = UIButton(type: .system)
+        closeButton.setTitle("X", for: .normal)
+        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+        closeButton.backgroundColor = .systemRed
+        closeButton.setTitleColor(.white, for: .normal)
+        closeButton.layer.cornerRadius = 8
+        closeButton.frame = CGRect(
+            x: screenBounds.width - 80,
+            y: 40 + view.safeAreaInsets.top,
+            width: 40,
+            height: 40
+        )
+        
+        view.addSubview(closeButton)
+        
+        let centerButton = UIButton(type: .system)
+        centerButton.setTitle("Ad", for: .normal)
+        centerButton.titleLabel?.font = UIFont.systemFont(ofSize: 28)
+        centerButton.backgroundColor = .systemBlue
+        centerButton.setTitleColor(.white, for: .normal)
+        centerButton.layer.cornerRadius = 16
+        centerButton.frame = CGRect(
+            x: (screenBounds.width - 300) / 2,
+            y: (screenBounds.height - 400) / 2,
+            width: 300,
+            height: 400
+        )
+        
+        view.addSubview(centerButton)
+        
+        closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
+        centerButton.addTarget(self, action: #selector(centerTapped), for: .touchUpInside)
+    }
+    
+    @objc private func closeTapped() {
+        NDebug._onClose!()
+        dismiss(animated: false, completion: nil)
+    }
+    
+    @objc private func centerTapped() {
+        NDebug._onClick!()
+    }
+    
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        delayedTask?.cancel()
+        
+        let task = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            if self.isBeingDismissed || self.isMovingFromParent || self.view.window == nil {
+                return
+            }
+            if let onReward = NDebug._onReward {
+                onReward()
+            }
+        }
+        delayedTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: task)
+    }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        delayedTask?.cancel()
+        delayedTask = nil
+    }
+}
 
 @objc class DebugServer : NSObject {
 
-    let _broadcastPort = NWEndpoint.Port(rawValue: 12010)
+    private let _broadcastPort = NWEndpoint.Port(rawValue: 12010)
     
-    var _viewController: UIViewController
+    private var _viewController: UIViewController
     
-    var _name: String?
-    var _version: String?
-    var _bundleId: String?
+    private var _name: String?
+    private var _version: String?
+    private var _bundleId: String?
     
-    var _broadcastIp: String?
-    var _listener: NWListener?
-    var _broadcastConnection: NWConnection?
-    var _localPort: UInt16 = 0
-    var _timer: Timer?
-    var _logLines: [String] = []
-    var _isSimulator = false
+    private var _broadcastIp: String?
+    private var _listener: NWListener?
+    private var _broadcastConnection: NWConnection?
+    private var _localPort: UInt16 = 0
+    private var _timer: Timer?
+    private var _lastLogTime: Int = 0
+    private var _store: OSLogStore?
+    private var _predicate: NSPredicate?
     
     private static var _instance: DebugServer?
     
@@ -39,18 +168,6 @@ import UIKit
     init(viewController: UIViewController) {
         _viewController = viewController
         super.init()
-        
-        let title = _viewController.view.viewWithTag(10) as? UILabel
-        title!.text = "Nefta Adapter for\n MAX \(ALSdk.version())"
-        let onClickHandler = UITapGestureRecognizer(target: self, action: #selector(onTitleClick))
-        title!.isUserInteractionEnabled = true
-        title!.addGestureRecognizer(onClickHandler)
-        
-        var isSimulator: Bool = false
-        if let path = Bundle.main.path(forResource: "config", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) {
-            isSimulator = dict["IS_SIMULATOR"] as? Bool ?? false
-        }
-        ToggleUI(isSimulator: isSimulator)
 
         _name = UIDevice.current.model
 #if targetEnvironment(simulator)
@@ -81,8 +198,11 @@ import UIKit
         
         NeftaPlugin._instance = nil
         NeftaPlugin.SetDebugTime(offset: 0)
-        NeftaPlugin.OnLog = { log in
-            self._logLines.append(log)
+        do {
+            _store = try OSLogStore(scope: .currentProcessIdentifier)
+            _predicate = NSPredicate(format: "NOT (subsystem BEGINSWITH[c] 'com.apple.')")
+        } catch {
+            print("DS:Error attaching to log stream: \(error)")
         }
         
         _broadcastIp = GetBroadcastAddress()
@@ -112,25 +232,38 @@ import UIKit
         }
     }
     
-    
-    @objc func onTitleClick() {
-        ToggleUI(isSimulator: !_isSimulator)
-    }
-    
-    private func ToggleUI(isSimulator: Bool) {
-        _isSimulator = isSimulator
+    private func Send() {
+        guard let connection = self._broadcastConnection else {
+            return
+        }
         
-        (_viewController.view.viewWithTag(11) as! InterstitialSim).isHidden = !isSimulator
-        (_viewController.view.viewWithTag(12) as! RewardedSim).isHidden = !isSimulator
+        SendState(connection: connection, to: "master")
         
-        (_viewController.view.viewWithTag(13) as! Interstitial).isHidden = isSimulator
-        (_viewController.view.viewWithTag(14) as! Rewarded).isHidden = isSimulator
+        do {
+            let filter = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "date > %@", Date(timeIntervalSince1970: Double(_lastLogTime) / 1000) as NSDate),
+                _predicate!
+            ])
+            let entries = try _store!.getEntries(matching: filter)
+            let newLogs = entries.compactMap { $0 as? OSLogEntryLog }
+            
+            for log in newLogs {
+                _lastLogTime = Int(log.date.timeIntervalSince1970 * 1000 + 1)
+                var msg = "log|\(_lastLogTime)|\(log.composedMessage)"
+                if msg.count > 1400 {
+                    msg = String(msg.prefix(1400))
+                }
+                self.SendUdp(connection: connection, to: "master", message: msg)
+            }
+        } catch {
+            print("DS try send logs error: \(error)")
+        }
     }
     
     private func StartBroadcastServer() {
         let params = NWParameters.udp
         params.allowLocalEndpointReuse = true
-        params.allowFastOpen = true
+        params.includePeerToPeer = true
         
         let endpoint = NWEndpoint.hostPort(host: NWEndpoint.Host(_broadcastIp!), port: _broadcastPort!)
         print("DS:Starting broadcast on: \(endpoint)")
@@ -142,11 +275,10 @@ import UIKit
                 
                     DispatchQueue.main.async {
                         self._timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-                            if let connection = self._broadcastConnection {
-                                self.SendState(connection: connection, to: "master")
-                            }
+                            self.Send()
                         }
                     }
+                    self.Send()
                 case .failed(let error):
                     print("DS:Broadcast failed on: \(error)")
                 default:
@@ -202,13 +334,9 @@ import UIKit
                 let segments = message.components(separatedBy: "|")
                 let sourceName = segments[0]
                 let control = segments[3]
-                var aId: String = ""
                 switch control {
                 case "get_logs":
-                    let line = Int(segments[4])!
-                    for i in line..<self._logLines.count {
-                        self.SendUdp(connection: connection, to: sourceName, message: "log|\(i)|\(self._logLines[i])")
-                    }
+ 
                     break
                 case "set_time_offset":
                     let offsetString = segments[4]
@@ -219,90 +347,6 @@ import UIKit
                     break
                 case "state":
                     self.SendState(connection: connection, to: sourceName)
-                    break
-                case "create":
-                    let placementId = segments[4]
-                    for (pId, placement) in NeftaPlugin._instance!._placements {
-                        if pId == placementId {
-                            if placement._type == .Banner {
-                                let banner = NBanner(id: pId, position: NBanner.Position.Top)
-                                aId = String(banner.hashValue)
-                            } else if (placement._type == .Interstitial) {
-                                let interstitial = NInterstitial(id: pId)
-                                aId = String(interstitial.hashValue)
-                            } else if (placement._type == .Rewarded) {
-                                let rewarded = NRewarded(id: pId)
-                                aId = String(rewarded.hashValue)
-                            }
-                            break
-                        }
-                    }
-                    self.SendUdp(connection: connection, to: sourceName, message: "return|create|\(aId)")
-                    break
-                case "partial_bid":
-                    do {
-                        var bidResponse : String = ""
-                        let aId = segments[4]
-                        let id = Int(aId)
-                        for ad in NeftaPlugin._instance!._ads {
-                            if ad.hashValue == id {
-                                let payload = ad.GetPartialBidRequest()
-                                let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
-                                bidResponse = String(data: jsonData, encoding: .utf8)!
-                                break
-                            }
-                        }
-                        self.SendUdp(connection: connection, to: sourceName, message: "return|partial_bid|\(aId)|\(bidResponse)")
-                    } catch _ as NSError {
-                        
-                    }
-                    break;
-                case "bid":
-                    aId = segments[4]
-                    let id = Int(aId)
-                    for ad in NeftaPlugin._instance!._ads {
-                        if ad.hashValue == id {
-                            ad.Bid()
-                            break
-                        }
-                    }
-                    self.SendUdp(connection: connection, to: sourceName, message: "return|bid|\(aId)")
-                    break
-                case "custom_load":
-                    aId = segments[4]
-                    let id = Int(aId)
-                    let bidResponse = segments[5]
-                    for ad in NeftaPlugin._instance!._ads {
-                        if ad.hashValue == id {
-                            ad.LoadWithBidResponse(bidResponse: bidResponse.data(using: .utf8)!)
-                            break
-                        }
-                    }
-                    self.SendUdp(connection: connection, to: sourceName, message: "return|custom_load|\(aId)")
-                    break;
-                case "load":
-                    aId = segments[4]
-                    let id = Int(aId)
-                    for ad in NeftaPlugin._instance!._ads {
-                        if ad.hashValue == id {
-                            ad.Load()
-                            break
-                        }
-                    }
-                    self.SendUdp(connection: connection, to: sourceName, message: "return|load|\(aId)")
-                    break
-                case "show":
-                    aId = segments[4]
-                    let id = Int(aId)
-                    for ad in NeftaPlugin._instance!._ads {
-                        if ad.hashValue == id {
-                            DispatchQueue.main.async {
-                                ad.Show(viewController: self._viewController)
-                            }
-                            break
-                        }
-                    }
-                    self.SendUdp(connection: connection, to: sourceName, message: "return|show|\(aId)")
                     break
                 case "add_event":
                     do {
@@ -419,10 +463,16 @@ import UIKit
                     let callbackIndex = Int(segments[5])!
                     
                     NeftaPlugin._instance!.GetInsights(insights, previousInsight: nil, callback: { insights in
-                        self.ForwardInsights(index: callbackIndex, insights: insights)
-                    }, timeout: 5)
+                        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+                        if let ii = insights._interstitial {
+                            self.SendUdp(connection: connection, to: "master", message: "log|\(timestamp)|DS:Insights:\(ii._type),\(ii._adOpportunityId),\(ii._auctionId),\(ii._requestId),\(ii._adUnit ?? ""),\(ii._floorPrice),\(ii._delay)`")
+                        }
+                        if let ir = insights._rewarded {
+                            self.SendUdp(connection: connection, to: "master", message: "log|\(timestamp)|DS:Insights\(ir._type),\(ir._adOpportunityId),\(ir._auctionId),\(ir._requestId),\(ir._adUnit ?? ""),\(ir._floorPrice),\(ir._delay)")
+                        }
+                    })
                     
-                    self.SendUdp(connection: connection, to: sourceName, message: "return|get_insights|\(insights)")
+                    self.SendUdp(connection: connection, to: sourceName, message: "return|get_insights|\(insights)|\(callbackIndex)")
                     break
                 case "set_override":
                     let app_id = segments[4]
@@ -433,8 +483,6 @@ import UIKit
                     
                     NeftaPlugin._instance!._info._appId = app_id
                     NeftaPlugin.SetOverride(url: rest_url)
-                    NeftaPlugin._instance!._placements.removeAll()
-                    NeftaPlugin._instance!._cachedInitRespose = nil
                     if segments.count > 6 && !segments[6].isEmpty {
                         NeftaPlugin._instance!._state._nuid = segments[6]
                     }
@@ -470,7 +518,6 @@ import UIKit
     }
     
     private func SendState(connection: NWConnection, to: String) {
-        var adUnits = [[String: Any]]()
         var payload: [String: Any] = [:]
             //"rest_url": NeftaPlugin._rtbUrl,
         //]
@@ -478,71 +525,13 @@ import UIKit
         if let NeftaInstance = NeftaPlugin._instance {
             payload["app_id"] = NeftaInstance._info._appId ?? ""
             payload["nuid"] = NeftaInstance._state._nuid
-            
-            if let placements = NeftaInstance._placements {
-                for (id, placement) in placements {
-                    var adUnit : [String: Any] = [
-                        "id": id,
-                        "type": placement._type.description
-                    ]
-                    
-                    var ads = [[String: Any]]()
-                    for ad in NeftaInstance._ads {
-                        var creativeId = ""
-                        if let bid = ad._bid, let crid = bid._creativeId {
-                            creativeId = crid
-                        }
-                        ads.append([
-                            "id": String(ad.hashValue),
-                            "crid": creativeId,
-                            "state": ad._state
-                        ])
-                    }
-                    adUnit["ads"] = ads
-                    adUnits.append(adUnit)
-                }
-            }
         }
-        payload["ad_units"] = adUnits
         
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
-            SendUdp(connection: connection, to: to, message: "state|ios|\(_localPort)|\(_bundleId!)|\(self._version!)|\(_logLines.count)|\(String(data:jsonData, encoding: .utf8)!)")
+            SendUdp(connection: connection, to: to, message: "state|ios|\(_localPort)|\(_bundleId!)|\(self._version!)|\(_lastLogTime)|\(String(data:jsonData, encoding: .utf8)!)")
         } catch _ as NSError {
             
-        }
-    }
-    
-    private func ForwardInsights(index: Int, insights: Insights) {
-        if let connection = self._broadcastConnection {
-            var message = "return|insights|\(index)|{"
-            var hasFields = false
-            if let churn = insights._churn {
-                message += "\"churn\":{"
-                message += "\"d1_probability\":\(churn._d1_probability)"
-                message += "}"
-                hasFields = true
-            }
-            if let banner = insights._banner {
-                if hasFields {
-                    message += ","
-                }
-                message += "\"banner\":{\"ad_unit\":\"\(banner._adUnit!)\",\"floor_price\":\(banner._floorPrice)}"
-            }
-            if let interstitial = insights._interstitial {
-                if hasFields {
-                    message += ","
-                }
-                message += "\"interstitial\":{\"ad_unit\":\"\(interstitial._adUnit!)\",\"floor_price\":\(interstitial._floorPrice)}"
-            }
-            if let rewarded = insights._rewarded {
-                if hasFields {
-                    message += ","
-                }
-                message += "\"rewarded\":{\"ad_unit\":\"\(rewarded._adUnit!)\",\"floor_price\":\(rewarded._floorPrice)}"
-            }
-            message += "}"
-            self.SendUdp(connection: connection, to: "master", message: message)
         }
     }
     

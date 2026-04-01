@@ -1,22 +1,27 @@
 //
-//  ALNeftaAdapter.h
-//  NeftaMaxAdapter
+//  ALNeftaMediationAdapter.h
+//  ALNeftaMediationAdapter
 //
 //  Created by Tomaz Treven on 09/11/2023.
 //
 
-#ifndef ALNeftaAdapter_h
-#define ALNeftaAdapter_h
+#ifndef ALNeftaMediationAdapter_h
+#define ALNeftaMediationAdapter_h
 
-#import "ALNeftaAd.h"
+#import <AppLovinSDK/AppLovinSDK.h>
+#import <NeftaSDK/NeftaSDK-Swift.h>
 
-@interface ALNeftaMediationAdapter : ALMediationAdapter <MAAdViewAdapter, MAInterstitialAdapter, MARewardedAdapter>
+@interface ALNeftaMediationAdapter : NSObject
 typedef NS_ENUM(NSInteger, AdType) {
     AdTypeOther = 0,
     AdTypeBanner = 1,
     AdTypeInterstitial = 2,
     AdTypeRewarded = 3
 };
++ (void)InitWithAppId:(NSString *_Nonnull)appId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(appId:onReady:));
++ (void)InitWithClientId:(NSString *_Nonnull)clientId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(clientId:onReady:));
++ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight NS_SWIFT_NAME(GetRetryDelayInSeconds(insight:));
++ (void)AddNewSessionCallback:(void (^ _Nonnull)(void))callback NS_SWIFT_NAME(AddNewSessionCallback(callback:));
 
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner insight:(AdInsight * _Nullable)insight;
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner;
@@ -39,7 +44,6 @@ typedef NS_ENUM(NSInteger, AdType) {
 + (void)OnExternalMediationImpression:(MAAd* _Nonnull)ad;
 + (void)OnExternalMediationClick:(MAAd* _Nonnull)ad;
 
-@property ALNeftaAd * _Nullable ad;
 @end
 
-#endif /* ALNeftaAdapter_h */
+#endif

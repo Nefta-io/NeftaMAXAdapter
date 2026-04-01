@@ -8,5 +8,5 @@ target 'MaxIntegration' do
   project 'MaxIntegration.xcodeproj'
   pod 'AppLovinSDK'
   pod 'Adjust'
-  pod 'NeftaMAXAdapter'
+  pod 'NeftaMAXAdapter', :path => '.'
 end

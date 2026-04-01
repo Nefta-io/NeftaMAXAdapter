@@ -10,7 +10,6 @@
 
 NSString * const AdUnitA = @"e5dc3548d4a0913f";
 NSString * const AdUnitB = @"6d318f954e2630a8";
-const int TimeoutInSeconds = 5;
 
 @implementation TrackObjC
 
@@ -36,7 +35,6 @@ const int TimeoutInSeconds = 5;
 }
 
 - (void)OnLoadFail {
-    _consecutiveAdFails++;
     [self retryLoad];
     
     [[InterstitialObjC sharedInstance] OnTrackLoad: false];
@@ -48,7 +46,6 @@ const int TimeoutInSeconds = 5;
     [[InterstitialObjC sharedInstance] log: @"Loaded %@: %f", ad, ad.revenue];
     
     _insight = nil;
-    _consecutiveAdFails = 0;
     _revenue = ad.revenue;
     _state = Ready;
     
@@ -56,10 +53,7 @@ const int TimeoutInSeconds = 5;
 }
 
 - (void)retryLoad {
-    // As per MAX recommendations, retry with exponentially higher delays up to 64s
-    // In case you would like to customize fill rate / revenue please contact our customer support
-    int delayInSeconds = (int[]){ 0, 2, 4, 8, 16, 32, 64 }[MIN(_consecutiveAdFails, 6)];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, [ALNeftaMediationAdapter GetRetryDelayInSeconds: _insight] * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         self.state = Idle;
         [[InterstitialObjC sharedInstance] RetryLoadTracks];
     });
@@ -84,6 +78,7 @@ const int TimeoutInSeconds = 5;
 - (void)didFailToDisplayAd:(MAAd *)ad withError:(MAError *)error {
     [[InterstitialObjC sharedInstance] log: @"didFailToDisplayAd %@: %@", ad, error];
     
+    _state = Idle;
     [[InterstitialObjC sharedInstance] RetryLoadTracks];
 }
 
@@ -91,7 +86,6 @@ const int TimeoutInSeconds = 5;
     [[InterstitialObjC sharedInstance] log: @"didHideAd %@", ad];
     
     _state = Idle;
-    
     [[InterstitialObjC sharedInstance] RetryLoadTracks];
 }
 
@@ -108,7 +102,7 @@ static InterstitialObjC *instance = nil;
 
 - (void)LoadTrack:(TrackObjC * _Nonnull)track otherState:(State)otherState {
     if (track.state == Idle) {
-        if (otherState == LoadingWithInsights) {
+        if (otherState == LoadingWithInsights || otherState == Shown) {
             if (_isFirstResponseReceived) {
                 [self LoadDefault: track];
             }
@@ -137,7 +131,7 @@ static InterstitialObjC *instance = nil;
         } else {
             [track OnLoadFail];
         }
-    } timeout: TimeoutInSeconds];
+    }];
 }
 
 - (void)LoadDefault:(TrackObjC * _Nonnull)track {

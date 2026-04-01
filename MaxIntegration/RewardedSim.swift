@@ -7,9 +7,8 @@
 
 
 public class RewardedSim : UIView {
-    public static let AdUnitA = "Track A"
-    public static let AdUnitB = "Track B"
-    private let TimeoutInSeconds = 5
+    public static let AdUnitA = "Rewarded Track A"
+    public static let AdUnitB = "Rewarded Track B"
     private let DefaultBackgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
     private let DefaultColor = UIColor(red: 0.6509804, green: 0.1490196, blue: 0.7490196, alpha: 1.0)
     private let FillColor = UIColor.green
@@ -20,46 +19,62 @@ public class RewardedSim : UIView {
         case LoadingWithInsights
         case Loading
         case Ready
+        case Shown
     }
     
-    public class AdRequest : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
+    public class Track : NSObject, MARewardedAdDelegate, MAAdDelegate, MAAdRevenueDelegate {
         private let _controller: RewardedSim
         
         public let _adUnitId: String
-        public var _rewarded: SimRewarded? = nil
+        public var _rewarded: SimRewarded!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
-        public var _consecutiveAdFails: Int = 0
         
         public init(controller: RewardedSim ,adUnitId: String) {
             _controller = controller
             _adUnitId = adUnitId
+            
+            super.init()
+            
+            Reset()
+        }
+        
+        public func Reset() {
+            if let oldRewarded = _rewarded {
+                oldRewarded.delegate = nil
+                oldRewarded.revenueDelegate = nil
+            }
+            
+            _rewarded = SimRewarded.shared(withAdUnitIdentifier: _adUnitId)
+            _rewarded.delegate = self
+            _rewarded.revenueDelegate = self
+            
+            _state = State.Idle
+            _insight = nil
+            _revenue = -1
         }
         
         public func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-            ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _rewarded!, error: error)
+            ALNeftaMediationAdapter.onExternalMediationRequestFail(withRewarded: _rewarded, error: error)
             
             _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
-            _rewarded = nil
             OnLoadFail()
         }
         
         public func OnLoadFail() {
-            _consecutiveAdFails += 1
             retryLoad()
             
             _controller.OnTrackLoad(false)
         }
         
         public func didLoad(_ ad: MAAd) {
-            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _rewarded!, ad: ad)
+            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withRewarded: _rewarded, ad: ad)
             
             _controller.Log("Loaded \(ad) at: \(ad.revenue)")
             
             _insight = nil
-            _consecutiveAdFails = 0
             _revenue = ad.revenue
             _state = State.Ready
             
@@ -67,12 +82,9 @@ public class RewardedSim : UIView {
         }
         
         public func retryLoad() {
-            // As per MAX recommendations, retry with exponentially higher delays up to 64s
-            // In case you would like to customize fill rate / revenue please contact our customer support
-            let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight)) {
                 self._state = State.Idle
-                self._controller.RetryLoading()
+                self._controller.RetryLoadTracks()
             }
         }
         
@@ -91,7 +103,8 @@ public class RewardedSim : UIView {
         public func didFail(toDisplay ad: MAAd, withError error: MAError) {
             RewardedSim.Instance.Log("didFail \(ad)")
             
-            _controller.RetryLoading()
+            _state = State.Idle
+            _controller.RetryLoadTracks()
         }
         
         public func didDisplay(_ ad: MAAd) {
@@ -105,12 +118,13 @@ public class RewardedSim : UIView {
         public func didHide(_ ad: MAAd) {
             _controller.Log("didHide \(ad)")
             
-            _controller.RetryLoading()
+            _state = State.Idle
+            _controller.RetryLoadTracks()
         }
     }
     
-    private var _adRequestA: AdRequest!
-    private var _adRequestB: AdRequest!
+    private var _trackA: Track!
+    private var _trackB: Track!
     private var _isFirstResponseReceived = false
     
     @IBOutlet weak var _loadSwitch: UISwitch!
@@ -129,59 +143,69 @@ public class RewardedSim : UIView {
     @IBOutlet weak var _bOther: UIButton!
     @IBOutlet weak var _bStatus: UILabel!
     
-    @IBOutlet weak var _simulatorAd: SimulatorAd!
-    
     public static var Instance: RewardedSim!
     
-    private func StartLoading() {
-        Load(request: _adRequestA, otherState: _adRequestB._state)
-        Load(request: _adRequestB, otherState: _adRequestA._state)
+    private func LoadTracks() {
+        LoadTrack(track: _trackA, otherState: _trackB._state)
+        LoadTrack(track: _trackB, otherState: _trackA._state)
     }
     
-    private func Load(request: AdRequest, otherState: State) {
-        if request._state == State.Idle {
-            if otherState != State.LoadingWithInsights {
-                GetInsightsAndLoad(adRequest: request)
-            } else if (_isFirstResponseReceived) {
-                LoadDefault(adRequest: request)
+    private func LoadTrack(track: Track, otherState: State) {
+        if track._state == .Idle {
+            if otherState == .LoadingWithInsights || otherState == .Shown {
+                if (_isFirstResponseReceived) {
+                    LoadDefault(track: track)
+                }
+            } else {
+                GetInsightsAndLoad(track: track)
             }
         }
     }
     
-    private func GetInsightsAndLoad(adRequest: AdRequest) {
-        adRequest._state = State.LoadingWithInsights
+    private func GetInsightsAndLoad(track: Track) {
+        track._state = .LoadingWithInsights
         
-        NeftaPlugin._instance!.GetInsights(Insights.Rewarded, previousInsight: adRequest._insight, callback: { insights in
+        NeftaPlugin._instance!.GetInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
             self.Log("Load with insights: \(insights)")
             if let insight = insights._rewarded {
-                adRequest._insight = insight
+                track._insight = insight
                 let bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
-                adRequest._rewarded = SimRewarded.shared(withAdUnitIdentifier: adRequest._adUnitId)
-                adRequest._rewarded!.delegate = adRequest
-                adRequest._rewarded!.setExtraParameterForKey("disable_auto_retries", value: "true")
-                adRequest._rewarded!.setExtraParameterForKey("jC7Fp", value: bidFloor)
+
+                track._rewarded.setExtraParameterForKey("disable_auto_retries", value: "true")
+                track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
                 
-                ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded!, insight: insight)
+                ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded, insight: insight)
                 
-                self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
-                adRequest._rewarded!.load()
+                self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+                track._rewarded.load()
             } else {
-                adRequest.OnLoadFail()
+                track.OnLoadFail()
             }
-        }, timeout: TimeoutInSeconds)
+        })
     }
     
-    private func LoadDefault(adRequest: AdRequest) {
-        adRequest._state = State.Loading
+    private func LoadDefault(track: Track) {
+        track._state = .Loading
         
-        Log("Loading \(adRequest._adUnitId) as Default")
+        Log("Loading \(track._adUnitId) as Default")
         
-        adRequest._rewarded = SimRewarded.shared(withAdUnitIdentifier: adRequest._adUnitId)
-        adRequest._rewarded!.delegate = adRequest
+        track._rewarded.setExtraParameterForKey("disable_auto_retries", value: "false")
+        track._rewarded.setExtraParameterForKey("jC7Fp", value: "")
         
-        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: adRequest._rewarded!)
+        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded)
 
-        adRequest._rewarded!.load()
+        track._rewarded.load()
+    }
+    
+    private func OnNewSession() {
+        Log("Rewarded on new session")
+        
+        _trackA.Reset()
+        _trackB.Reset()
+        
+        UpdateShowButton()
+        _isFirstResponseReceived = false
+        RetryLoadTracks()
     }
     
     public override func awakeFromNib() {
@@ -189,35 +213,36 @@ public class RewardedSim : UIView {
         
         RewardedSim.Instance = self
         
-        _adRequestA = AdRequest(controller: self, adUnitId: RewardedSim.AdUnitA)
-        _adRequestB = AdRequest(controller: self, adUnitId: RewardedSim.AdUnitB)
+        _trackA = Track(controller: self, adUnitId: RewardedSim.AdUnitA)
+        _trackB = Track(controller: self, adUnitId: RewardedSim.AdUnitB)
+        ALNeftaMediationAdapter.AddNewSessionCallback(callback: OnNewSession)
         
         ToggleTrackA(isOn: false)
         _aFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestA, isHigh: true)
+            self.SimOnAdLoadedEvent(request: self._trackA, isHigh: true)
         }, for: .touchUpInside)
         _aFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestA, isHigh: false)
+            self.SimOnAdLoadedEvent(request: self._trackA, isHigh: false)
         }, for: .touchUpInside)
         _aNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestA, status: 2)
+            self.SimOnAdFailedEvent(request: self._trackA, status: 2)
         }, for: .touchUpInside)
         _aOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestA, status: 0)
+            self.SimOnAdFailedEvent(request: self._trackA, status: 0)
         }, for: .touchUpInside)
         
         ToggleTrackB(isOn: false)
         _bFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestB, isHigh: true)
+            self.SimOnAdLoadedEvent(request: self._trackB, isHigh: true)
         }, for: .touchUpInside)
         _bFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestB, isHigh: false)
+            self.SimOnAdLoadedEvent(request: self._trackB, isHigh: false)
         }, for: .touchUpInside)
         _bNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestB, status: 2)
+            self.SimOnAdFailedEvent(request: self._trackB, status: 2)
         }, for: .touchUpInside)
         _bOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestB, status: 0)
+            self.SimOnAdFailedEvent(request: self._trackB, status: 0)
         }, for: .touchUpInside)
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
@@ -226,44 +251,54 @@ public class RewardedSim : UIView {
         _showButton.isEnabled = false
     }
     
+    public override var isHidden: Bool {
+        didSet {
+            if isHidden {
+                if let loadSwitch = _loadSwitch {
+                    loadSwitch.setOn(false, animated: false)
+                }
+            }
+        }
+    }
+    
     @objc private func OnLoadSwitch(_ sender: UISwitch) {
         if sender.isOn {
-            StartLoading()
+            LoadTracks()
         }
     }
     
     @objc private func OnShowClick() {
         var isShown = false
-        if _adRequestA._state == State.Ready {
-            if _adRequestB._state == State.Ready && _adRequestB._revenue > _adRequestA._revenue {
-                isShown = TryShow(adRequest: _adRequestB)
+        if _trackA._state == .Ready {
+            if _trackB._state == .Ready && _trackB._revenue > _trackA._revenue {
+                isShown = TryShow(track: _trackB)
             }
             if !isShown {
-                isShown = TryShow(adRequest: _adRequestA)
+                isShown = TryShow(track: _trackA)
             }
         }
-        if !isShown && _adRequestB._state == State.Ready {
-            isShown = TryShow(adRequest: _adRequestB)
+        if !isShown && _trackB._state == .Ready {
+            isShown = TryShow(track: _trackB)
         }
         
         UpdateShowButton()
     }
     
-    private func TryShow(adRequest: AdRequest) -> Bool {
-        adRequest._state = State.Idle
-        adRequest._revenue = -1
-
-        if adRequest._rewarded!.isReady {
-            adRequest._rewarded!.show()
+    private func TryShow(track: Track) -> Bool {
+        track._revenue = -1
+        if track._rewarded.isReady {
+            track._state = .Shown
+            track._rewarded.show()
             return true
         }
-        RetryLoading()
+        track._state = .Idle
+        RetryLoadTracks()
         return false
     }
     
-    private func RetryLoading() {
+    private func RetryLoadTracks() {
         if _loadSwitch.isOn {
-            StartLoading()
+            LoadTracks()
         }
     }
     
@@ -273,16 +308,16 @@ public class RewardedSim : UIView {
         }
         
         _isFirstResponseReceived = true
-        RetryLoading()
+        RetryLoadTracks()
     }
     
     private func UpdateShowButton() {
-        _showButton.isEnabled = _adRequestA._state == State.Ready || _adRequestB._state == State.Ready
+        _showButton.isEnabled = _trackA._state == .Ready || _trackB._state == .Ready
     }
     
     private func Log(_ log: String) {
         _status.text = log
-        ViewController._log.info("NeftaPluginMAX Simulator: \(log, privacy: .public)")
+        ViewController._log.notice("NeftaPluginMAX Simulator: \(log, privacy: .public)")
     }
     
     public class SimRewarded : SMARewardedAd {
@@ -296,6 +331,18 @@ public class RewardedSim : UIView {
             a._adUnitId = adUnitId
             a._floor = -1
             return a
+        }
+        
+        deinit {
+            _ad = nil
+            
+            if _adUnitId == InterstitialSim.AdUnitA {
+                RewardedSim.Instance.ToggleTrackA(isOn: false)
+                RewardedSim.Instance.SetStatusA("")
+            } else {
+                RewardedSim.Instance.ToggleTrackB(isOn: false)
+                RewardedSim.Instance.SetStatusB("")
+            }
         }
    
         public override func load() {
@@ -311,25 +358,48 @@ public class RewardedSim : UIView {
         }
         
         public override func show() {
-            (delegate! as! MAAdRevenueDelegate).didPayRevenue(for: _ad!)
-            
-            RewardedSim.Instance.Show(title: "Rewarded",
-                onShow: { self.delegate!.didDisplay(self._ad!) },
-                onClick: { self.delegate!.didClick(self._ad!) },
-                onReward: { self.delegate!.didRewardUser(for: self._ad!, with: MAReward(amount: 1, label: "reward")) },
-                onClose: { self.delegate!.didHide(self._ad!) }
-            )
+            guard let ad = _ad else {
+                return
+            }
+            _ad = nil
             
             if _adUnitId == RewardedSim.AdUnitA {
+                RewardedSim.Instance.ToggleTrackA(isOn: false)
                 RewardedSim.Instance.SetStatusA("Showing A")
             } else {
+                RewardedSim.Instance.ToggleTrackB(isOn: false)
                 RewardedSim.Instance.SetStatusB("Showing B")
             }
+            
+            NDebug.Open(
+                title: "Rewarded",
+                viewController: GetUIViewController(),
+                onShow: {
+                    self.delegate!.didDisplay(ad)
+                    (self.delegate! as! MAAdRevenueDelegate).didPayRevenue(for: ad)
+                },
+                onClick: { self.delegate!.didClick(ad) },
+                onClose: { self.delegate!.didHide(ad) },
+                onReward: { self.delegate!.didRewardUser(for: ad, with: MAReward(amount: 1, label: "reward")) }
+            )
+        }
+        
+        private func GetUIViewController() -> UIViewController {
+            let keyWindow = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+
+            return (keyWindow!.rootViewController?.presentedViewController ?? keyWindow!.rootViewController)!
         }
         
         public override func setExtraParameterForKey(_ key: String, value: String?) {
             if key == "jC7Fp" {
-                _floor = Double(value!)!
+                if value == "" {
+                    _floor = -1
+                } else {
+                    _floor = Double(value!)!
+                }
             }
         }
         
@@ -396,10 +466,10 @@ public class RewardedSim : UIView {
         }
     }
     
-    func SimOnAdLoadedEvent(request: AdRequest, isHigh: Bool) {
+    func SimOnAdLoadedEvent(request: Track, isHigh: Bool) {
         let revenue = isHigh ? 0.002 : 0.001
-        if request._rewarded!._ad != nil {
-            request._rewarded!._ad = nil
+        if request._rewarded._ad != nil {
+            request._rewarded._ad = nil
             
             if request._adUnitId == InterstitialSim.AdUnitA {
                 if isHigh {
@@ -459,10 +529,10 @@ public class RewardedSim : UIView {
             SetStatusB("\(request._adUnitId) loaded \(revenue)")
         }
         
-        request._rewarded!.SimLoad(ad: ad)
+        request._rewarded.SimLoad(ad: ad)
     }
     
-    func SimOnAdFailedEvent(request: AdRequest, status: Int) {
+    func SimOnAdFailedEvent(request: Track, status: Int) {
         if request._adUnitId == RewardedSim.AdUnitA {
             if status == 2 {
                 _aNoFill.tintColor = NoFillColor
@@ -485,7 +555,7 @@ public class RewardedSim : UIView {
         
         let error = SMAError.create(status, message: "simulator error")
         error.simWaterfall = SimMAAd.getWaterfall("sim waterfall", testName: "sim test name", responses: [NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue), NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue)])
-        request._rewarded!.SimFailLoad(error: error)
+        request._rewarded.SimFailLoad(error: error)
     }
     
     public func SetStatusA(_ status: String) {
@@ -494,9 +564,5 @@ public class RewardedSim : UIView {
     
     public func SetStatusB(_ status: String) {
         _bStatus.text = status
-    }
-    
-    public func Show(title: String, onShow: @escaping (() -> Void), onClick: @escaping (() -> Void), onReward: (() -> Void)!, onClose: @escaping (() -> Void)) {
-        _simulatorAd.Show(title: title, onShow: onShow, onClick: onClick, onReward: onReward, onClose: onClose)
     }
 }

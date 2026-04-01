@@ -169,7 +169,6 @@
                                             <outlet property="_bStatus" destination="djS-Gw-Ism" id="Jzt-XR-rce"/>
                                             <outlet property="_loadSwitch" destination="xUA-F9-yJU" id="6BO-CK-P5v"/>
                                             <outlet property="_showButton" destination="mF5-d6-kmA" id="QML-Je-FKm"/>
-                                            <outlet property="_simulatorAd" destination="KTl-9D-Q4e" id="PbY-U0-C16"/>
                                             <outlet property="_status" destination="WKC-q8-LyT" id="aLb-oe-Qw0"/>
                                         </connections>
                                     </view>
@@ -313,7 +312,6 @@
                                             <outlet property="_bStatus" destination="JIx-uD-GeI" id="PCb-7h-NNa"/>
                                             <outlet property="_loadSwitch" destination="uwm-E9-eUM" id="hyv-oC-KMr"/>
                                             <outlet property="_showButton" destination="bzZ-aJ-ZwL" id="0VN-nW-rC2"/>
-                                            <outlet property="_simulatorAd" destination="KTl-9D-Q4e" id="Jp5-h4-Fiz"/>
                                             <outlet property="_status" destination="nw7-aH-FLz" id="hOb-fj-Mlb"/>
                                         </connections>
                                     </view>
@@ -427,50 +425,14 @@
                                     </view>
                                 </subviews>
                             </stackView>
-                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KTl-9D-Q4e" customClass="SimulatorAd" customModule="MaxIntegration" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="784"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rkd-fg-A9c" userLabel="Close">
-                                        <rect key="frame" x="323" y="100" width="40" height="40"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="40" id="Idu-sM-p0x"/>
-                                            <constraint firstAttribute="width" constant="40" id="tzv-f7-Yb4"/>
-                                        </constraints>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="X"/>
-                                    </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ad" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SgA-Cg-LxZ" userLabel="Title">
-                                        <rect key="frame" x="70" y="200" width="253" height="28.666666666666657"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="24"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstItem="Rkd-fg-A9c" firstAttribute="top" secondItem="KTl-9D-Q4e" secondAttribute="top" constant="100" id="8kW-bi-zyu"/>
-                                    <constraint firstAttribute="trailing" secondItem="Rkd-fg-A9c" secondAttribute="trailing" constant="30" id="W7b-vk-Yxz"/>
-                                    <constraint firstItem="SgA-Cg-LxZ" firstAttribute="top" secondItem="KTl-9D-Q4e" secondAttribute="top" constant="200" id="aZl-Oq-Pq5"/>
-                                    <constraint firstItem="SgA-Cg-LxZ" firstAttribute="centerX" secondItem="KTl-9D-Q4e" secondAttribute="centerX" id="yZi-00-npz"/>
-                                    <constraint firstItem="Rkd-fg-A9c" firstAttribute="leading" secondItem="SgA-Cg-LxZ" secondAttribute="trailing" id="ytQ-zX-E9Z"/>
-                                </constraints>
-                                <connections>
-                                    <outlet property="_closeButton" destination="Rkd-fg-A9c" id="meL-vX-MyO"/>
-                                    <outlet property="_title" destination="SgA-Cg-LxZ" id="eb0-bJ-BLu"/>
-                                </connections>
-                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="KTl-9D-Q4e" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="A1q-rm-C5n"/>
                             <constraint firstItem="3DT-XR-XY2" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="GrF-wi-jGf"/>
                             <constraint firstItem="3DT-XR-XY2" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="IV1-Bk-LTu"/>
-                            <constraint firstItem="KTl-9D-Q4e" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="JRH-q5-hwR"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="KTl-9D-Q4e" secondAttribute="trailing" id="dCZ-OO-CSd"/>
                             <constraint firstItem="sgf-TX-Yq0" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mUi-Xu-0fR"/>
                             <constraint firstItem="sgf-TX-Yq0" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="mid-nY-5Iu"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="KTl-9D-Q4e" secondAttribute="bottom" id="yy0-W4-3tT"/>
                         </constraints>
                     </view>
                 </viewController>

@@ -25,7 +25,6 @@ typedef enum {
 @property (nonatomic, assign) State state;
 @property (nonatomic, strong) AdInsight * _Nullable insight;
 @property (nonatomic, assign) double revenue;
-@property (nonatomic, assign) int consecutiveAdFails;
 
 - (instancetype _Nonnull )initWithAdUnit:(NSString * _Nonnull)adUnit;
 

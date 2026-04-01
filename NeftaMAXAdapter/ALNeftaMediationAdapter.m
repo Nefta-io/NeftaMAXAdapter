@@ -6,9 +6,6 @@
 //
 
 #import "ALNeftaMediationAdapter.h"
-#import "ALNeftaBanner.h"
-#import "ALNeftaInterstitial.h"
-#import "ALNeftaRewarded.h"
 
 #import <os/log.h>
 #import <AppLovinSDK/AppLovinSDK.h>
@@ -18,6 +15,20 @@ NSString * const _mediationProvider = @"applovin-max";
 @implementation ALNeftaMediationAdapter
 
 static NeftaPlugin *_plugin;
+
++ (void)InitWithAppId:(NSString *)appId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady {
+    (void)[NeftaPlugin NativeInitWithAppId: appId clientId: nil onReady: onReady integration: @"native-applovin-max" mediationVersion: ALSdk.version];
+}
++ (void)InitWithClientId:(NSString *)clientId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady {
+    (void)[NeftaPlugin NativeInitWithAppId: nil clientId: clientId onReady: onReady integration: @"native-applovin-max" mediationVersion: ALSdk.version];
+}
+
++ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight {
+    return (double)[NeftaPlugin GetRetryDelayInSeconds: insight];
+}
++ (void)AddNewSessionCallback:(void (^ _Nonnull)(void))callback {
+    [NeftaPlugin AddNewSessionCallback: callback];
+}
 
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner insight:(AdInsight * _Nullable)insight {
     NSString *hash = [NSString stringWithFormat:@"%lu", (unsigned long)[banner hash]];
@@ -79,13 +90,13 @@ static NeftaPlugin *_plugin;
 }
 + (void)OnExternalMediationResponseLoad:(NSString * _Nonnull)id ad:(MAAd * _Nonnull)ad {
     NSString *hash = [NSString stringWithFormat:@"%lu", (unsigned long)[ad hash]];
-    NSMutableDictionary *baseObject = nil;
+    NSMutableDictionary *data = [NSMutableDictionary dictionary];
+    [data setObject: ad.networkName forKey: @"network_name"];
     MAAdWaterfallInfo *waterfall = ad.waterfall;
     if (waterfall != nil) {
-        baseObject = [NSMutableDictionary dictionary];
-        [ALNeftaMediationAdapter SerializeWaterfall: baseObject waterfall:waterfall];
+        [ALNeftaMediationAdapter SerializeWaterfall: data waterfall: waterfall];
     }
-    [NeftaPlugin OnExternalMediationResponse: _mediationProvider id: id id2: hash revenue: ad.revenue precision: ad.revenuePrecision status: 1 providerStatus: nil networkStatus: nil baseObject: baseObject];
+    [NeftaPlugin OnExternalMediationResponse: _mediationProvider id: id id2: hash revenue: ad.revenue precision: ad.revenuePrecision status: 1 providerStatus: nil networkStatus: nil baseObject: data];
 }
 
 + (void)OnExternalMediationRequestFailWithBanner:(MAAdView * _Nonnull)banner error:(MAError * _Nonnull)error {
@@ -178,6 +189,9 @@ static NeftaPlugin *_plugin;
                 name = (NSString *)n;
             }
         }
+        if (name == nil || [name length] == 0) {
+            name = other.mediatedNetwork.adapterClassName;
+        }
         NSMutableDictionary *waterfallResponse = [NSMutableDictionary dictionary];
         if (name != nil && [name length] > 0) {
             [waterfalls addObject: name];
@@ -207,106 +221,4 @@ static NeftaPlugin *_plugin;
     [data setObject: waterfallResponses forKey: @"waterfall_responses"];
 }
 
-- (void)initializeWithParameters:(id<MAAdapterInitializationParameters>)parameters completionHandler:(void (^)(MAAdapterInitializationStatus, NSString *_Nullable))completionHandler {
-    if (_plugin != nil) {
-        completionHandler(MAAdapterInitializationStatusInitializedSuccess, nil);
-    } else {
-        NSString *appId = parameters.serverParameters[@"app_id"];
-        
-        _plugin = [NeftaPlugin InitWithAppId: appId integration: @"native-applovin-max"];
-        NSNumber *hasConsent = [parameters hasUserConsent];
-        NSNumber *isDoNotSell = [parameters isDoNotSell];
-        [_plugin SetTrackingWithIsAuthorized: hasConsent != nil && hasConsent.longLongValue == 1 && (isDoNotSell == nil || isDoNotSell.longLongValue == 0)];
-        
-        completionHandler(MAAdapterInitializationStatusInitializedSuccess, nil);
-    }
-}
-
-- (NSString *)SDKVersion {
-    return NeftaPlugin.Version;
-}
-
-- (NSString *)adapterVersion {
-    return @"4.4.6";
-}
-
-- (void)destroy {
-    [_ad Close];
-}
-
-- (void)loadAdViewAdForParameters:(id<MAAdapterResponseParameters>)parameters adFormat:(MAAdFormat *)adFormat andNotify:(id<MAAdViewAdapterDelegate>)delegate {
-    _ad = [[ALNeftaBanner alloc] initWithId: parameters.thirdPartyAdPlacementIdentifier listener: delegate];
-    [self Load: parameters];
-}
-
-- (void)loadInterstitialAdForParameters:(id<MAAdapterResponseParameters>)parameters andNotify:(id<MAInterstitialAdapterDelegate>)delegate {
-    _ad = [[ALNeftaInterstitial alloc] initWithId: parameters.thirdPartyAdPlacementIdentifier listener: delegate];
-    [self Load: parameters];
-}
-
-- (void)showInterstitialAdForParameters:(id<MAAdapterResponseParameters>)parameters andNotify:(id<MAInterstitialAdapterDelegate>)delegate {
-    int readyStatus = [_ad CanShow];
-    if (readyStatus == NAd.Loading) {
-        [delegate didFailToDisplayInterstitialAdWithError: MAAdapterError.adNotReady];
-        return;
-    }
-    if (readyStatus == NAd.Expired) {
-        [delegate didFailToDisplayInterstitialAdWithError: MAAdapterError.adExpiredError];
-        return;
-    }
-    if (readyStatus != NAd.Ready) {
-        [delegate didFailToDisplayInterstitialAdWithError: MAAdapterError.unspecified];
-        return;
-    }
-    
-    [_ad Show: [self GetViewController: parameters]];
-}
-
-- (void) loadRewardedAdForParameters:(id<MAAdapterResponseParameters>)parameters andNotify:(id<MARewardedAdapterDelegate>)delegate {
-    _ad = [[ALNeftaRewarded alloc] initWithId: parameters.thirdPartyAdPlacementIdentifier listener: delegate];
-    [self Load: parameters];
-}
-
-- (void) showRewardedAdForParameters:(id<MAAdapterResponseParameters>)parameters andNotify:(id<MARewardedAdapterDelegate>)delegate {
-    int readyStatus = [_ad CanShow];
-    if (readyStatus == NAd.Loading) {
-        [delegate didFailToLoadRewardedAdWithError: MAAdapterError.adNotReady];
-        return;
-    }
-    if (readyStatus == NAd.Expired) {
-        [delegate didFailToLoadRewardedAdWithError: MAAdapterError.adExpiredError];
-        return;
-    }
-    if (readyStatus != NAd.Ready) {
-        [delegate didFailToLoadRewardedAdWithError: MAAdapterError.unspecified];
-        return;
-    }
-
-    ALNeftaRewarded *rewarded = (ALNeftaRewarded *) _ad;
-    rewarded.reward = [self reward];
-    rewarded.giveReward = [self shouldAlwaysRewardUser];
-    [_ad Show: [self GetViewController: parameters]];
-}
-
-- (void) Load:(id<MAAdapterResponseParameters>)parameters {
-    if (parameters.customParameters != nil && [parameters.customParameters count] > 0) {
-        NSError *error;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters.customParameters options:0 error:&error];
-        if (!jsonData) {
-            NSLog(@"Error converting dictionary to JSON: %@", error.localizedDescription);
-        } else {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            [_ad SetCustomParameterWithProvider: _mediationProvider value: jsonString];
-        }
-    }
-    
-    [_ad Load];
-}
-
-- (UIViewController *) GetViewController:(id<MAAdapterResponseParameters>)parameters {
-    if (ALSdk.versionCode >= 11020199) {
-        return parameters.presentingViewController ?: [ALUtils topViewControllerFromKeyWindow];
-    }
-    return [ALUtils topViewControllerFromKeyWindow];
-}
 @end

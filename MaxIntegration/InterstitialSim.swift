@@ -6,9 +6,8 @@
 //
 
 public class InterstitialSim : UIView {
-    public static let AdUnitA = "Track A"
-    public static let AdUnitB = "Track B"
-    private let TimeoutInSeconds = 5
+    public static let AdUnitA = "Inter Track A"
+    public static let AdUnitB = "Inter Track B"
     private let DefaultBackgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
     private let DefaultColor = UIColor(red: 0.6509804, green: 0.1490196, blue: 0.7490196, alpha: 1.0)
     private let FillColor = UIColor.green
@@ -19,59 +18,72 @@ public class InterstitialSim : UIView {
         case LoadingWithInsights
         case Loading
         case Ready
+        case Shown
     }
     
-    public class AdRequest : NSObject, MAAdDelegate, MAAdRevenueDelegate {
+    public class Track : NSObject, MAAdDelegate, MAAdRevenueDelegate {
         private let _controller: InterstitialSim
         
         public let _adUnitId: String
-        public var _interstitial: SimInterstitial? = nil
+        public var _interstitial: SimInterstitial!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
-        public var _consecutiveAdFails: Int = 0
         
         public init(controller: InterstitialSim, adUnitId: String) {
             _controller = controller
             _adUnitId = adUnitId
+
+            super.init()
+            
+            Reset()
+        }
+        
+        public func Reset() {
+            if let oldInterstitial = _interstitial {
+                oldInterstitial.delegate = nil
+                oldInterstitial.revenueDelegate = nil
+            }
+            
+            _interstitial = SimInterstitial(adUnitIdentifier: _adUnitId)
+            _interstitial.delegate = self
+            _interstitial.revenueDelegate = self
+            
+            _state = State.Idle
+            _insight = nil
+            _revenue = -1
         }
         
         public func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
-            ALNeftaMediationAdapter.onExternalMediationRequestFail(withInterstitial: _interstitial!, error: error)
+            ALNeftaMediationAdapter.onExternalMediationRequestFail(withInterstitial: _interstitial, error: error)
             
             _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
-            _interstitial = nil
             OnLoadFail()
         }
         
         public func OnLoadFail() {
-            _consecutiveAdFails += 1
             retryLoad()
             
             _controller.OnTrackLoad(false)
         }
         
         public func didLoad(_ ad: MAAd) {
-            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withInterstitial: _interstitial!, ad: ad)
+            ALNeftaMediationAdapter.onExternalMediationRequestLoad(withInterstitial: _interstitial, ad: ad)
             
             _controller.Log("Loaded \(ad) at: \(ad.revenue)")
             
             _insight = nil
-            _consecutiveAdFails = 0
             _revenue = ad.revenue
-            _state = State.Ready
+            _state = .Ready
             
             _controller.OnTrackLoad(true)
         }
         
         public func retryLoad() {
-            // As per MAX recommendations, retry with exponentially higher delays up to 64s
-            // In case you would like to customize fill rate / revenue please contact our customer support
-            let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
-                self._state = State.Idle
-                self._controller.RetryLoading()
+            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight)) {
+                self._state = .Idle
+                self._controller.RetryLoadTracks()
             }
         }
         
@@ -90,7 +102,8 @@ public class InterstitialSim : UIView {
         public func didFail(toDisplay ad: MAAd, withError error: MAError) {
             InterstitialSim.Instance.Log("didFail \(ad)")
             
-            _controller.RetryLoading()
+            _state = State.Idle
+            _controller.RetryLoadTracks()
         }
         
         public func didDisplay(_ ad: MAAd) {
@@ -100,12 +113,13 @@ public class InterstitialSim : UIView {
         public func didHide(_ ad: MAAd) {
             _controller.Log("didHide \(ad)")
             
-            _controller.RetryLoading()
+            _state = .Idle
+            _controller.RetryLoadTracks()
         }
     }
     
-    private var _adRequestA: AdRequest!
-    private var _adRequestB: AdRequest!
+    private var _trackA: Track!
+    private var _trackB: Track!
     private var _isFirstResponseReceived = false
     
     @IBOutlet weak var _loadSwitch: UISwitch!
@@ -124,59 +138,69 @@ public class InterstitialSim : UIView {
     @IBOutlet weak var _bOther: UIButton!
     @IBOutlet weak var _bStatus: UILabel!
     
-    @IBOutlet weak var _simulatorAd: SimulatorAd!
-    
     public static var Instance: InterstitialSim!
     
-    private func StartLoading() {
-        Load(request: _adRequestA, otherState: _adRequestB._state)
-        Load(request: _adRequestB, otherState: _adRequestA._state)
+    private func LoadTracks() {
+        LoadTrack(track: _trackA, otherState: _trackB._state)
+        LoadTrack(track: _trackB, otherState: _trackA._state)
     }
     
-    private func Load(request: AdRequest, otherState: State) {
-        if request._state == State.Idle {
-            if otherState != State.LoadingWithInsights {
-                GetInsightsAndLoad(adRequest: request)
-            } else if (_isFirstResponseReceived) {
-                LoadDefault(adRequest: request)
+    private func LoadTrack(track: Track, otherState: State) {
+        if track._state == .Idle {
+            if otherState == .LoadingWithInsights || otherState == .Shown {
+                if (_isFirstResponseReceived) {
+                    LoadDefault(track: track)
+                }
+            } else {
+                GetInsightsAndLoad(track: track)
             }
         }
     }
     
-    private func GetInsightsAndLoad(adRequest: AdRequest) {
-        adRequest._state = State.LoadingWithInsights
+    private func GetInsightsAndLoad(track: Track) {
+        track._state = .LoadingWithInsights
         
-        NeftaPlugin._instance!.GetInsights(Insights.Interstitial, previousInsight: adRequest._insight, callback: { insights in
+        NeftaPlugin._instance!.GetInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
             self.Log("Load with insights: \(insights)")
             if let insight = insights._interstitial {
-                adRequest._insight = insight
+                track._insight = insight
                 let bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
-                adRequest._interstitial = SimInterstitial(adUnitIdentifier: adRequest._adUnitId)
-                adRequest._interstitial!.delegate = adRequest
-                adRequest._interstitial!.setExtraParameterForKey("disable_auto_retries", value: "true")
-                adRequest._interstitial!.setExtraParameterForKey("jC7Fp", value: bidFloor)
+
+                track._interstitial.setExtraParameterForKey("disable_auto_retries", value: "true")
+                track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
                 
-                ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: adRequest._interstitial!, insight: insight)
+                ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
                 
-                self.Log("Loading \(adRequest._adUnitId) as Optimized with floor: \(bidFloor)")
-                adRequest._interstitial!.load()
+                self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+                track._interstitial.load()
             } else {
-                adRequest.OnLoadFail()
+                track.OnLoadFail()
             }
-        }, timeout: TimeoutInSeconds)
+        })
     }
     
-    private func LoadDefault(adRequest: AdRequest) {
-        adRequest._state = State.Loading
+    private func LoadDefault(track: Track) {
+        track._state = .Loading
         
-        Log("Loading \(adRequest._adUnitId) as Default")
+        Log("Loading \(track._adUnitId) as Default")
         
-        adRequest._interstitial = SimInterstitial(adUnitIdentifier: adRequest._adUnitId)
-        adRequest._interstitial!.delegate = adRequest
+        track._interstitial.setExtraParameterForKey("disable_auto_retries", value: "false")
+        track._interstitial.setExtraParameterForKey("jC7Fp", value: "")
         
-        ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: adRequest._interstitial!)
+        ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
 
-        adRequest._interstitial!.load()
+        track._interstitial.load()
+    }
+    
+    private func OnNewSession() {
+        Log("Inter on new session")
+        
+        _trackA.Reset()
+        _trackB.Reset()
+        
+        UpdateShowButton()
+        _isFirstResponseReceived = false
+        RetryLoadTracks()
     }
     
     public override func awakeFromNib() {
@@ -184,35 +208,36 @@ public class InterstitialSim : UIView {
         
         InterstitialSim.Instance = self
         
-        _adRequestA = AdRequest(controller: self, adUnitId: InterstitialSim.AdUnitA)
-        _adRequestB = AdRequest(controller: self, adUnitId: InterstitialSim.AdUnitB)
+        _trackA = Track(controller: self, adUnitId: InterstitialSim.AdUnitA)
+        _trackB = Track(controller: self, adUnitId: InterstitialSim.AdUnitB)
+        ALNeftaMediationAdapter.AddNewSessionCallback(callback: OnNewSession)
         
         ToggleTrackA(isOn: false)
         _aFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestA, isHigh: true)
+            self.SimOnAdLoadedEvent(track: self._trackA, isHigh: true)
         }, for: .touchUpInside)
         _aFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestA, isHigh: false)
+            self.SimOnAdLoadedEvent(track: self._trackA, isHigh: false)
         }, for: .touchUpInside)
         _aNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestA, status: 2)
+            self.SimOnAdFailedEvent(track: self._trackA, status: 2)
         }, for: .touchUpInside)
         _aOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestA, status: 0)
+            self.SimOnAdFailedEvent(track: self._trackA, status: 0)
         }, for: .touchUpInside)
         
         ToggleTrackB(isOn: false)
         _bFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestB, isHigh: true)
+            self.SimOnAdLoadedEvent(track: self._trackB, isHigh: true)
         }, for: .touchUpInside)
         _bFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(request: self._adRequestB, isHigh: false)
+            self.SimOnAdLoadedEvent(track: self._trackB, isHigh: false)
         }, for: .touchUpInside)
         _bNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestB, status: 2)
+            self.SimOnAdFailedEvent(track: self._trackB, status: 2)
         }, for: .touchUpInside)
         _bOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(request: self._adRequestB, status: 0)
+            self.SimOnAdFailedEvent(track: self._trackB, status: 0)
         }, for: .touchUpInside)
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
@@ -221,44 +246,54 @@ public class InterstitialSim : UIView {
         _showButton.isEnabled = false
     }
     
+    public override var isHidden: Bool {
+        didSet {
+            if isHidden {
+                if let loadSwitch = _loadSwitch {
+                    loadSwitch.setOn(false, animated: false)
+                }
+            }
+        }
+    }
+    
     @objc private func OnLoadSwitch(_ sender: UISwitch) {
         if sender.isOn {
-            StartLoading()
+            LoadTracks()
         }
     }
     
     @objc private func OnShowClick() {
         var isShown = false
-        if _adRequestA._state == State.Ready {
-            if _adRequestB._state == State.Ready && _adRequestB._revenue > _adRequestA._revenue {
-                isShown = TryShow(adRequest: _adRequestB)
+        if _trackA._state == .Ready {
+            if _trackB._state == .Ready && _trackB._revenue > _trackA._revenue {
+                isShown = TryShow(track: _trackB)
             }
             if !isShown {
-                isShown = TryShow(adRequest: _adRequestA)
+                isShown = TryShow(track: _trackA)
             }
         }
-        if !isShown && _adRequestB._state == State.Ready {
-            isShown = TryShow(adRequest: _adRequestB)
+        if !isShown && _trackB._state == .Ready {
+            isShown = TryShow(track: _trackB)
         }
         
         UpdateShowButton()
     }
     
-    private func TryShow(adRequest: AdRequest) -> Bool {
-        adRequest._state = State.Idle
-        adRequest._revenue = -1
-
-        if adRequest._interstitial!.isReady {
-            adRequest._interstitial!.show()
+    private func TryShow(track: Track) -> Bool {
+        track._revenue = -1
+        if track._interstitial.isReady {
+            track._state = .Shown
+            track._interstitial.show()
             return true
         }
-        RetryLoading()
+        track._state = .Idle
+        RetryLoadTracks()
         return false
     }
     
-    private func RetryLoading() {
+    private func RetryLoadTracks() {
         if _loadSwitch.isOn {
-            StartLoading()
+            LoadTracks()
         }
     }
     
@@ -268,16 +303,16 @@ public class InterstitialSim : UIView {
         }
         
         _isFirstResponseReceived = true
-        RetryLoading()
+        RetryLoadTracks()
     }
     
     private func UpdateShowButton() {
-        _showButton.isEnabled = _adRequestA._state == State.Ready || _adRequestB._state == State.Ready
+        _showButton.isEnabled = _trackA._state == .Ready || _trackB._state == .Ready
     }
     
     private func Log(_ log: String) {
         _status.text = log
-        ViewController._log.info("NeftaPluginMAX Simulator: \(log, privacy: .public)")
+        ViewController._log.notice("NeftaPluginMAX Simulator: \(log, privacy: .public)")
     }
     
     public class SimInterstitial : SMAInterstitialAd {
@@ -289,6 +324,18 @@ public class InterstitialSim : UIView {
         public override init(adUnitIdentifier: String) {
             _adUnitId = adUnitIdentifier
             super.init(adUnitIdentifier: adUnitIdentifier)
+        }
+        
+        deinit {
+            _ad = nil
+            
+            if _adUnitId == InterstitialSim.AdUnitA {
+                InterstitialSim.Instance.ToggleTrackA(isOn: false)
+                InterstitialSim.Instance.SetStatusA("")
+            } else {
+                InterstitialSim.Instance.ToggleTrackB(isOn: false)
+                InterstitialSim.Instance.SetStatusB("")
+            }
         }
         
         public override func load() {
@@ -304,25 +351,48 @@ public class InterstitialSim : UIView {
         }
         
         public override func show() {
-            (delegate! as! MAAdRevenueDelegate).didPayRevenue(for: _ad!)
-            
-            InterstitialSim.Instance.Show(title: "Interstitial",
-                                          onShow: { self.delegate!.didDisplay(self._ad!) },
-                                          onClick: { self.delegate!.didClick(self._ad!) },
-                                          onReward: nil,
-                                          onClose: { self.delegate!.didHide(self._ad!) }
-            )
+            guard let ad = _ad else {
+                return
+            }
+            _ad = nil
             
             if _adUnitId == InterstitialSim.AdUnitA {
+                InterstitialSim.Instance.ToggleTrackA(isOn: false)
                 InterstitialSim.Instance.SetStatusA("Showing A")
             } else {
+                InterstitialSim.Instance.ToggleTrackB(isOn: false)
                 InterstitialSim.Instance.SetStatusB("Showing B")
             }
+            
+            NDebug.Open(
+                title: "Interstitial",
+                viewController: GetUIViewController(),
+                onShow: {
+                    self.delegate!.didDisplay(ad)
+                    (self.delegate! as! MAAdRevenueDelegate).didPayRevenue(for: ad)
+                },
+                onClick: { self.delegate!.didClick(ad) },
+                onClose: { self.delegate!.didHide(ad) },
+                onReward: nil
+            )
+        }
+        
+        private func GetUIViewController() -> UIViewController {
+            let keyWindow = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+
+            return (keyWindow!.rootViewController?.presentedViewController ?? keyWindow!.rootViewController)!
         }
         
         public override func setExtraParameterForKey(_ key: String, value: String?) {
             if key == "jC7Fp" {
-                _floor = Double(value!)!
+                if value == "" {
+                    _floor = -1
+                } else {
+                    _floor = Double(value!)!
+                }
             }
         }
         
@@ -389,29 +459,29 @@ public class InterstitialSim : UIView {
         }
     }
     
-    func SimOnAdLoadedEvent(request: AdRequest, isHigh: Bool) {
+    func SimOnAdLoadedEvent(track: Track, isHigh: Bool) {
         let revenue = isHigh ? 0.002 : 0.001
-        if request._interstitial!._ad != nil {
-            request._interstitial!._ad = nil
+        if track._interstitial._ad != nil {
+            track._interstitial._ad = nil
             
-            if request._adUnitId == InterstitialSim.AdUnitA {
+            if track._adUnitId == InterstitialSim.AdUnitA {
                 if isHigh {
                     _aFill2.tintColor = DefaultColor
-                    _aFill2.backgroundColor = DefaultColor
+                    _aFill2.backgroundColor = DefaultBackgroundColor
                     _aFill2.isEnabled = false
-                } else{
+                } else {
                     _aFill1.tintColor = DefaultColor
-                    _aFill1.backgroundColor = DefaultColor
+                    _aFill1.backgroundColor = DefaultBackgroundColor
                     _aFill1.isEnabled = false
                 }
             } else {
                 if isHigh {
                     _bFill2.tintColor = DefaultColor
-                    _bFill2.backgroundColor = DefaultColor
+                    _bFill2.backgroundColor = DefaultBackgroundColor
                     _bFill2.isEnabled = false
-                } else{
+                } else {
                     _bFill1.tintColor = DefaultColor
-                    _bFill1.backgroundColor = DefaultColor
+                    _bFill1.backgroundColor = DefaultBackgroundColor
                     _bFill1.isEnabled = false
                 }
             }
@@ -419,14 +489,14 @@ public class InterstitialSim : UIView {
         }
         
         let ad = SimMAAd.create()
-        ad.simAdUnitIdentifier = request._adUnitId
+        ad.simAdUnitIdentifier = track._adUnitId
         ad.simFormat = MAAdFormat.interstitial
         ad.simNetworkName = "simulator"
         ad.simRevenue = revenue
         ad.simRevenuePrecision = "exact"
         ad.simWaterfall = SimMAAd.getWaterfall("simulator waterfall", testName: "test name", responses: [NSNumber(value: MAAdLoadState.adLoaded.rawValue), NSNumber(value: MAAdLoadState.adLoadNotAttempted.rawValue)])
         
-        if request._adUnitId == InterstitialSim.AdUnitA {
+        if track._adUnitId == InterstitialSim.AdUnitA {
             ToggleTrackA(isOn: false)
             if isHigh {
                 _aFill2.tintColor = FillColor
@@ -437,7 +507,7 @@ public class InterstitialSim : UIView {
                 _aFill1.backgroundColor = FillColor
                 _aFill1.isEnabled = true
             }
-            SetStatusA("\(request._adUnitId) loaded \(revenue)")
+            SetStatusA("\(track._adUnitId) loaded \(revenue)")
         } else {
             ToggleTrackB(isOn: false)
             if isHigh {
@@ -449,14 +519,14 @@ public class InterstitialSim : UIView {
                 _bFill1.backgroundColor = FillColor
                 _bFill1.isEnabled = true
             }
-            SetStatusB("\(request._adUnitId) loaded \(revenue)")
+            SetStatusB("\(track._adUnitId) loaded \(revenue)")
         }
         
-        request._interstitial!.SimLoad(ad: ad)
+        track._interstitial.SimLoad(ad: ad)
     }
     
-    func SimOnAdFailedEvent(request: AdRequest, status: Int) {
-        if request._adUnitId == InterstitialSim.AdUnitA {
+    func SimOnAdFailedEvent(track: Track, status: Int) {
+        if track._adUnitId == InterstitialSim.AdUnitA {
             if status == 2 {
                 _aNoFill.tintColor = NoFillColor
                 _aNoFill.backgroundColor = NoFillColor
@@ -465,7 +535,7 @@ public class InterstitialSim : UIView {
                 _aOther.backgroundColor = NoFillColor
             }
             ToggleTrackA(isOn: false)
-            SetStatusA("\(request._adUnitId) failed")
+            SetStatusA("\(track._adUnitId) failed")
         } else {
             if status == 2 {
                 _bNoFill.tintColor = NoFillColor
@@ -475,12 +545,12 @@ public class InterstitialSim : UIView {
                 _bOther.backgroundColor = NoFillColor
             }
             ToggleTrackB(isOn: false)
-            SetStatusB("\(request._adUnitId) failed")
+            SetStatusB("\(track._adUnitId) failed")
         }
         
         let error = SMAError.create(status, message: "simulator error")
         error.simWaterfall = SimMAAd.getWaterfall("sim waterfall", testName: "sim test name", responses: [NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue), NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue)])
-        request._interstitial!.SimFailLoad(error: error)
+        track._interstitial.SimFailLoad(error: error)
     }
     
     public func SetStatusA(_ status: String) {
@@ -489,9 +559,5 @@ public class InterstitialSim : UIView {
     
     public func SetStatusB(_ status: String) {
         _bStatus.text = status
-    }
-    
-    public func Show(title: String, onShow: @escaping (() -> Void), onClick: @escaping (() -> Void), onReward: (() -> Void)!, onClose: @escaping (() -> Void)) {
-        _simulatorAd.Show(title: title, onShow: onShow, onClick: onClick, onReward: onReward, onClose: onClose)
     }
 }
