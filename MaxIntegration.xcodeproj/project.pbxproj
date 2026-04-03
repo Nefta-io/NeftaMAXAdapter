@@ -21,6 +21,7 @@
 		90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A92C0871DD0041E63B /* SceneDelegate.swift */; };
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
 		90E561FB2F75792900CC088F /* NDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E561FA2F75792900CC088F /* NDebug.swift */; };
+		90E562D22F7F8E8600CC088F /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E562D12F7F8E8200CC088F /* Package.swift */; };
 		B159AAFB89847372B8A1590E /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C0D8B0171AB596865624E0 /* Pods_MaxIntegration.framework */; };
 /* End PBXBuildFile section */
 
@@ -58,6 +59,7 @@
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		90E561FA2F75792900CC088F /* NDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDebug.swift; sourceTree = "<group>"; };
+		90E562D12F7F8E8200CC088F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		A52EF3FC575FEB3ACD7D0739 /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
 		B160FFDE03BD0DFA94CF7086 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -94,6 +96,7 @@
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
+				90E562D12F7F8E8200CC088F /* Package.swift */,
 				9035909A2EEFE8D100640456 /* config.plist */,
 				90DA53C52C0878D20041E63B /* Info.plist */,
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
@@ -264,6 +267,7 @@
 				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,
 				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
 				90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */,
+				90E562D22F7F8E8600CC088F /* Package.swift in Sources */,
 				90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
