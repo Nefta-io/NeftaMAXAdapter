@@ -9,6 +9,8 @@ import UIKit
 import NeftaSDK
 import AppLovinSDK
 import OSLog
+import AppTrackingTransparency
+import AdSupport
 
 @objc(ViewController)
 public class ViewController: UIViewController {
@@ -36,11 +38,21 @@ public class ViewController: UIViewController {
         ALNeftaMediationAdapter.Init(appId: "5661184053215232", onReady: { initConfig in
             ViewController._log.notice("[NeftaPluginMAX] Should skip Nefta optimization: \(initConfig._skipOptimization) for: \(initConfig._nuid)")
             
-            self.initializeMax()
+            if #available(iOS 14, *) {
+                ATTrackingManager.requestTrackingAuthorization { status in
+                    DispatchQueue.main.async {
+                        self.initializeMAX(isTrackingEnabled: status == .authorized)
+                    }
+                }
+            } else {
+                self.initializeMAX(isTrackingEnabled: ASIdentifierManager.shared().isAdvertisingTrackingEnabled)
+            }
         })
     }
     
-    func initializeMax() {
+    private func initializeMAX(isTrackingEnabled: Bool) {
+        ALPrivacySettings.setHasUserConsent(isTrackingEnabled)
+
         let max = ALSdk.shared()
         max.settings.isVerboseLoggingEnabled = true
         

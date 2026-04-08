@@ -330,9 +330,11 @@ public class InterstitialSim : UIView {
             _ad = nil
             
             if _adUnitId == InterstitialSim.AdUnitA {
+                InterstitialSim.Instance.ToggleTrackA(isOn: true)
                 InterstitialSim.Instance.ToggleTrackA(isOn: false)
                 InterstitialSim.Instance.SetStatusA("")
             } else {
+                InterstitialSim.Instance.ToggleTrackB(isOn: true)
                 InterstitialSim.Instance.ToggleTrackB(isOn: false)
                 InterstitialSim.Instance.SetStatusB("")
             }

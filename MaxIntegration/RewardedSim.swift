@@ -337,9 +337,11 @@ public class RewardedSim : UIView {
             _ad = nil
             
             if _adUnitId == InterstitialSim.AdUnitA {
+                RewardedSim.Instance.ToggleTrackA(isOn: true)
                 RewardedSim.Instance.ToggleTrackA(isOn: false)
                 RewardedSim.Instance.SetStatusA("")
             } else {
+                RewardedSim.Instance.ToggleTrackB(isOn: true)
                 RewardedSim.Instance.ToggleTrackB(isOn: false)
                 RewardedSim.Instance.SetStatusB("")
             }
