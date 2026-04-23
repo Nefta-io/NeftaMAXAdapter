@@ -32,7 +32,7 @@ public class ViewController: UIViewController {
         super.viewDidLoad()
         
         InitializeUI()
-        DebugServer.Init(viewController: self)
+        //DebugServer.Init(viewController: self)
         
         NeftaPlugin.EnableLogging(enable: true)
         ALNeftaMediationAdapter.Init(appId: "5661184053215232", onReady: { initConfig in
