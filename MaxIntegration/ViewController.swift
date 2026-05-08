@@ -17,16 +17,21 @@ public class ViewController: UIViewController {
 
     public static var _log = Logger(subsystem: "com.nefta.max", category: "general")
     
-    private var _isSimulator = false
-    
-    var _dynamicAdUnits = [
-        // interstitial
-        "e5dc3548d4a0913f", // track A
-        "6d318f954e2630a8", // track B
-        // rewarded
-        "e0b0d20088d60ec5", // track A
-        "918acf84edf9c034"  // track B
+    private var _dynamicAdUnits = [
+        InterstitialUi.AdUnitA, InterstitialUi.AdUnitB,
+        RewardedUi.AdUnitA, RewardedUi.AdUnitB
     ]
+    
+    @IBOutlet weak var _title: UILabel!
+    @IBOutlet weak var _groupView: UIView!
+    @IBOutlet weak var _controlButton: UIButton!
+    @IBOutlet weak var _optimizedButton: UIButton!
+    @IBOutlet weak var _simulatorButton: UIButton!
+    
+    @IBOutlet weak var _interstitialUi: InterstitialUi!
+    @IBOutlet weak var _rewardedUi: RewardedUi!
+    @IBOutlet weak var _interstitialSim: InterstitialSim!
+    @IBOutlet weak var _rewardedSim: RewardedSim!
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,27 +41,19 @@ public class ViewController: UIViewController {
         
         NeftaPlugin.EnableLogging(enable: true)
         ALNeftaMediationAdapter.Init(appId: "5661184053215232", onReady: { initConfig in
-            ViewController._log.notice("[NeftaPluginMAX] Should skip Nefta optimization: \(initConfig._skipOptimization) for: \(initConfig._nuid)")
-            
-            if #available(iOS 14, *) {
-                ATTrackingManager.requestTrackingAuthorization { status in
-                    DispatchQueue.main.async {
-                        self.initializeMAX(isTrackingEnabled: status == .authorized)
-                    }
-                }
-            } else {
-                self.initializeMAX(isTrackingEnabled: ASIdentifierManager.shared().isAdvertisingTrackingEnabled)
-            }
+            ViewController._log.notice("[NeftaPluginMAX] Initialized nuid: \(initConfig._nuid)")
         })
     }
     
-    private func initializeMAX(isTrackingEnabled: Bool) {
-        ALPrivacySettings.setHasUserConsent(isTrackingEnabled)
+    private func InitializeMAX(isOptimized: Bool) {
+        _groupView.isHidden = true
 
         let max = ALSdk.shared()
         max.settings.isVerboseLoggingEnabled = true
         
-        max.settings.setExtraParameterForKey("disable_b2b_ad_unit_ids", value: self._dynamicAdUnits.joined(separator: ","))
+        if isOptimized {
+            max.settings.setExtraParameterForKey("disable_b2b_ad_unit_ids", value: self._dynamicAdUnits.joined(separator: ","))
+        }
     
         var maxKey = ""
         if let path = Bundle.main.path(forResource: "config", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) {
@@ -74,34 +71,37 @@ public class ViewController: UIViewController {
         max.initialize(with: initConfig) { sdkConfig in
 
         }
+        
+        if isOptimized {
+            _interstitialUi.Init(logic: InterstitialOptimized())
+            _rewardedUi.Init(logic: RewardedOptimized())
+        } else {
+            _interstitialUi.Init(logic: InterstitialDefault())
+            _rewardedUi.Init(logic: RewardedDefault())
+        }
     }
     
     private func InitializeUI() {
-        let title = view.viewWithTag(10) as? UILabel
-        title!.text = "Nefta Adapter for\n MAX \(ALSdk.version())"
-        let onClickHandler = UITapGestureRecognizer(target: self, action: #selector(onTitleClick))
-        title!.isUserInteractionEnabled = true
-        title!.addGestureRecognizer(onClickHandler)
+        _title!.text = "Nefta Adapter for\n MAX \(ALSdk.version())"
         
-        var isSimulator: Bool = false
-        if let path = Bundle.main.path(forResource: "config", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) {
-            isSimulator = dict["IS_SIMULATOR"] as? Bool ?? false
-        }
-        ToggleUI(isSimulator: isSimulator)
+        _controlButton.addTarget(self, action: #selector(OnControlClick), for: .touchUpInside)
+        _optimizedButton.addTarget(self, action: #selector(OnOptimizedClick), for: .touchUpInside)
+        _simulatorButton.addTarget(self, action: #selector(OnSimulatorClick), for: .touchUpInside)
     }
     
-    @objc func onTitleClick() {
-        ToggleUI(isSimulator: !_isSimulator)
+    @objc func OnControlClick() {
+        InitializeMAX(isOptimized: false)
     }
     
-    private func ToggleUI(isSimulator: Bool) {
-        _isSimulator = isSimulator
+    @objc func OnOptimizedClick() {
+        InitializeMAX(isOptimized: true)
+    }
+    
+    @objc func OnSimulatorClick() {
+        _groupView.isHidden = true
         
-        (view.viewWithTag(11) as! InterstitialSim).isHidden = !isSimulator
-        (view.viewWithTag(12) as! RewardedSim).isHidden = !isSimulator
-        
-        (view.viewWithTag(13) as! Interstitial).isHidden = isSimulator
-        (view.viewWithTag(14) as! Rewarded).isHidden = isSimulator
+        _interstitialSim.isHidden = false
+        _rewardedSim.isHidden = false
     }
 }
 

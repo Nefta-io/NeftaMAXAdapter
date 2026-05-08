@@ -11,7 +11,12 @@
 		904466FC2EC37BA700689575 /* SimMAAd.m in Sources */ = {isa = PBXBuildFile; fileRef = 904466FA2EC37BA700689575 /* SimMAAd.m */; };
 		904466FE2EC37BA700689575 /* InterstitialSim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466F72EC37BA700689575 /* InterstitialSim.swift */; };
 		904466FF2EC37BA700689575 /* RewardedSim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466F82EC37BA700689575 /* RewardedSim.swift */; };
-		907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 907C22EA2DE0335900857E06 /* InterstitialObjC.m */; };
+		9099D7422FADF57F006D717D /* InterstitialOptimized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9099D73D2FADF57F006D717D /* InterstitialOptimized.swift */; };
+		9099D7432FADF57F006D717D /* RewardedOptimized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9099D7402FADF57F006D717D /* RewardedOptimized.swift */; };
+		9099D7442FADF57F006D717D /* InterstitialUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9099D73E2FADF57F006D717D /* InterstitialUI.swift */; };
+		9099D7452FADF57F006D717D /* RewardedUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9099D7412FADF57F006D717D /* RewardedUi.swift */; };
+		9099D7462FADF57F006D717D /* InterstitialDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9099D73C2FADF57F006D717D /* InterstitialDefault.swift */; };
+		9099D7472FADF57F006D717D /* RewardedDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9099D73F2FADF57F006D717D /* RewardedDefault.swift */; };
 		90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA539F2C0871DD0041E63B /* AppDelegate.swift */; };
 		90DA53AD2C0871DD0041E63B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90DA53A02C0871DD0041E63B /* Assets.xcassets */; };
 		90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A32C0871DD0041E63B /* Interstitial.swift */; };
@@ -21,7 +26,6 @@
 		90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A92C0871DD0041E63B /* SceneDelegate.swift */; };
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
 		90E561FB2F75792900CC088F /* NDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E561FA2F75792900CC088F /* NDebug.swift */; };
-		90E562D22F7F8E8600CC088F /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E562D12F7F8E8200CC088F /* Package.swift */; };
 		B159AAFB89847372B8A1590E /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C0D8B0171AB596865624E0 /* Pods_MaxIntegration.framework */; };
 /* End PBXBuildFile section */
 
@@ -46,8 +50,12 @@
 		904466F82EC37BA700689575 /* RewardedSim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedSim.swift; sourceTree = "<group>"; };
 		904466F92EC37BA700689575 /* SimMAAd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimMAAd.h; sourceTree = "<group>"; };
 		904466FA2EC37BA700689575 /* SimMAAd.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimMAAd.m; sourceTree = "<group>"; };
-		907C22E92DE0332B00857E06 /* InterstitialObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterstitialObjC.h; sourceTree = "<group>"; };
-		907C22EA2DE0335900857E06 /* InterstitialObjC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InterstitialObjC.m; sourceTree = "<group>"; };
+		9099D73C2FADF57F006D717D /* InterstitialDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterstitialDefault.swift; sourceTree = "<group>"; };
+		9099D73D2FADF57F006D717D /* InterstitialOptimized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterstitialOptimized.swift; sourceTree = "<group>"; };
+		9099D73E2FADF57F006D717D /* InterstitialUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterstitialUI.swift; sourceTree = "<group>"; };
+		9099D73F2FADF57F006D717D /* RewardedDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedDefault.swift; sourceTree = "<group>"; };
+		9099D7402FADF57F006D717D /* RewardedOptimized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedOptimized.swift; sourceTree = "<group>"; };
+		9099D7412FADF57F006D717D /* RewardedUi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedUi.swift; sourceTree = "<group>"; };
 		90B643722D4CBAEE00446480 /* MaxIntegration-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaxIntegration-Bridging-Header.h"; sourceTree = "<group>"; };
 		90DA539F2C0871DD0041E63B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90DA53A02C0871DD0041E63B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -59,7 +67,6 @@
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		90E561FA2F75792900CC088F /* NDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDebug.swift; sourceTree = "<group>"; };
-		90E562D12F7F8E8200CC088F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		A52EF3FC575FEB3ACD7D0739 /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
 		B160FFDE03BD0DFA94CF7086 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -96,7 +103,6 @@
 		902657542BEC9B8900EA4F62 = {
 			isa = PBXGroup;
 			children = (
-				90E562D12F7F8E8200CC088F /* Package.swift */,
 				9035909A2EEFE8D100640456 /* config.plist */,
 				90DA53C52C0878D20041E63B /* Info.plist */,
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
@@ -117,13 +123,17 @@
 		90DA53AB2C0871DD0041E63B /* MaxIntegration */ = {
 			isa = PBXGroup;
 			children = (
+				9099D73C2FADF57F006D717D /* InterstitialDefault.swift */,
+				9099D73D2FADF57F006D717D /* InterstitialOptimized.swift */,
+				9099D73E2FADF57F006D717D /* InterstitialUI.swift */,
+				9099D73F2FADF57F006D717D /* RewardedDefault.swift */,
+				9099D7402FADF57F006D717D /* RewardedOptimized.swift */,
+				9099D7412FADF57F006D717D /* RewardedUi.swift */,
 				90E561FA2F75792900CC088F /* NDebug.swift */,
 				904466F72EC37BA700689575 /* InterstitialSim.swift */,
 				904466F82EC37BA700689575 /* RewardedSim.swift */,
 				904466F92EC37BA700689575 /* SimMAAd.h */,
 				904466FA2EC37BA700689575 /* SimMAAd.m */,
-				907C22EA2DE0335900857E06 /* InterstitialObjC.m */,
-				907C22E92DE0332B00857E06 /* InterstitialObjC.h */,
 				90B643722D4CBAEE00446480 /* MaxIntegration-Bridging-Header.h */,
 				90DA539F2C0871DD0041E63B /* AppDelegate.swift */,
 				90DA53A02C0871DD0041E63B /* Assets.xcassets */,
@@ -262,12 +272,16 @@
 				904466FC2EC37BA700689575 /* SimMAAd.m in Sources */,
 				904466FE2EC37BA700689575 /* InterstitialSim.swift in Sources */,
 				904466FF2EC37BA700689575 /* RewardedSim.swift in Sources */,
+				9099D7422FADF57F006D717D /* InterstitialOptimized.swift in Sources */,
+				9099D7432FADF57F006D717D /* RewardedOptimized.swift in Sources */,
+				9099D7442FADF57F006D717D /* InterstitialUI.swift in Sources */,
+				9099D7452FADF57F006D717D /* RewardedUi.swift in Sources */,
+				9099D7462FADF57F006D717D /* InterstitialDefault.swift in Sources */,
+				9099D7472FADF57F006D717D /* RewardedDefault.swift in Sources */,
 				90E561FB2F75792900CC088F /* NDebug.swift in Sources */,
-				907C22EB2DE0335C00857E06 /* InterstitialObjC.m in Sources */,
 				90DA53AC2C0871DD0041E63B /* AppDelegate.swift in Sources */,
 				90DA53B02C0871DD0041E63B /* Interstitial.swift in Sources */,
 				90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */,
-				90E562D22F7F8E8600CC088F /* Package.swift in Sources */,
 				90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -163,6 +163,32 @@ public class AdViewController : UIViewController {
         if _instance == nil {
             _instance = DebugServer(viewController: viewController)
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            NeftaPlugin._instance!.OnInsightsAsString = { requestId, type, insight in
+                print("Got insights \(requestId) .. \(type): \(insight ?? "")")
+            }
+            
+            DispatchQueue.global(qos: .background).async {
+                NeftaPlugin._instance!.GetInsightsBridge(requestId: 1, insights: Insights.Interstitial, previousRequestId: -1)
+            }
+                
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 2.0) {
+                NeftaPlugin.OnExternalMediationRequest("test", adType: 2, id: "dfd", requestedAdUnitId: "adUnitT", requestedFloorPrice: 3.1, requestId: 1)
+                NeftaPlugin.OnExternalMediationResponse("test", id: "dfd", id2: "dfd2", revenue: 3.3, precision: "dfd", status: 3, providerStatus: "ok", networkStatus: nil, baseObject: nil)
+                NeftaPlugin.OnExternalMediationImpression(false, provider: "test", data: nil, id: "dfd", id2: "dfd2")
+                
+                NeftaPlugin._instance!.GetInsightsBridge(requestId: 7, insights: AdInsight.Types.Interstitial.rawValue, previousRequestId: 1)
+        
+                
+                NeftaPlugin.OnExternalMediationRequest("test", adType: 2, id: "dfd", requestedAdUnitId: "adUnitT", requestedFloorPrice: 3.1, requestId: 1)
+                
+                NeftaPlugin._instance!.GetInsightsBridge(requestId: 8, insights: AdInsight.Types.Interstitial.rawValue, previousRequestId: 1)
+                NeftaPlugin._instance!.GetInsightsBridge(requestId: 9, insights: AdInsight.Types.Interstitial.rawValue, previousRequestId: 8)
+                
+                NeftaPlugin.OnExternalMediationImpression(false, provider: "test", data: nil, id: "dfd", id2: "dfd2")
+            }
+        }
     }
     
     init(viewController: UIViewController) {
