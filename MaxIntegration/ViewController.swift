@@ -41,7 +41,7 @@ public class ViewController: UIViewController {
         
         NeftaPlugin.EnableLogging(enable: true)
         ALNeftaMediationAdapter.Init(appId: "5661184053215232", onReady: { initConfig in
-            ViewController._log.notice("[NeftaPluginMAX] Initialized nuid: \(initConfig._nuid)")
+            ViewController._log.notice("[NeftaPluginMAX] Initialized, nuid: \(initConfig._nuid)")
         })
     }
     

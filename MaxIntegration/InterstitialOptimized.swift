@@ -161,7 +161,6 @@ class InterstitialOptimized : Interstitial {
                 track._interstitial.setExtraParameterForKey("disable_auto_retries", value: "true")
                 track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
                 
-                ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, customBidPrice: 1)
                 ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
                 
                 self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
