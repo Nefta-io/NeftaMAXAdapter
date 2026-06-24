@@ -20,8 +20,8 @@ let package = Package(
         ),
         .binaryTarget(
             name: "NeftaSDK",
-            url: "https://github.com/Nefta-io/NeftaSDK-iOS/releases/download/REL_4.5.3/NeftaSDK.xcframework-4.5.3.zip",
-            checksum: "81279a1f3992f0b4e45f6c3fa45609863e92c88cd96d6a293c9b5a41cf3ba28b"
+            url: "https://github.com/Nefta-io/NeftaSDK-iOS/releases/download/REL_4.6.0/NeftaSDK.xcframework-4.6.0.zip",
+            checksum: "2d5a6997556bedbbfadaaf08357026cce296777d120d728e63b6c61d306deba5"
         )
     ]
 )

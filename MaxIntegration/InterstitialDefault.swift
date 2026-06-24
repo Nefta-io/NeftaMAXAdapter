@@ -27,9 +27,7 @@ class InterstitialDefault : NSObject, MAAdDelegate, MAAdRevenueDelegate, Interst
         _consecutiveAdFails += 1
         let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
-            if self._ui.IsAutoLoad {
-                self.Load()
-            }
+            self.Load()
         }
     }
     
@@ -58,9 +56,7 @@ class InterstitialDefault : NSObject, MAAdDelegate, MAAdRevenueDelegate, Interst
     func didFail(toDisplay ad: MAAd, withError error: MAError) {
         Log("didFail \(ad)")
         
-        if _ui.IsAutoLoad {
-            Load()
-        }
+        Load()
     }
     
     func didDisplay(_ ad: MAAd) {
@@ -70,12 +66,14 @@ class InterstitialDefault : NSObject, MAAdDelegate, MAAdRevenueDelegate, Interst
     func didHide(_ ad: MAAd) {
         Log("didHide \(ad)")
         
-        if _ui.IsAutoLoad {
-            Load()
-        }
+        Load()
     }
     
     public func Load() {
+        if !_ui.IsAutoLoad {
+            return;
+        }
+        
         ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: _interstitial)
         _interstitial.load()
     }
@@ -83,7 +81,7 @@ class InterstitialDefault : NSObject, MAAdDelegate, MAAdRevenueDelegate, Interst
     public func Show() {
         if _interstitial.isReady {
             _interstitial.show()
-        } else if _ui.IsAutoLoad {
+        } else {
             Load()
         }
         

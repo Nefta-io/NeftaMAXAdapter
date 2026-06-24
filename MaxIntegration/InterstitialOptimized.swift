@@ -22,7 +22,7 @@ class InterstitialOptimized : Interstitial {
         private let _controller: InterstitialOptimized
         
         public let _adUnitId: String
-        public var _interstitial: MAInterstitialAd!
+        public let _interstitial: MAInterstitialAd!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
@@ -31,24 +31,12 @@ class InterstitialOptimized : Interstitial {
             _controller = controller
             _adUnitId = adUnitId
             
+            _interstitial = MAInterstitialAd(adUnitIdentifier: _adUnitId)
+            
             super.init()
             
-            Reset()
-        }
-        
-        public func Reset() {
-            if let oldInterstitial = _interstitial {
-                oldInterstitial.delegate = nil
-                oldInterstitial.revenueDelegate = nil
-            }
-            
-            _interstitial = MAInterstitialAd(adUnitIdentifier: _adUnitId)
             _interstitial.delegate = self
             _interstitial.revenueDelegate = self
-            
-            _state = State.Idle
-            _insight = nil
-            _revenue = -1
         }
         
         func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
@@ -78,9 +66,9 @@ class InterstitialOptimized : Interstitial {
         }
         
         func retryLoad() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight, adUnitId: _adUnitId)) {
                 self._state = .Idle
-                self._controller.RetryLoadTracks()
+                self._controller.Load()
             }
         }
         
@@ -100,7 +88,7 @@ class InterstitialOptimized : Interstitial {
             _controller.Log("didFail \(ad)")
             
             _state = State.Idle
-            _controller.RetryLoadTracks()
+            _controller.Load()
         }
         
         func didDisplay(_ ad: MAAd) {
@@ -111,7 +99,7 @@ class InterstitialOptimized : Interstitial {
             _controller.Log("didHide \(ad)")
             
             _state = .Idle
-            _controller.RetryLoadTracks()
+            _controller.Load()
         }
     }
 
@@ -126,10 +114,13 @@ class InterstitialOptimized : Interstitial {
         
         _trackA = Track(controller: self, adUnitId: InterstitialUi.AdUnitA)
         _trackB = Track(controller: self, adUnitId: InterstitialUi.AdUnitB)
-        ALNeftaMediationAdapter.AddNewSessionCallback(callback: OnNewSession)
     }
     
     public func Load() {
+        if !_ui.IsAutoLoad {
+            return
+        }
+        
         LoadTrack(track: _trackA, otherState: _trackB._state)
         LoadTrack(track: _trackB, otherState: _trackA._state)
     }
@@ -161,6 +152,7 @@ class InterstitialOptimized : Interstitial {
                 track._interstitial.setExtraParameterForKey("disable_auto_retries", value: "true")
                 track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
                 
+                ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, customBidPrice: 1)
                 ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
                 
                 self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
@@ -182,17 +174,6 @@ class InterstitialOptimized : Interstitial {
         ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
         
         track._interstitial.load()
-    }
-    
-    private func OnNewSession() {
-        Log("Inter on new session")
-        
-        _trackA.Reset()
-        _trackB.Reset()
-        
-        UpdateAvailability()
-        _isFirstResponseReceived = false
-        RetryLoadTracks()
     }
     
     public func Show() {
@@ -220,14 +201,8 @@ class InterstitialOptimized : Interstitial {
             return true
         }
         track._state = .Idle
-        RetryLoadTracks()
+        Load()
         return false
-    }
-    
-    private func RetryLoadTracks() {
-        if _ui.IsAutoLoad {
-            Load()
-        }
     }
     
     private func OnTrackLoad(_ success: Bool) {
@@ -236,7 +211,7 @@ class InterstitialOptimized : Interstitial {
         }
         
         _isFirstResponseReceived = true
-        RetryLoadTracks()
+        Load()
     }
     
     private func UpdateAvailability() {

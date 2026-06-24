@@ -26,7 +26,7 @@ public class RewardedSim : UIView {
         private let _controller: RewardedSim
         
         public let _adUnitId: String
-        public var _rewarded: SimRewarded!
+        public let _rewarded: SimRewarded!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
@@ -35,24 +35,12 @@ public class RewardedSim : UIView {
             _controller = controller
             _adUnitId = adUnitId
             
+            _rewarded = SimRewarded.shared(withAdUnitIdentifier: _adUnitId)
+            
             super.init()
             
-            Reset()
-        }
-        
-        public func Reset() {
-            if let oldRewarded = _rewarded {
-                oldRewarded.delegate = nil
-                oldRewarded.revenueDelegate = nil
-            }
-            
-            _rewarded = SimRewarded.shared(withAdUnitIdentifier: _adUnitId)
             _rewarded.delegate = self
             _rewarded.revenueDelegate = self
-            
-            _state = State.Idle
-            _insight = nil
-            _revenue = -1
         }
         
         public func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
@@ -82,7 +70,7 @@ public class RewardedSim : UIView {
         }
         
         public func retryLoad() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight, adUnitId: _adUnitId)) {
                 self._state = State.Idle
                 self._controller.RetryLoadTracks()
             }
@@ -197,17 +185,6 @@ public class RewardedSim : UIView {
         track._rewarded.load()
     }
     
-    private func OnNewSession() {
-        Log("Rewarded on new session")
-        
-        _trackA.Reset()
-        _trackB.Reset()
-        
-        UpdateShowButton()
-        _isFirstResponseReceived = false
-        RetryLoadTracks()
-    }
-    
     public override func awakeFromNib() {
         super.awakeFromNib()
         
@@ -215,7 +192,6 @@ public class RewardedSim : UIView {
         
         _trackA = Track(controller: self, adUnitId: RewardedSim.AdUnitA)
         _trackB = Track(controller: self, adUnitId: RewardedSim.AdUnitB)
-        ALNeftaMediationAdapter.AddNewSessionCallback(callback: OnNewSession)
         
         ToggleTrackA(isOn: false)
         _aFill2.addAction(UIAction { _ in

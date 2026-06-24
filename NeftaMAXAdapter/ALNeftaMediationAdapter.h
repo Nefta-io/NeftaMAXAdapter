@@ -20,8 +20,7 @@ typedef NS_ENUM(NSInteger, AdType) {
 };
 + (void)InitWithAppId:(NSString *_Nonnull)appId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(appId:onReady:));
 + (void)InitWithClientId:(NSString *_Nonnull)clientId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(clientId:onReady:));
-+ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight NS_SWIFT_NAME(GetRetryDelayInSeconds(insight:));
-+ (void)AddNewSessionCallback:(void (^ _Nonnull)(void))callback NS_SWIFT_NAME(AddNewSessionCallback(callback:));
++ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight adUnitId:(NSString * _Nonnull)adUnitId NS_SWIFT_NAME(GetRetryDelayInSeconds(insight:adUnitId:));
 
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner insight:(AdInsight * _Nullable)insight;
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner;

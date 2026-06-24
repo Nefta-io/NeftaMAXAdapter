@@ -26,6 +26,24 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <stackView contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="OMR-my-a7N" userLabel="consent">
+                                <rect key="frame" x="46.666666666666657" y="166.33333333333334" width="300" height="40"/>
+                                <subviews>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4gk-H8-bXC">
+                                        <rect key="frame" x="0.0" y="0.0" width="51" height="40"/>
+                                    </switch>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Has Consent" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mRy-Ay-c9a" userLabel="HasConsent">
+                                        <rect key="frame" x="69" y="0.0" width="231" height="40"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="EOL-4z-McM"/>
+                                    <constraint firstAttribute="width" constant="300" id="oZQ-Ae-zvD"/>
+                                </constraints>
+                            </stackView>
                             <stackView opaque="NO" contentMode="center" axis="vertical" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="sgf-TX-Yq0" userLabel="Container">
                                 <rect key="frame" x="36.666666666666657" y="266" width="320" height="320"/>
                                 <subviews>
@@ -465,9 +483,12 @@
                             <constraint firstItem="3DT-XR-XY2" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="IV1-Bk-LTu"/>
                             <constraint firstItem="sgf-TX-Yq0" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mUi-Xu-0fR"/>
                             <constraint firstItem="sgf-TX-Yq0" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="mid-nY-5Iu"/>
+                            <constraint firstItem="OMR-my-a7N" firstAttribute="top" secondItem="3DT-XR-XY2" secondAttribute="bottom" constant="10" id="wCD-L2-1qE"/>
+                            <constraint firstItem="OMR-my-a7N" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="xzX-12-AZ8"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="_consentCheckBox" destination="4gk-H8-bXC" id="vn2-0d-qtE"/>
                         <outlet property="_controlButton" destination="Zez-0e-mRc" id="RrF-Ip-PEi"/>
                         <outlet property="_groupView" destination="CFk-ih-kCH" id="6k6-tn-SCW"/>
                         <outlet property="_interstitialSim" destination="U78-Dy-KFR" id="2Lk-iv-oHo"/>
@@ -482,6 +503,20 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="32.824427480916029" y="4.9295774647887329"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="9Er-LN-Cu4">
+            <objects>
+                <viewController id="WKI-zi-wYY" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="O05-0N-RDv">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dDx-9t-TGd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-307" y="-417"/>
         </scene>
     </scenes>
     <resources>

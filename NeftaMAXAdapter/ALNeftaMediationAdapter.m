@@ -23,11 +23,8 @@ static NeftaPlugin *_plugin;
     (void)[NeftaPlugin NativeInitWithAppId: nil clientId: clientId onReady: onReady integration: @"native-applovin-max" mediationVersion: ALSdk.version];
 }
 
-+ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight {
-    return (double)[NeftaPlugin GetRetryDelayInSeconds: insight];
-}
-+ (void)AddNewSessionCallback:(void (^ _Nonnull)(void))callback {
-    [NeftaPlugin AddNewSessionCallback: callback];
++ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight adUnitId:(NSString * _Nonnull)adUnitId {
+    return (double)[NeftaPlugin GetRetryDelayInSeconds: insight adUnitId: adUnitId];
 }
 
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner insight:(AdInsight * _Nullable)insight {

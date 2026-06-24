@@ -27,9 +27,7 @@ class RewardedDefault : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate, Rew
         _consecutiveAdFails += 1
         let delayInSeconds = [0, 2, 4, 8, 16, 32, 64][min(_consecutiveAdFails, 6)]
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(delayInSeconds)) {
-            if self._ui.IsAutoLoad {
-                self.Load()
-            }
+            self.Load()
         }
     }
     
@@ -58,9 +56,7 @@ class RewardedDefault : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate, Rew
     func didFail(toDisplay ad: MAAd, withError error: MAError) {
         Log("didFail \(ad)")
         
-        if _ui.IsAutoLoad {
-            Load()
-        }
+        Load()
     }
     
     func didDisplay(_ ad: MAAd) {
@@ -74,12 +70,14 @@ class RewardedDefault : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate, Rew
     func didHide(_ ad: MAAd) {
         Log("didHide \(ad)")
         
-        if _ui.IsAutoLoad {
-            Load()
-        }
+        Load()
     }
     
     public func Load() {
+        if !_ui.IsAutoLoad {
+            return;
+        }
+        
         ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: _rewarded)
         _rewarded.load()
     }
@@ -87,7 +85,7 @@ class RewardedDefault : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate, Rew
     public func Show() {
         if _rewarded.isReady {
             _rewarded.show()
-        } else if _ui.IsAutoLoad {
+        } else {
             Load()
         }
         

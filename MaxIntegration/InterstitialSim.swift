@@ -34,24 +34,12 @@ public class InterstitialSim : UIView {
             _controller = controller
             _adUnitId = adUnitId
 
+            _interstitial = SimInterstitial(adUnitIdentifier: _adUnitId)
+            
             super.init()
             
-            Reset()
-        }
-        
-        public func Reset() {
-            if let oldInterstitial = _interstitial {
-                oldInterstitial.delegate = nil
-                oldInterstitial.revenueDelegate = nil
-            }
-            
-            _interstitial = SimInterstitial(adUnitIdentifier: _adUnitId)
             _interstitial.delegate = self
             _interstitial.revenueDelegate = self
-            
-            _state = State.Idle
-            _insight = nil
-            _revenue = -1
         }
         
         public func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
@@ -81,7 +69,7 @@ public class InterstitialSim : UIView {
         }
         
         public func retryLoad() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight, adUnitId: _adUnitId)) {
                 self._state = .Idle
                 self._controller.RetryLoadTracks()
             }
@@ -192,17 +180,6 @@ public class InterstitialSim : UIView {
         track._interstitial.load()
     }
     
-    private func OnNewSession() {
-        Log("Inter on new session")
-        
-        _trackA.Reset()
-        _trackB.Reset()
-        
-        UpdateShowButton()
-        _isFirstResponseReceived = false
-        RetryLoadTracks()
-    }
-    
     public override func awakeFromNib() {
         super.awakeFromNib()
         
@@ -210,7 +187,6 @@ public class InterstitialSim : UIView {
         
         _trackA = Track(controller: self, adUnitId: InterstitialSim.AdUnitA)
         _trackB = Track(controller: self, adUnitId: InterstitialSim.AdUnitB)
-        ALNeftaMediationAdapter.AddNewSessionCallback(callback: OnNewSession)
         
         ToggleTrackA(isOn: false)
         _aFill2.addAction(UIAction { _ in

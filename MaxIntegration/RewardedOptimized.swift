@@ -23,7 +23,7 @@ class RewardedOptimized : Rewarded {
         private let _controller: RewardedOptimized
         
         public let _adUnitId: String
-        public var _rewarded: MARewardedAd!
+        public let _rewarded: MARewardedAd!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
@@ -32,24 +32,12 @@ class RewardedOptimized : Rewarded {
             _controller = controller
             _adUnitId = adUnitId
             
+            _rewarded = MARewardedAd.shared(withAdUnitIdentifier: _adUnitId)
+            
             super.init()
             
-            Reset()
-        }
-        
-        public func Reset() {
-            if let oldRewarded = _rewarded {
-                oldRewarded.delegate = nil
-                oldRewarded.revenueDelegate = nil
-            }
-            
-            _rewarded = MARewardedAd.shared(withAdUnitIdentifier: _adUnitId)
             _rewarded.delegate = self
             _rewarded.revenueDelegate = self
-            
-            _state = State.Idle
-            _insight = nil
-            _revenue = -1
         }
         
         func didFailToLoadAd(forAdUnitIdentifier adUnitIdentifier: String, withError error: MAError) {
@@ -79,9 +67,9 @@ class RewardedOptimized : Rewarded {
         }
         
         func retryLoad() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight, adUnitId: _adUnitId)) {
                 self._state = .Idle
-                self._controller.RetryLoadTracks()
+                self._controller.Load()
             }
         }
         
@@ -101,7 +89,7 @@ class RewardedOptimized : Rewarded {
             _controller.Log("didFail \(ad)")
             
             _state = State.Idle
-            _controller.RetryLoadTracks()
+            _controller.Load()
         }
         
         func didDisplay(_ ad: MAAd) {
@@ -116,7 +104,7 @@ class RewardedOptimized : Rewarded {
             _controller.Log("didHide \(ad)")
             
             _state = .Idle
-            _controller.RetryLoadTracks()
+            _controller.Load()
         }
     }
     
@@ -131,10 +119,13 @@ class RewardedOptimized : Rewarded {
         
         _trackA = Track(controller: self, adUnitId: RewardedUi.AdUnitA)
         _trackB = Track(controller: self, adUnitId: RewardedUi.AdUnitB)
-        ALNeftaMediationAdapter.AddNewSessionCallback(callback: OnNewSession)
     }
     
     public func Load() {
+        if !_ui.IsAutoLoad {
+            return
+        }
+        
         LoadTrack(track: _trackA, otherState: _trackB._state)
         LoadTrack(track: _trackB, otherState: _trackA._state)
     }
@@ -189,17 +180,6 @@ class RewardedOptimized : Rewarded {
         track._rewarded.load()
     }
     
-    private func OnNewSession() {
-        Log("Rewarded on new session")
-        
-        _trackA.Reset()
-        _trackB.Reset()
-        
-        UpdateShowButton()
-        _isFirstResponseReceived = false
-        RetryLoadTracks()
-    }
-    
     public func Show() {
         var isShown = false
         if _trackA._state == .Ready {
@@ -225,14 +205,8 @@ class RewardedOptimized : Rewarded {
             return true
         }
         track._state = .Idle
-        RetryLoadTracks()
+        Load()
         return false
-    }
-    
-    private func RetryLoadTracks() {
-        if _ui.IsAutoLoad {
-            Load()
-        }
     }
     
     private func OnTrackLoad(_ success: Bool) {
@@ -241,7 +215,7 @@ class RewardedOptimized : Rewarded {
         }
         
         _isFirstResponseReceived = true
-        RetryLoadTracks()
+        Load()
     }
     
     func UpdateShowButton() {

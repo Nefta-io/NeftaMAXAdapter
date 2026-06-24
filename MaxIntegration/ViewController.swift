@@ -23,6 +23,7 @@ public class ViewController: UIViewController {
     ]
     
     @IBOutlet weak var _title: UILabel!
+    @IBOutlet weak var _consentCheckBox: UISwitch!
     @IBOutlet weak var _groupView: UIView!
     @IBOutlet weak var _controlButton: UIButton!
     @IBOutlet weak var _optimizedButton: UIButton!
@@ -37,8 +38,24 @@ public class ViewController: UIViewController {
         super.viewDidLoad()
         
         InitializeUI()
-        //DebugServer.Init(viewController: self)
+        DebugServer.Init(viewController: self)
         
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            if #available(iOS 14, *) {
+                ATTrackingManager.requestTrackingAuthorization { status in
+                    DispatchQueue.main.async {
+                        let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+                        print("NeftaPlugin IDFA: \(idfa)")
+                    }
+                }
+            } else {
+                let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+                print("NeftaPlugin IDFA: \(idfa)")
+            }
+        }
+    }
+    
+    private func InitializeNefta() {
         NeftaPlugin.EnableLogging(enable: true)
         ALNeftaMediationAdapter.Init(appId: "5661184053215232", onReady: { initConfig in
             ViewController._log.notice("[NeftaPluginMAX] Initialized, nuid: \(initConfig._nuid)")
@@ -51,6 +68,8 @@ public class ViewController: UIViewController {
         let max = ALSdk.shared()
         max.settings.isVerboseLoggingEnabled = true
         
+        NeftaPlugin.SetInterstitialLogic(isOptimized: isOptimized)
+        NeftaPlugin.SetRewardedLogic(isOptimized: isOptimized)
         if isOptimized {
             max.settings.setExtraParameterForKey("disable_b2b_ad_unit_ids", value: self._dynamicAdUnits.joined(separator: ","))
         }
@@ -84,23 +103,35 @@ public class ViewController: UIViewController {
     private func InitializeUI() {
         _title!.text = "Nefta Adapter for\n MAX \(ALSdk.version())"
         
+        _consentCheckBox.addTarget(self, action: #selector(OnConsentCheck), for: .touchUpInside)
+        
         _controlButton.addTarget(self, action: #selector(OnControlClick), for: .touchUpInside)
         _optimizedButton.addTarget(self, action: #selector(OnOptimizedClick), for: .touchUpInside)
         _simulatorButton.addTarget(self, action: #selector(OnSimulatorClick), for: .touchUpInside)
     }
     
+    @objc func OnConsentCheck() {
+        NeftaPlugin.SetHasUserConsent(hasUserConsent: false)
+        _consentCheckBox.isEnabled = false
+    }
+    
     @objc func OnControlClick() {
+        InitializeNefta()
         InitializeMAX(isOptimized: false)
     }
     
     @objc func OnOptimizedClick() {
+        InitializeNefta()
         InitializeMAX(isOptimized: true)
     }
     
     @objc func OnSimulatorClick() {
+        InitializeNefta()
         _groupView.isHidden = true
         
+        NeftaPlugin.SetInterstitialLogic(isOptimized: true)
         _interstitialSim.isHidden = false
+        NeftaPlugin.SetRewardedLogic(isOptimized: true)
         _rewardedSim.isHidden = false
     }
 }
