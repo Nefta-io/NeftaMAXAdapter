@@ -109,6 +109,7 @@ public class InterstitialSim : UIView {
     private var _trackA: Track!
     private var _trackB: Track!
     private var _isFirstResponseReceived = false
+    private var _isOptimized: Bool = false
     
     @IBOutlet weak var _loadSwitch: UISwitch!
     @IBOutlet weak var _showButton: UIButton!
@@ -128,9 +129,34 @@ public class InterstitialSim : UIView {
     
     public static var Instance: InterstitialSim!
     
+    public func SetOptimized(isOptimized: Bool) {
+        _isOptimized = isOptimized
+        NeftaPlugin.SetInterstitialLogic(isOptimized: _isOptimized)
+        isHidden = false
+        
+        if let nefta = NeftaPlugin._instance {
+            if nefta._state._isDebugEnabled {
+                NeftaPlugin._extraParams.setObject(true, forKey: "max_test_mode" as NSString)
+                let extra: NSDictionary = ["disable_b2b_ad_unit_ids": "e5dc3548d4a0913f,6d318f954e2630a8,e0b0d20088d60ec5,918acf84edf9c034"]
+                NeftaPlugin._extraParams.setObject(extra, forKey: "max_extra" as NSString)
+            }
+            nefta._state._adProviderCountry = "SIM"
+            
+            if isOptimized {
+                nefta._state._availableNetworks = ["simulator"]
+            }
+        }
+    }
+    
     private func LoadTracks() {
-        LoadTrack(track: _trackA, otherState: _trackB._state)
-        LoadTrack(track: _trackB, otherState: _trackA._state)
+        if _isOptimized {
+            LoadTrack(track: _trackA, otherState: _trackB._state)
+            LoadTrack(track: _trackB, otherState: _trackA._state)
+        } else {
+            if (_trackA._state == .Idle) {
+                LoadDefault(track: _trackA)
+            }
+        }
     }
     
     private func LoadTrack(track: Track, otherState: State) {

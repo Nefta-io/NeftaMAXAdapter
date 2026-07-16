@@ -24,10 +24,11 @@ public class ViewController: UIViewController {
     
     @IBOutlet weak var _title: UILabel!
     @IBOutlet weak var _consentCheckBox: UISwitch!
+    @IBOutlet weak var _isSimulatorCheckBox: UISwitch!
+    @IBOutlet weak var _simulatorLabel: UILabel!
     @IBOutlet weak var _groupView: UIView!
     @IBOutlet weak var _controlButton: UIButton!
     @IBOutlet weak var _optimizedButton: UIButton!
-    @IBOutlet weak var _simulatorButton: UIButton!
     
     @IBOutlet weak var _interstitialUi: InterstitialUi!
     @IBOutlet weak var _rewardedUi: RewardedUi!
@@ -63,8 +64,6 @@ public class ViewController: UIViewController {
     }
     
     private func InitializeMAX(isOptimized: Bool) {
-        _groupView.isHidden = true
-
         let max = ALSdk.shared()
         max.settings.isVerboseLoggingEnabled = true
         
@@ -107,7 +106,6 @@ public class ViewController: UIViewController {
         
         _controlButton.addTarget(self, action: #selector(OnControlClick), for: .touchUpInside)
         _optimizedButton.addTarget(self, action: #selector(OnOptimizedClick), for: .touchUpInside)
-        _simulatorButton.addTarget(self, action: #selector(OnSimulatorClick), for: .touchUpInside)
     }
     
     @objc func OnConsentCheck() {
@@ -116,23 +114,25 @@ public class ViewController: UIViewController {
     }
     
     @objc func OnControlClick() {
-        InitializeNefta()
-        InitializeMAX(isOptimized: false)
+        Initialize(isOptimized: false)
     }
     
     @objc func OnOptimizedClick() {
-        InitializeNefta()
-        InitializeMAX(isOptimized: true)
+        Initialize(isOptimized: true)
     }
     
-    @objc func OnSimulatorClick() {
+    private func Initialize(isOptimized: Bool) {
         InitializeNefta()
         _groupView.isHidden = true
         
-        NeftaPlugin.SetInterstitialLogic(isOptimized: true)
-        _interstitialSim.isHidden = false
-        NeftaPlugin.SetRewardedLogic(isOptimized: true)
-        _rewardedSim.isHidden = false
+        if _isSimulatorCheckBox.isOn {
+            _interstitialSim.SetOptimized(isOptimized: isOptimized)
+            _rewardedSim.SetOptimized(isOptimized: isOptimized)
+        } else {
+            InitializeMAX(isOptimized: isOptimized)
+        }
+        _isSimulatorCheckBox.isHidden = true
+        _simulatorLabel.isHidden = true
     }
 }
 

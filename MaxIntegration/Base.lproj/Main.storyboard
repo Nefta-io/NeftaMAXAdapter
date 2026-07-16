@@ -26,15 +26,24 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <stackView contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="OMR-my-a7N" userLabel="consent">
+                            <stackView contentMode="scaleToFill" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="OMR-my-a7N" userLabel="consent">
                                 <rect key="frame" x="46.666666666666657" y="166.33333333333334" width="300" height="40"/>
                                 <subviews>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4gk-H8-bXC">
-                                        <rect key="frame" x="0.0" y="0.0" width="51" height="40"/>
+                                        <rect key="frame" x="0.0" y="4.6666666666666572" width="51" height="31"/>
                                     </switch>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Has Consent" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mRy-Ay-c9a" userLabel="HasConsent">
-                                        <rect key="frame" x="69" y="0.0" width="231" height="40"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Has Consent" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mRy-Ay-c9a" userLabel="HasConsent">
+                                        <rect key="frame" x="59.000000000000007" y="12.333333333333314" width="104.33333333333337" height="15.666666666666664"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AbS-bZ-kN0" userLabel="IsSimulator">
+                                        <rect key="frame" x="173.33333333333334" y="4.6666666666666572" width="51" height="31"/>
+                                    </switch>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="IsSimulator" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k2n-KZ-fnd">
+                                        <rect key="frame" x="232.33333333333334" y="12.333333333333314" width="67.666666666666657" height="15.666666666666664"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -61,12 +70,6 @@
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="filled" title="Optimized"/>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CNm-ai-kjf" userLabel="Simulator">
-                                                <rect key="frame" x="0.0" y="120" width="320" height="34.333333333333329"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" title="Simulator"/>
                                             </button>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -493,10 +496,11 @@
                         <outlet property="_groupView" destination="CFk-ih-kCH" id="6k6-tn-SCW"/>
                         <outlet property="_interstitialSim" destination="U78-Dy-KFR" id="2Lk-iv-oHo"/>
                         <outlet property="_interstitialUi" destination="nGu-K8-IWA" id="nfs-BG-rQM"/>
+                        <outlet property="_isSimulatorCheckBox" destination="AbS-bZ-kN0" id="5OO-JN-BWj"/>
                         <outlet property="_optimizedButton" destination="p16-RI-cpl" id="pqz-7z-cSB"/>
                         <outlet property="_rewardedSim" destination="IKd-xC-j0e" id="l3u-pO-K9v"/>
                         <outlet property="_rewardedUi" destination="nGg-Xj-psr" id="qpy-dA-7wk"/>
-                        <outlet property="_simulatorButton" destination="CNm-ai-kjf" id="wxW-kw-Qp4"/>
+                        <outlet property="_simulatorLabel" destination="k2n-KZ-fnd" id="3QM-S6-VTP"/>
                         <outlet property="_title" destination="3DT-XR-XY2" id="uQO-g8-Ggn"/>
                     </connections>
                 </viewController>
@@ -511,6 +515,7 @@
                     <view key="view" contentMode="scaleToFill" id="O05-0N-RDv">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="2n0-BO-lBJ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                 </viewController>

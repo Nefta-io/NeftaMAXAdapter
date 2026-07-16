@@ -15,16 +15,26 @@ NSString * const _mediationProvider = @"applovin-max";
 @implementation ALNeftaMediationAdapter
 
 static NeftaPlugin *_plugin;
+static bool _isSampled;
 
 + (void)InitWithAppId:(NSString *)appId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady {
-    (void)[NeftaPlugin NativeInitWithAppId: appId clientId: nil onReady: onReady integration: @"native-applovin-max" mediationVersion: ALSdk.version];
+    _plugin = [NeftaPlugin NativeInitWithAppId: appId clientId: nil onReady: onReady integration: @"native-applovin-max" mediationVersion: ALSdk.version];
 }
 + (void)InitWithClientId:(NSString *)clientId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady {
-    (void)[NeftaPlugin NativeInitWithAppId: nil clientId: clientId onReady: onReady integration: @"native-applovin-max" mediationVersion: ALSdk.version];
+    _plugin = [NeftaPlugin NativeInitWithAppId: nil clientId: clientId onReady: onReady integration: @"native-applovin-max" mediationVersion: ALSdk.version];
 }
 
 + (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight adUnitId:(NSString * _Nonnull)adUnitId {
     return (double)[NeftaPlugin GetRetryDelayInSeconds: insight adUnitId: adUnitId];
+}
+
++ (void)GetInsights:(NSInteger)insights previousInsight:(AdInsight * _Nullable)previousInsight callback:(void (^ _Nullable)(Insights * _Nonnull))callback {
+    [self TryGetDebugData: true];
+    [_plugin GetInsights: insights previousInsight: previousInsight callback: callback];
+}
++ (void)GetInsightsBridge:(NSInteger)requestId insights:(NSInteger)insights previousRequestId:(NSInteger)previousRequestId {
+    [self TryGetDebugData: true];
+    [NeftaPlugin._instance GetInsightsBridge: requestId insights: insights previousRequestId: previousRequestId];
 }
 
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner insight:(AdInsight * _Nullable)insight {
@@ -35,6 +45,7 @@ static NeftaPlugin *_plugin;
     [ALNeftaMediationAdapter OnExternalMediationRequestWithBanner: banner customBidPrice: -1];
 }
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner customBidPrice:(double)customBidPrice {
+    [self TryGetDebugData: false];
     NSString *hash = [NSString stringWithFormat:@"%lu", (unsigned long)[banner hash]];
     [NeftaPlugin OnExternalMediationRequest: _mediationProvider adType: AdTypeBanner id: hash requestedAdUnitId: banner.adUnitIdentifier requestedFloorPrice: customBidPrice requestId: -1];
 }
@@ -47,6 +58,7 @@ static NeftaPlugin *_plugin;
     [ALNeftaMediationAdapter OnExternalMediationRequestWithInterstitial: interstitial customBidPrice: -1];
 }
 + (void)OnExternalMediationRequestWithInterstitial:(MAInterstitialAd * _Nonnull)interstitial customBidPrice:(double)customBidPrice {
+    [self TryGetDebugData: false];
     NSString *hash = [NSString stringWithFormat:@"%lu", (unsigned long)[interstitial hash]];
     [NeftaPlugin OnExternalMediationRequest: _mediationProvider adType: AdTypeInterstitial id: hash requestedAdUnitId: interstitial.adUnitIdentifier requestedFloorPrice: customBidPrice requestId: -1];
 }
@@ -59,6 +71,7 @@ static NeftaPlugin *_plugin;
     [ALNeftaMediationAdapter OnExternalMediationRequestWithRewarded: rewarded customBidPrice: -1];
 }
 + (void)OnExternalMediationRequestWithRewarded:(MARewardedAd * _Nonnull)rewarded customBidPrice:(double)customBidPrice {
+    [self TryGetDebugData: true];
     NSString *hash = [NSString stringWithFormat:@"%lu", (unsigned long)[rewarded hash]];
     [NeftaPlugin OnExternalMediationRequest: _mediationProvider adType: AdTypeRewarded id: hash requestedAdUnitId: rewarded.adUnitIdentifier requestedFloorPrice: customBidPrice requestId: -1];
 }
@@ -70,6 +83,10 @@ static NeftaPlugin *_plugin;
         requestId = (int)insight._requestId;
         requestedFloor = insight._floorPrice;
     }
+    [ALNeftaMediationAdapter OnExternalMediationRequest: adType id: id requestedAdUnitId: requestedAdUnitId requestedFloor: requestedFloor requestId: requestId];
+}
++ (void)OnExternalMediationRequest:(AdType)adType id:(NSString * _Nonnull)id requestedAdUnitId:(NSString * _Nonnull)requestedAdUnitId requestedFloor:(double)requestedFloor requestId:(NSInteger)requestId {
+    [self TryGetDebugData: true];
     [NeftaPlugin OnExternalMediationRequest: _mediationProvider adType: (int)adType id: id requestedAdUnitId: requestedAdUnitId requestedFloorPrice: requestedFloor requestId: requestId];
 }
 
@@ -93,7 +110,7 @@ static NeftaPlugin *_plugin;
     if (waterfall != nil) {
         [ALNeftaMediationAdapter SerializeWaterfall: data waterfall: waterfall];
     }
-    [NeftaPlugin OnExternalMediationResponse: _mediationProvider id: id id2: hash revenue: ad.revenue precision: ad.revenuePrecision status: 1 providerStatus: nil networkStatus: nil baseObject: data];
+    [NeftaPlugin OnExternalMediationResponse: _mediationProvider id: id id2: hash revenue: ad.revenue precision: ad.revenuePrecision status: 1 providerStatus: nil networkStatus: nil network: ad.networkName baseObject: data];
 }
 
 + (void)OnExternalMediationRequestFailWithBanner:(MAAdView * _Nonnull)banner error:(MAError * _Nonnull)error {
@@ -121,7 +138,7 @@ static NeftaPlugin *_plugin;
     }
     NSString *providerStatus = [NSString stringWithFormat:@"%ld", error.code];
     NSString *networkStatus = [NSString stringWithFormat:@"%ld", error.mediatedNetworkErrorCode];
-    [NeftaPlugin OnExternalMediationResponse: _mediationProvider id: id id2: nil revenue: -1 precision: nil status: status providerStatus: providerStatus networkStatus: networkStatus baseObject: baseObject];
+    [NeftaPlugin OnExternalMediationResponse: _mediationProvider id: id id2: nil revenue: -1 precision: nil status: status providerStatus: providerStatus networkStatus: networkStatus network: nil baseObject: baseObject];
 }
 
 + (void) OnExternalMediationImpression:(MAAd*)ad {
@@ -216,6 +233,45 @@ static NeftaPlugin *_plugin;
     }
     [data setObject: waterfalls forKey: @"waterfall"];
     [data setObject: waterfallResponses forKey: @"waterfall_responses"];
+}
+
++ (void)TryGetDebugData:(BOOL)isOptimized {
+    if (!_isSampled) {
+        _isSampled = true;
+        ALSdk *sdk = [ALSdk shared];
+        if (sdk == nil) {
+            return;
+        }
+        ALSdkConfiguration *configuration = sdk.configuration;
+        if (configuration != nil) {
+            if (NeftaPlugin._instance._state._isDebugEnabled) {
+                [NeftaPlugin._extraParamslock lock];
+                NeftaPlugin._extraParams[@"max_test_mode"] = @(configuration.isTestModeEnabled);
+                ALSdkSettings *settings = sdk.settings;
+                NSMutableDictionary<NSString *, NSString *> *extra = [NSMutableDictionary dictionary];
+                for (NSString *key in settings.extraParameters) {
+                    if (![key isEqualToString:@"SdkKey"]) {
+                        extra[key] = settings.extraParameters[key];
+                    }
+                }
+                NeftaPlugin._extraParams[@"max_extra"] = extra;
+                [NeftaPlugin._extraParamslock unlock];
+            }
+        
+            NeftaPlugin._instance._state._adProviderCountry = configuration.countryCode;
+        }
+ 
+        if (isOptimized) {
+            NSMutableArray<NSString *> *networks = [NSMutableArray array];
+            NSArray<MAMediatedNetworkInfo *> *networkInfos = sdk.availableMediatedNetworks;
+            if (networkInfos != nil) {
+                for (MAMediatedNetworkInfo *networkInfo in networkInfos) {
+                    [networks addObject: networkInfo.name];
+                }
+            }
+            NeftaPlugin._instance._state._availableNetworks = networks;
+        }
+    }
 }
 
 @end

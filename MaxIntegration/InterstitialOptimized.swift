@@ -140,7 +140,7 @@ class InterstitialOptimized : Interstitial {
     private func GetInsightsAndLoad(track: Track) {
         track._state = .LoadingWithInsights
         
-        NeftaPlugin._instance!.GetInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
+        ALNeftaMediationAdapter.getInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
             self.Log("Load with insights: \(insights)")
             if let insight = insights._interstitial {
                 track._insight = insight

@@ -145,7 +145,7 @@ class RewardedOptimized : Rewarded {
     private func GetInsightsAndLoad(track: Track) {
         track._state = .LoadingWithInsights
 
-        NeftaPlugin._instance!.GetInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
+        ALNeftaMediationAdapter.getInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
             self.Log("Load with insights: \(insights)")
             if let insight = insights._rewarded {
                 track._insight = insight
