@@ -30,6 +30,10 @@ class RewardedUi : UIView {
         _showButton.isEnabled = false
     }
     
+    public func OnAdLogicReady() {
+        _loadSwitch.isEnabled = true
+    }
+    
     @objc private func OnLoadSwitch(_ sender: UISwitch) {
         IsAutoLoad = sender.isOn
         if IsAutoLoad {

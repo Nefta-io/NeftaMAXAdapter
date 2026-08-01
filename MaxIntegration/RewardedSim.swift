@@ -240,6 +240,10 @@ public class RewardedSim : UIView {
         _showButton.isEnabled = false
     }
     
+    public func OnAdLogicReady() {
+        _loadSwitch.isEnabled = true
+    }
+    
     public override var isHidden: Bool {
         didSet {
             if isHidden {

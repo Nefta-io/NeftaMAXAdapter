@@ -248,6 +248,10 @@ public class InterstitialSim : UIView {
         _showButton.isEnabled = false
     }
     
+    public func OnAdLogicReady() {
+        _loadSwitch.isEnabled = true
+    }
+    
     public override var isHidden: Bool {
         didSet {
             if isHidden {

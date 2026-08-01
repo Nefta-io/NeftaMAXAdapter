@@ -35,6 +35,9 @@ public class ViewController: UIViewController {
     @IBOutlet weak var _interstitialSim: InterstitialSim!
     @IBOutlet weak var _rewardedSim: RewardedSim!
     
+    private var _isMaxReady: Bool = false
+    private var _isNeftaReady: Bool = false
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -56,10 +59,22 @@ public class ViewController: UIViewController {
         }
     }
     
+    private func OnAdLogicReady() {
+        if _isMaxReady && _isNeftaReady {
+            _interstitialUi.OnAdLogicReady()
+            _rewardedUi.OnAdLogicReady()
+            
+            _interstitialSim.OnAdLogicReady()
+            _rewardedSim.OnAdLogicReady()
+        }
+    }
+    
     private func InitializeNefta() {
         NeftaPlugin.EnableLogging(enable: true)
         ALNeftaMediationAdapter.Init(appId: "5661184053215232", onReady: { initConfig in
             ViewController._log.notice("[NeftaPluginMAX] Initialized, nuid: \(initConfig._nuid)")
+            self._isNeftaReady = true
+            self.OnAdLogicReady()
         })
     }
     
@@ -87,7 +102,8 @@ public class ViewController: UIViewController {
             ]
         }
         max.initialize(with: initConfig) { sdkConfig in
-
+            self._isMaxReady = true
+            self.OnAdLogicReady()
         }
         
         if isOptimized {
@@ -126,6 +142,8 @@ public class ViewController: UIViewController {
         _groupView.isHidden = true
         
         if _isSimulatorCheckBox.isOn {
+            _isMaxReady = true
+            
             _interstitialSim.SetOptimized(isOptimized: isOptimized)
             _rewardedSim.SetOptimized(isOptimized: isOptimized)
         } else {
