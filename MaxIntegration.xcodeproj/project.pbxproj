@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		50B93A5FB2771AD4CF7914D6 /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F737DEEA2E9991DD7D28579C /* Pods_MaxIntegration.framework */; };
 		9035909B2EEFE8D100640456 /* config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9035909A2EEFE8D100640456 /* config.plist */; };
 		904466FC2EC37BA700689575 /* SimMAAd.m in Sources */ = {isa = PBXBuildFile; fileRef = 904466FA2EC37BA700689575 /* SimMAAd.m */; };
 		904466FE2EC37BA700689575 /* InterstitialSim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904466F72EC37BA700689575 /* InterstitialSim.swift */; };
@@ -26,7 +27,6 @@
 		90DA53B42C0871DD0041E63B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53A92C0871DD0041E63B /* SceneDelegate.swift */; };
 		90DA53B52C0871DD0041E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DA53AA2C0871DD0041E63B /* ViewController.swift */; };
 		90E561FB2F75792900CC088F /* NDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E561FA2F75792900CC088F /* NDebug.swift */; };
-		B159AAFB89847372B8A1590E /* Pods_MaxIntegration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C0D8B0171AB596865624E0 /* Pods_MaxIntegration.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,7 +43,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		58C0D8B0171AB596865624E0 /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C9DC0EF495DB2C8FDCCD36B /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
 		9026575D2BEC9B8900EA4F62 /* MaxIntegration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaxIntegration.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9035909A2EEFE8D100640456 /* config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = config.plist; sourceTree = "<group>"; };
 		904466F72EC37BA700689575 /* InterstitialSim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterstitialSim.swift; sourceTree = "<group>"; };
@@ -67,8 +67,8 @@
 		90DA53AA2C0871DD0041E63B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90DA53C52C0878D20041E63B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		90E561FA2F75792900CC088F /* NDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDebug.swift; sourceTree = "<group>"; };
-		A52EF3FC575FEB3ACD7D0739 /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
-		B160FFDE03BD0DFA94CF7086 /* Pods-MaxIntegration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.release.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.release.xcconfig"; sourceTree = "<group>"; };
+		A067F14C6EDE416ADA65DEA4 /* Pods-MaxIntegration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MaxIntegration.debug.xcconfig"; path = "Target Support Files/Pods-MaxIntegration/Pods-MaxIntegration.debug.xcconfig"; sourceTree = "<group>"; };
+		F737DEEA2E9991DD7D28579C /* Pods_MaxIntegration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MaxIntegration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,17 +76,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B159AAFB89847372B8A1590E /* Pods_MaxIntegration.framework in Frameworks */,
+				50B93A5FB2771AD4CF7914D6 /* Pods_MaxIntegration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		22B48E73987260CDF899257D /* Frameworks */ = {
+		0EE675EDE2DD4DC571D6F23E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				58C0D8B0171AB596865624E0 /* Pods_MaxIntegration.framework */,
+				F737DEEA2E9991DD7D28579C /* Pods_MaxIntegration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -94,8 +94,8 @@
 		5E2626618C592861CDB6AED2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				A52EF3FC575FEB3ACD7D0739 /* Pods-MaxIntegration.debug.xcconfig */,
-				B160FFDE03BD0DFA94CF7086 /* Pods-MaxIntegration.release.xcconfig */,
+				A067F14C6EDE416ADA65DEA4 /* Pods-MaxIntegration.debug.xcconfig */,
+				6C9DC0EF495DB2C8FDCCD36B /* Pods-MaxIntegration.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -108,7 +108,7 @@
 				90DA53AB2C0871DD0041E63B /* MaxIntegration */,
 				9026575E2BEC9B8900EA4F62 /* Products */,
 				5E2626618C592861CDB6AED2 /* Pods */,
-				22B48E73987260CDF899257D /* Frameworks */,
+				0EE675EDE2DD4DC571D6F23E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -154,12 +154,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 902657712BEC9B8A00EA4F62 /* Build configuration list for PBXNativeTarget "MaxIntegration" */;
 			buildPhases = (
-				636AFF888CDE96A6192DDC32 /* [CP] Check Pods Manifest.lock */,
+				77F15AF77E290D43F2A1416D /* [CP] Check Pods Manifest.lock */,
 				902657592BEC9B8900EA4F62 /* Sources */,
 				9026575A2BEC9B8900EA4F62 /* Frameworks */,
 				9026575B2BEC9B8900EA4F62 /* Resources */,
 				90DA53D32C0879E30041E63B /* Embed Frameworks */,
-				C5179DC864B3A8921A065955 /* [CP] Embed Pods Frameworks */,
+				FC273AB2F3C06B356832AAD1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -218,7 +218,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		636AFF888CDE96A6192DDC32 /* [CP] Check Pods Manifest.lock */ = {
+		77F15AF77E290D43F2A1416D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -240,7 +240,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C5179DC864B3A8921A065955 /* [CP] Embed Pods Frameworks */ = {
+		FC273AB2F3C06B356832AAD1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -425,7 +425,7 @@
 		};
 		902657722BEC9B8A00EA4F62 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A52EF3FC575FEB3ACD7D0739 /* Pods-MaxIntegration.debug.xcconfig */;
+			baseConfigurationReference = A067F14C6EDE416ADA65DEA4 /* Pods-MaxIntegration.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -446,7 +446,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.6.10;
+				MARKETING_VERSION = 4.6.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nefta.max;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -459,7 +459,7 @@
 		};
 		902657732BEC9B8A00EA4F62 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B160FFDE03BD0DFA94CF7086 /* Pods-MaxIntegration.release.xcconfig */;
+			baseConfigurationReference = 6C9DC0EF495DB2C8FDCCD36B /* Pods-MaxIntegration.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -480,7 +480,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.6.10;
+				MARKETING_VERSION = 4.6.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nefta.max;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -108,6 +108,7 @@ public class InterstitialSim : UIView {
     
     private var _trackA: Track!
     private var _trackB: Track!
+    private var _isFirstRequest = true
     private var _isFirstResponseReceived = false
     private var _isOptimized: Bool = false
     
@@ -152,6 +153,18 @@ public class InterstitialSim : UIView {
         if _isOptimized {
             LoadTrack(track: _trackA, otherState: _trackB._state)
             LoadTrack(track: _trackB, otherState: _trackA._state)
+            
+            let stopWaitingForFirstResponseAfter = NeftaPlugin._instance?._state._firstResponseTimeoutInterstitialInMs ?? 0
+            if _isFirstRequest && stopWaitingForFirstResponseAfter > 0 {
+                _isFirstRequest = false
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(stopWaitingForFirstResponseAfter) * 0.001) {
+                    if !self._isFirstResponseReceived {
+                        self._isFirstResponseReceived = true
+                        self.LoadTracks()
+                    }
+                }
+            }
         } else {
             if (_trackA._state == .Idle) {
                 LoadDefault(track: _trackA)

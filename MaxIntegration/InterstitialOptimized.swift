@@ -105,6 +105,7 @@ class InterstitialOptimized : Interstitial {
 
     private var _trackA: Track!
     private var _trackB: Track!
+    private var _isFirstRequest = true
     private var _isFirstResponseReceived = false
 
     var _ui: InterstitialUi!
@@ -123,6 +124,18 @@ class InterstitialOptimized : Interstitial {
         
         LoadTrack(track: _trackA, otherState: _trackB._state)
         LoadTrack(track: _trackB, otherState: _trackA._state)
+        
+        let stopWaitingForFirstResponseAfter = NeftaPlugin._instance?._state._firstResponseTimeoutInterstitialInMs ?? 0
+        if _isFirstRequest && stopWaitingForFirstResponseAfter > 0 {
+            _isFirstRequest = false
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(stopWaitingForFirstResponseAfter) * 0.001) {
+                if !self._isFirstResponseReceived {
+                    self._isFirstResponseReceived = true
+                    self.Load()
+                }
+            }
+        }
     }
     
     private func LoadTrack(track: Track, otherState: State) {

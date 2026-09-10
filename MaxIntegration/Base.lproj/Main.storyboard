@@ -71,6 +71,12 @@
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="filled" title="Optimized"/>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="tgB-pM-zoq" userLabel="Indifferent">
+                                                <rect key="frame" x="-0.66666666666666663" y="120" width="320" height="34.333333333333329"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="filled" title="Indifferent"/>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <constraints>
@@ -494,6 +500,7 @@
                         <outlet property="_consentCheckBox" destination="4gk-H8-bXC" id="vn2-0d-qtE"/>
                         <outlet property="_controlButton" destination="Zez-0e-mRc" id="RrF-Ip-PEi"/>
                         <outlet property="_groupView" destination="CFk-ih-kCH" id="6k6-tn-SCW"/>
+                        <outlet property="_indifferentButton" destination="tgB-pM-zoq" id="ak2-Q0-ZfE"/>
                         <outlet property="_interstitialSim" destination="U78-Dy-KFR" id="2Lk-iv-oHo"/>
                         <outlet property="_interstitialUi" destination="nGu-K8-IWA" id="nfs-BG-rQM"/>
                         <outlet property="_isSimulatorCheckBox" destination="AbS-bZ-kN0" id="5OO-JN-BWj"/>

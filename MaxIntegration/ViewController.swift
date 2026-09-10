@@ -22,6 +22,12 @@ public class ViewController: UIViewController {
         RewardedUi.AdUnitA, RewardedUi.AdUnitB
     ]
     
+    private enum TestGroup {
+        case Control
+        case Optimized
+        case NeftaDecides
+    }
+    
     @IBOutlet weak var _title: UILabel!
     @IBOutlet weak var _consentCheckBox: UISwitch!
     @IBOutlet weak var _isSimulatorCheckBox: UISwitch!
@@ -29,6 +35,7 @@ public class ViewController: UIViewController {
     @IBOutlet weak var _groupView: UIView!
     @IBOutlet weak var _controlButton: UIButton!
     @IBOutlet weak var _optimizedButton: UIButton!
+    @IBOutlet weak var _indifferentButton: UIButton!
     
     @IBOutlet weak var _interstitialUi: InterstitialUi!
     @IBOutlet weak var _rewardedUi: RewardedUi!
@@ -69,16 +76,30 @@ public class ViewController: UIViewController {
         }
     }
     
-    private func InitializeNefta() {
+    private func InitializeNefta(testGroup: TestGroup) {
         NeftaPlugin.EnableLogging(enable: true)
         ALNeftaMediationAdapter.Init(appId: "5661184053215232", onReady: { initConfig in
             ViewController._log.notice("[NeftaPluginMAX] Initialized, nuid: \(initConfig._nuid)")
             self._isNeftaReady = true
-            self.OnAdLogicReady()
+            
+            if testGroup == .NeftaDecides {
+                self.InitializeMAX(isOptimized: initConfig._isSessionOptimized)
+            } else {
+                self.OnAdLogicReady()
+            }
         })
     }
     
     private func InitializeMAX(isOptimized: Bool) {
+        ViewController._log.notice("[NeftaPluginMAX] Initializing MAX as \(isOptimized ? "optimized" : "control")")
+        if _isSimulatorCheckBox.isOn {
+            _isMaxReady = true
+            OnAdLogicReady()
+            _interstitialSim.SetOptimized(isOptimized: isOptimized)
+            _rewardedSim.SetOptimized(isOptimized: isOptimized)
+            return
+        }
+        
         let max = ALSdk.shared()
         max.settings.isVerboseLoggingEnabled = true
         
@@ -122,6 +143,7 @@ public class ViewController: UIViewController {
         
         _controlButton.addTarget(self, action: #selector(OnControlClick), for: .touchUpInside)
         _optimizedButton.addTarget(self, action: #selector(OnOptimizedClick), for: .touchUpInside)
+        _indifferentButton.addTarget(self, action: #selector(OnIndifferentClick), for: .touchUpInside)
     }
     
     @objc func OnConsentCheck() {
@@ -130,27 +152,28 @@ public class ViewController: UIViewController {
     }
     
     @objc func OnControlClick() {
-        Initialize(isOptimized: false)
+        Initialize(testGroup: .Control)
     }
     
     @objc func OnOptimizedClick() {
-        Initialize(isOptimized: true)
+        Initialize(testGroup: .Optimized)
     }
     
-    private func Initialize(isOptimized: Bool) {
-        InitializeNefta()
+    @objc func OnIndifferentClick() {
+        Initialize(testGroup: .NeftaDecides)
+    }
+    
+    private func Initialize(testGroup: TestGroup) {
         _groupView.isHidden = true
-        
-        if _isSimulatorCheckBox.isOn {
-            _isMaxReady = true
-            
-            _interstitialSim.SetOptimized(isOptimized: isOptimized)
-            _rewardedSim.SetOptimized(isOptimized: isOptimized)
-        } else {
-            InitializeMAX(isOptimized: isOptimized)
-        }
         _isSimulatorCheckBox.isHidden = true
         _simulatorLabel.isHidden = true
+        
+        InitializeNefta(testGroup: testGroup)
+        if testGroup == .Control {
+            InitializeMAX(isOptimized: false)
+        } else if testGroup == .Optimized {
+            InitializeMAX(isOptimized: true)
+        }
     }
 }
 
