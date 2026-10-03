@@ -183,7 +183,10 @@ public class RewardedSim : UIView {
             self.Log("Load with insights: \(insights)")
             if let insight = insights._rewarded {
                 track._insight = insight
-                let bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                var bidFloor = ""
+                if insight._floorPrice >= 0 {
+                    bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                }
 
                 track._rewarded.setExtraParameterForKey("disable_auto_retries", value: "true")
                 track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)

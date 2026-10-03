@@ -191,7 +191,10 @@ public class InterstitialSim : UIView {
             self.Log("Load with insights: \(insights)")
             if let insight = insights._interstitial {
                 track._insight = insight
-                let bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                var bidFloor = ""
+                if insight._floorPrice >= 0 {
+                    bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                }
 
                 track._interstitial.setExtraParameterForKey("disable_auto_retries", value: "true")
                 track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
