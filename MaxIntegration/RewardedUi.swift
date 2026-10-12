@@ -9,8 +9,9 @@ import Foundation
 import AppLovinSDK
 
 class RewardedUi : UIView {
-    public static let AdUnitA = "e0b0d20088d60ec5"
-    public static let AdUnitB = "918acf84edf9c034"
+    public static let AdUnitDefault = "a4b93fe91b278c75"
+    public static let AdUnitOptimizedA = "e0b0d20088d60ec5"
+    public static let AdUnitOptimizedB = "918acf84edf9c034"
     
     @IBOutlet weak var _loadSwitch: UISwitch!
     @IBOutlet weak var _showButton: UIButton!
@@ -28,10 +29,6 @@ class RewardedUi : UIView {
         _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
         isHidden = false
         _showButton.isEnabled = false
-    }
-    
-    public func OnAdLogicReady() {
-        _loadSwitch.isEnabled = true
     }
     
     @objc private func OnLoadSwitch(_ sender: UISwitch) {

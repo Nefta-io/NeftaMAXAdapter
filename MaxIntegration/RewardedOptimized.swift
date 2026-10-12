@@ -13,29 +13,34 @@ class RewardedOptimized : Rewarded {
     
     public enum State {
         case Idle
-        case LoadingWithInsights
         case Loading
         case Ready
         case Shown
+        case Delay
     }
     
     public class Track : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate {
         private let _controller: RewardedOptimized
         
         public let _adUnitId: String
+        public let _isOptimized: Bool
         public let _rewarded: MARewardedAd!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
         
-        public init(controller: RewardedOptimized, adUnitId: String) {
+        public init(controller: RewardedOptimized, adUnitId: String, isOptimized: Bool) {
             _controller = controller
             _adUnitId = adUnitId
+            _isOptimized = isOptimized
             
             _rewarded = MARewardedAd.shared(withAdUnitIdentifier: _adUnitId)
             
             super.init()
             
+            if _isOptimized {
+                _rewarded.setExtraParameterForKey("disable_auto_retries", value: "true")
+            }
             _rewarded.delegate = self
             _rewarded.revenueDelegate = self
         }
@@ -45,13 +50,7 @@ class RewardedOptimized : Rewarded {
             
             _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
-            OnLoadFail()
-        }
-        
-        public func OnLoadFail() {
-            retryLoad()
-            
-            _controller.OnTrackLoad(false)
+            _controller.OnTrackLoad(track: self, success: false)
         }
         
         func didLoad(_ ad: MAAd) {
@@ -63,14 +62,7 @@ class RewardedOptimized : Rewarded {
             _revenue = ad.revenue
             _state = .Ready
             
-            _controller.OnTrackLoad(true)
-        }
-        
-        func retryLoad() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight, adUnitId: _adUnitId)) {
-                self._state = .Idle
-                self._controller.Load()
-            }
+            _controller.OnTrackLoad(track: self, success: true)
         }
         
         func didPayRevenue(for ad: MAAd) {
@@ -89,7 +81,7 @@ class RewardedOptimized : Rewarded {
             _controller.Log("didFail \(ad)")
             
             _state = State.Idle
-            _controller.Load()
+            _controller.ContinueLoading()
         }
         
         func didDisplay(_ ad: MAAd) {
@@ -104,110 +96,146 @@ class RewardedOptimized : Rewarded {
             _controller.Log("didHide \(ad)")
             
             _state = .Idle
-            _controller.Load()
+            _controller.ContinueLoading()
         }
     }
     
-    private var _trackA: Track!
-    private var _trackB: Track!
+    private var _tracks: [Track]! = nil
     private var _isFirstRequest = true
-    private var _isFirstResponseReceived = false
+    private var _isFirstOptimizedResponseReceived = false
+    private var _isGlobalCooldown: Int = 0
     
     private var _ui: RewardedUi!
     
     func Init(ui: RewardedUi) {
         _ui = ui
         
-        _trackA = Track(controller: self, adUnitId: RewardedUi.AdUnitA)
-        _trackB = Track(controller: self, adUnitId: RewardedUi.AdUnitB)
+        _tracks = [
+            Track(controller: self, adUnitId: RewardedUi.AdUnitDefault, isOptimized: false),
+            Track(controller: self, adUnitId: RewardedUi.AdUnitOptimizedA, isOptimized: true),
+            Track(controller: self, adUnitId: RewardedUi.AdUnitOptimizedB, isOptimized: true)
+        ]
     }
     
     public func Load() {
+        if _isFirstRequest {
+            Load(track: _tracks[1])
+            
+            let stopWaitingForFirstResponseAfter = NeftaPlugin._instance?._state._firstResponseTimeoutRewardedInMs ?? 0
+            if stopWaitingForFirstResponseAfter > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(stopWaitingForFirstResponseAfter) * 0.001) {
+                    if !self._isFirstOptimizedResponseReceived {
+                        self._isFirstOptimizedResponseReceived = true
+                        if self._tracks.count > 2 && self._tracks[2]._state == .Idle {
+                            self.Load(track: self._tracks[2])
+                        }
+                        if NeftaPlugin._instance!._state._backfillTrackDelayInMs < 0 && self._tracks[0]._state == .Idle {
+                            self.Load(track: self._tracks[0])
+                        }
+                    }
+                }
+            }
+            
+            let backFillTrackDelayInMs = NeftaPlugin._instance!._state._backfillTrackDelayInMs
+            if (backFillTrackDelayInMs == 0) {
+                Load(track: _tracks[0])
+            } else if (backFillTrackDelayInMs > 0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(backFillTrackDelayInMs) * 0.001) {
+                    self.Load(track: self._tracks[0])
+                }
+            }
+            
+            _isFirstRequest = false
+        } else {
+            ContinueLoading()
+        }
+    }
+    
+    private func Load(track: Track) {
+        track._state = .Loading
+
+        if track._isOptimized {
+            ALNeftaMediationAdapter.getInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
+                self.Log("Load with insights: \(insights)")
+                if let insight = insights._rewarded {
+                    track._insight = insight
+                    var bidFloor = ""
+                    if insight._floorPrice >= 0 {
+                        bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                    }
+       
+                    track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
+                    
+                    ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded, insight: insight)
+                    
+                    self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+                    track._rewarded.load()
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
+                        track._state = State.Idle
+                        self.ContinueLoading()
+                    }
+                }
+            })
+        } else {
+            ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded)
+            
+            Log("Loading \(track._adUnitId) as Default")
+            track._rewarded.load()
+        }
+    }
+
+    public func ContinueOptimized() {
+        _isFirstOptimizedResponseReceived = true
+        if _tracks[0]._state == .Idle {
+            Load(track: _tracks[0])
+        }
+        
+        _isGlobalCooldown += 1
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin._instance!._state._globalTrackCooldownInMs * 1000)) {
+            self._isGlobalCooldown -= 1
+            if self._isGlobalCooldown <= 0 {
+                self._isGlobalCooldown = 0
+                self.ContinueLoading()
+            }
+        }
+    }
+    
+    public func ContinueLoading() {
         if !_ui.IsAutoLoad {
             return
         }
         
-        LoadTrack(track: _trackA, otherState: _trackB._state)
-        LoadTrack(track: _trackB, otherState: _trackA._state)
-        
-        let stopWaitingForFirstResponseAfter = NeftaPlugin._instance?._state._firstResponseTimeoutRewardedInMs ?? 0
-        if _isFirstRequest && stopWaitingForFirstResponseAfter > 0 {
-            _isFirstRequest = false
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(stopWaitingForFirstResponseAfter) * 0.001) {
-                if !self._isFirstResponseReceived {
-                    self._isFirstResponseReceived = true
-                    self.Load()
-                }
+        if _tracks[0]._state == .Idle {
+            Load(track: _tracks[0])
+        }
+        if _isGlobalCooldown > 0 {
+            return
+        }
+        for i in 1..<_tracks.count {
+            if _tracks[i]._state == .Loading {
+                return
             }
         }
-    }
-    
-    private func LoadTrack(track: Track, otherState: State) {
-        if track._state == .Idle {
-            if otherState == .LoadingWithInsights || otherState == .Shown {
-                if (_isFirstResponseReceived) {
-                    LoadDefault(track: track)
-                }
-            } else {
-                GetInsightsAndLoad(track: track)
+        for i in 1..<_tracks.count {
+            if _tracks[i]._state == .Idle {
+                Load(track: _tracks[i])
+                return
             }
         }
-    }
-    
-    private func GetInsightsAndLoad(track: Track) {
-        track._state = .LoadingWithInsights
-
-        ALNeftaMediationAdapter.getInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
-            self.Log("Load with insights: \(insights)")
-            if let insight = insights._rewarded {
-                track._insight = insight
-                var bidFloor = ""
-                if insight._floorPrice >= 0 {
-                    bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
-                }
-   
-                track._rewarded.setExtraParameterForKey("disable_auto_retries", value: "true")
-                track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
-                
-                ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded, insight: insight)
-                
-                self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
-                track._rewarded.load()
-            } else {
-                track.OnLoadFail()
-            }
-        })
-    }
-    
-    private func LoadDefault(track: Track) {
-        track._state = .Loading
-        
-        Log("Loading \(track._adUnitId) as Default")
-        
-        track._rewarded.setExtraParameterForKey("disable_auto_retries", value: "false")
-        track._rewarded.setExtraParameterForKey("jC7Fp", value: "")
-        
-        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded)
-        
-        track._rewarded.load()
     }
     
     public func Show() {
         var isShown = false
-        if _trackA._state == .Ready {
-            if _trackB._state == .Ready && _trackB._revenue > _trackA._revenue {
-                isShown = TryShow(track: _trackB)
-            }
-            if !isShown {
-                isShown = TryShow(track: _trackA)
-            }
+        let readyTrack = GetReadyTrack()
+        if let trackToShow = readyTrack {
+            isShown = TryShow(track: trackToShow)
         }
-        if !isShown && _trackB._state == .Ready {
-            isShown = TryShow(track: _trackB)
+        if !isShown {
+            ContinueLoading()
         }
-        
-        UpdateShowButton()
+        let availableTrack = GetReadyTrack()
+        _ui.SetAvailable(available: availableTrack != nil)
     }
     
     private func TryShow(track: Track) -> Bool {
@@ -222,17 +250,31 @@ class RewardedOptimized : Rewarded {
         return false
     }
     
-    private func OnTrackLoad(_ success: Bool) {
+    private func OnTrackLoad(track: Track, success: Bool) {
         if success {
-            UpdateShowButton()
+            _ui.SetAvailable(available: true)
+        } else {
+            track._state = .Delay
+            let delay = Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                track._state = State.Idle
+                self.ContinueLoading()
+            }
         }
         
-        _isFirstResponseReceived = true
-        Load()
+        if track._isOptimized {
+            ContinueOptimized()
+        }
     }
     
-    func UpdateShowButton() {
-        _ui.SetAvailable(available: _trackA._state == .Ready || _trackB._state == .Ready)
+    private func GetReadyTrack() -> Track? {
+        var bestTrack: Track?
+        for track in _tracks {
+            if track._state == .Ready && (bestTrack == nil || track._revenue > bestTrack!._revenue) {
+                bestTrack = track
+            }
+        }
+        return bestTrack
     }
         
     private func Log(_ log: String) {

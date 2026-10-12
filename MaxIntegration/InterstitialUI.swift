@@ -9,8 +9,9 @@ import Foundation
 import AppLovinSDK
 
 class InterstitialUi : UIView {
-    public static let AdUnitA = "e5dc3548d4a0913f"
-    public static let AdUnitB = "6d318f954e2630a8"
+    public static let AdUnitDefault = "72458470d47ee781"
+    public static let AdUnitOptimizedA = "e5dc3548d4a0913f"
+    public static let AdUnitOptimizedB = "6d318f954e2630a8"
     
     @IBOutlet weak var _loadSwitch: UISwitch!
     @IBOutlet weak var _showButton: UIButton!
@@ -28,10 +29,6 @@ class InterstitialUi : UIView {
         _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
         isHidden = false
         _showButton.isEnabled = false
-    }
-    
-    public func OnAdLogicReady() {
-        _loadSwitch.isEnabled = true
     }
     
     @objc private func OnLoadSwitch(_ sender: UISwitch) {

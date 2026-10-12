@@ -14,7 +14,7 @@ class InterstitialDefault : NSObject, MAAdDelegate, MAAdRevenueDelegate, Interst
     func Init(ui: InterstitialUi) {
         _ui = ui
         
-        _interstitial = MAInterstitialAd(adUnitIdentifier: InterstitialUi.AdUnitA)
+        _interstitial = MAInterstitialAd(adUnitIdentifier: InterstitialUi.AdUnitDefault)
         _interstitial.delegate = self
         _interstitial.revenueDelegate = self
     }

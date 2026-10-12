@@ -14,7 +14,7 @@ class RewardedDefault : NSObject, MARewardedAdDelegate, MAAdRevenueDelegate, Rew
     func Init(ui: RewardedUi) {
         _ui = ui
         
-        _rewarded = MARewardedAd.shared(withAdUnitIdentifier: RewardedUi.AdUnitA)
+        _rewarded = MARewardedAd.shared(withAdUnitIdentifier: RewardedUi.AdUnitDefault)
         _rewarded.delegate = self
         _rewarded.revenueDelegate = self
     }

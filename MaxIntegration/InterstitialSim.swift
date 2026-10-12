@@ -8,6 +8,7 @@
 public class InterstitialSim : UIView {
     public static let AdUnitA = "Inter Track A"
     public static let AdUnitB = "Inter Track B"
+    public static let AdUnitD = "Inter Track D"
     private let DefaultBackgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
     private let DefaultColor = UIColor(red: 0.6509804, green: 0.1490196, blue: 0.7490196, alpha: 1.0)
     private let FillColor = UIColor.green
@@ -15,24 +16,26 @@ public class InterstitialSim : UIView {
     
     public enum State {
         case Idle
-        case LoadingWithInsights
         case Loading
         case Ready
         case Shown
+        case Delay
     }
     
     public class Track : NSObject, MAAdDelegate, MAAdRevenueDelegate {
         private let _controller: InterstitialSim
         
         public let _adUnitId: String
+        public let _isOptimized: Bool
         public var _interstitial: SimInterstitial!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
         
-        public init(controller: InterstitialSim, adUnitId: String) {
+        public init(controller: InterstitialSim, adUnitId: String, isOptimized: Bool) {
             _controller = controller
             _adUnitId = adUnitId
+            _isOptimized = isOptimized
 
             _interstitial = SimInterstitial(adUnitIdentifier: _adUnitId)
             
@@ -47,13 +50,7 @@ public class InterstitialSim : UIView {
             
             _controller.Log("Load failed \(adUnitIdentifier): \(error)")
             
-            OnLoadFail()
-        }
-        
-        public func OnLoadFail() {
-            retryLoad()
-            
-            _controller.OnTrackLoad(false)
+            _controller.OnTrackLoad(track: self, success: false)
         }
         
         public func didLoad(_ ad: MAAd) {
@@ -65,14 +62,7 @@ public class InterstitialSim : UIView {
             _revenue = ad.revenue
             _state = .Ready
             
-            _controller.OnTrackLoad(true)
-        }
-        
-        public func retryLoad() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + ALNeftaMediationAdapter.GetRetryDelayInSeconds(insight: _insight, adUnitId: _adUnitId)) {
-                self._state = .Idle
-                self._controller.RetryLoadTracks()
-            }
+            _controller.OnTrackLoad(track: self, success: true)
         }
         
         public func didPayRevenue(for ad: MAAd) {
@@ -91,7 +81,7 @@ public class InterstitialSim : UIView {
             InterstitialSim.Instance.Log("didFail \(ad)")
             
             _state = State.Idle
-            _controller.RetryLoadTracks()
+            _controller.ContinueLoading()
         }
         
         public func didDisplay(_ ad: MAAd) {
@@ -102,37 +92,31 @@ public class InterstitialSim : UIView {
             _controller.Log("didHide \(ad)")
             
             _state = .Idle
-            _controller.RetryLoadTracks()
+            _controller.ContinueLoading()
         }
     }
     
-    private var _trackA: Track!
-    private var _trackB: Track!
+    private var _tracks: [Track]!
     private var _isFirstRequest = true
-    private var _isFirstResponseReceived = false
+    private var _isFirstOptimizedResponseReceived = false
+    private var _isGlobalCooldown: Int = 0
     private var _isOptimized: Bool = false
     
     @IBOutlet weak var _loadSwitch: UISwitch!
     @IBOutlet weak var _showButton: UIButton!
     @IBOutlet weak var _status: UILabel!
     
-    @IBOutlet weak var _aFill2: UIButton!
-    @IBOutlet weak var _aFill1: UIButton!
-    @IBOutlet weak var _aNoFill: UIButton!
-    @IBOutlet weak var _aOther: UIButton!
-    @IBOutlet weak var _aStatus: UILabel!
-    
-    @IBOutlet weak var _bFill2: UIButton!
-    @IBOutlet weak var _bFill1: UIButton!
-    @IBOutlet weak var _bNoFill: UIButton!
-    @IBOutlet weak var _bOther: UIButton!
-    @IBOutlet weak var _bStatus: UILabel!
+    private var _fill3: [UIButton]!
+    private var _fill2: [UIButton]!
+    private var _fill1: [UIButton]!
+    private var _noFill: [UIButton]!
+    private var _other: [UIButton]!
+    private var _statuses: [UILabel]!
     
     public static var Instance: InterstitialSim!
     
     public func SetOptimized(isOptimized: Bool) {
         _isOptimized = isOptimized
-        NeftaPlugin.SetInterstitialLogic(isOptimized: _isOptimized)
         isHidden = false
         
         if let nefta = NeftaPlugin._instance {
@@ -149,77 +133,72 @@ public class InterstitialSim : UIView {
         }
     }
     
-    private func LoadTracks() {
-        if _isOptimized {
-            LoadTrack(track: _trackA, otherState: _trackB._state)
-            LoadTrack(track: _trackB, otherState: _trackA._state)
+    private func Load() {
+        if _isFirstRequest && _isOptimized {
+            Load(track: _tracks[1])
             
-            let stopWaitingForFirstResponseAfter = NeftaPlugin._instance?._state._firstResponseTimeoutInterstitialInMs ?? 0
-            if _isFirstRequest && stopWaitingForFirstResponseAfter > 0 {
-                _isFirstRequest = false
-                
+            let stopWaitingForFirstResponseAfter = NeftaPlugin._instance?._state._firstResponseTimeoutRewardedInMs ?? 0
+            if stopWaitingForFirstResponseAfter > 0 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(stopWaitingForFirstResponseAfter) * 0.001) {
-                    if !self._isFirstResponseReceived {
-                        self._isFirstResponseReceived = true
-                        self.LoadTracks()
+                    if !self._isFirstOptimizedResponseReceived {
+                        self._isFirstOptimizedResponseReceived = true
+                        if self._tracks.count > 2 && self._tracks[2]._state == .Idle {
+                            self.Load(track: self._tracks[2])
+                        }
+                        if NeftaPlugin._instance!._state._backfillTrackDelayInMs < 0 && self._tracks[0]._state == .Idle {
+                            self.Load(track: self._tracks[0])
+                        }
                     }
                 }
             }
+            
+            let backFillTrackDelayInMs = NeftaPlugin._instance!._state._backfillTrackDelayInMs
+            if (backFillTrackDelayInMs == 0) {
+                Load(track: _tracks[0])
+            } else if (backFillTrackDelayInMs > 0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(backFillTrackDelayInMs) * 0.001) {
+                    self.Load(track: self._tracks[0])
+                }
+            }
+            
+            _isFirstRequest = false
         } else {
-            if (_trackA._state == .Idle) {
-                LoadDefault(track: _trackA)
-            }
+            ContinueLoading()
         }
     }
     
-    private func LoadTrack(track: Track, otherState: State) {
-        if track._state == .Idle {
-            if otherState == .LoadingWithInsights || otherState == .Shown {
-                if (_isFirstResponseReceived) {
-                    LoadDefault(track: track)
-                }
-            } else {
-                GetInsightsAndLoad(track: track)
-            }
-        }
-    }
-    
-    private func GetInsightsAndLoad(track: Track) {
-        track._state = .LoadingWithInsights
-        
-        NeftaPlugin._instance!.GetInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
-            self.Log("Load with insights: \(insights)")
-            if let insight = insights._interstitial {
-                track._insight = insight
-                var bidFloor = ""
-                if insight._floorPrice >= 0 {
-                    bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
-                }
-
-                track._interstitial.setExtraParameterForKey("disable_auto_retries", value: "true")
-                track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
-                
-                ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
-                
-                self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
-                track._interstitial.load()
-            } else {
-                track.OnLoadFail()
-            }
-        })
-    }
-    
-    private func LoadDefault(track: Track) {
+    private func Load(track: Track) {
         track._state = .Loading
         
-        Log("Loading \(track._adUnitId) as Default")
-        
-        track._interstitial.setExtraParameterForKey("disable_auto_retries", value: "false")
-        track._interstitial.setExtraParameterForKey("jC7Fp", value: "")
-        
-        ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
-
-        track._interstitial.load()
+        if track._isOptimized {
+            NeftaPlugin._instance!.GetInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
+                self.Log("Load with insights: \(insights)")
+                if let insight = insights._interstitial {
+                    track._insight = insight
+                    var bidFloor = ""
+                    if insight._floorPrice >= 0 {
+                        bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                    }
+                    
+                    track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
+                    
+                    ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
+                    
+                    self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+                    track._interstitial.load()
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
+                        track._state = State.Idle
+                        self.ContinueLoading()
+                    }
+                }
+            })
+        } else {
+            ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
+            
+            Log("Loading \(track._adUnitId) as Default")
+            track._interstitial.load()
+        }
     }
     
     public override func awakeFromNib() {
@@ -227,45 +206,68 @@ public class InterstitialSim : UIView {
         
         InterstitialSim.Instance = self
         
-        _trackA = Track(controller: self, adUnitId: InterstitialSim.AdUnitA)
-        _trackB = Track(controller: self, adUnitId: InterstitialSim.AdUnitB)
+        _tracks = [
+            Track(controller: self, adUnitId: InterstitialSim.AdUnitD, isOptimized: false),
+            Track(controller: self, adUnitId: InterstitialSim.AdUnitA, isOptimized: true),
+            Track(controller: self, adUnitId: InterstitialSim.AdUnitB, isOptimized: true)
+        ]
         
-        ToggleTrackA(isOn: false)
-        _aFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(track: self._trackA, isHigh: true)
-        }, for: .touchUpInside)
-        _aFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(track: self._trackA, isHigh: false)
-        }, for: .touchUpInside)
-        _aNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(track: self._trackA, status: 2)
-        }, for: .touchUpInside)
-        _aOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(track: self._trackA, status: 0)
-        }, for: .touchUpInside)
+        _statuses = [
+            viewWithTag(103) as! UILabel,
+            viewWithTag(101) as! UILabel,
+            viewWithTag(102) as! UILabel
+        ]
+        _fill3 = [
+            viewWithTag(203) as! UIButton,
+            viewWithTag(201) as! UIButton,
+            viewWithTag(202) as! UIButton
+        ]
+        _fill2 = [
+            viewWithTag(303) as! UIButton,
+            viewWithTag(301) as! UIButton,
+            viewWithTag(302) as! UIButton
+        ]
+        _fill1 = [
+            viewWithTag(403) as! UIButton,
+            viewWithTag(401) as! UIButton,
+            viewWithTag(402) as! UIButton
+        ]
+        _noFill = [
+            viewWithTag(503) as! UIButton,
+            viewWithTag(501) as! UIButton,
+            viewWithTag(502) as! UIButton
+        ]
+        _other = [
+            viewWithTag(603) as! UIButton,
+            viewWithTag(601) as! UIButton,
+            viewWithTag(602) as! UIButton
+        ]
         
-        ToggleTrackB(isOn: false)
-        _bFill2.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(track: self._trackB, isHigh: true)
-        }, for: .touchUpInside)
-        _bFill1.addAction(UIAction { _ in
-            self.SimOnAdLoadedEvent(track: self._trackB, isHigh: false)
-        }, for: .touchUpInside)
-        _bNoFill.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(track: self._trackB, status: 2)
-        }, for: .touchUpInside)
-        _bOther.addAction(UIAction { _ in
-            self.SimOnAdFailedEvent(track: self._trackB, status: 0)
-        }, for: .touchUpInside)
+        for i in 0..<_tracks.count {
+            let ti = i
+            let track = _tracks[ti]
+            ToggleTrack(t: ti, isOn: false)
+            _fill3[ti].addAction(UIAction { _ in
+                self.SimOnAdLoadedEvent(t: ti, track: track, r: 3)
+            }, for: .touchUpInside)
+            _fill2[ti].addAction(UIAction { _ in
+                self.SimOnAdLoadedEvent(t: ti, track: track, r: 2)
+            }, for: .touchUpInside)
+            _fill1[ti].addAction(UIAction { _ in
+                self.SimOnAdLoadedEvent(t: ti, track: track, r: 1)
+            }, for: .touchUpInside)
+            _noFill[ti].addAction(UIAction { _ in
+                self.SimOnAdFailedEvent(t: ti, track: track, status: 2)
+            }, for: .touchUpInside)
+            _other[ti].addAction(UIAction { _ in
+                self.SimOnAdFailedEvent(t: ti, track: track, status: 0)
+            }, for: .touchUpInside)
+        }
         
         _loadSwitch.addTarget(self, action: #selector(OnLoadSwitch), for: .valueChanged)
         _showButton.addTarget(self, action: #selector(OnShowClick), for: .touchUpInside)
         
         _showButton.isEnabled = false
-    }
-    
-    public func OnAdLogicReady() {
-        _loadSwitch.isEnabled = true
     }
     
     public override var isHidden: Bool {
@@ -280,25 +282,21 @@ public class InterstitialSim : UIView {
     
     @objc private func OnLoadSwitch(_ sender: UISwitch) {
         if sender.isOn {
-            LoadTracks()
+            Load()
         }
     }
     
     @objc private func OnShowClick() {
         var isShown = false
-        if _trackA._state == .Ready {
-            if _trackB._state == .Ready && _trackB._revenue > _trackA._revenue {
-                isShown = TryShow(track: _trackB)
-            }
-            if !isShown {
-                isShown = TryShow(track: _trackA)
-            }
+        let readyTrack = GetReadyTrack()
+        if let trackToShow = readyTrack {
+            isShown = TryShow(track: trackToShow)
         }
-        if !isShown && _trackB._state == .Ready {
-            isShown = TryShow(track: _trackB)
+        if !isShown {
+            ContinueLoading()
         }
-        
-        UpdateShowButton()
+        let availableTrack = GetReadyTrack()
+        _showButton.isEnabled = availableTrack != nil
     }
     
     private func TryShow(track: Track) -> Bool {
@@ -309,27 +307,74 @@ public class InterstitialSim : UIView {
             return true
         }
         track._state = .Idle
-        RetryLoadTracks()
         return false
     }
     
-    private func RetryLoadTracks() {
-        if _loadSwitch.isOn {
-            LoadTracks()
-        }
-    }
-    
-    private func OnTrackLoad(_ success: Bool) {
-        if success {
-            UpdateShowButton()
+    public func ContinueOptimized() {
+        _isFirstOptimizedResponseReceived = true
+        if _tracks[0]._state == .Idle {
+            Load(track: _tracks[0])
         }
         
-        _isFirstResponseReceived = true
-        RetryLoadTracks()
+        _isGlobalCooldown += 1
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin._instance!._state._globalTrackCooldownInMs * 1000)) {
+            self._isGlobalCooldown -= 1
+            if self._isGlobalCooldown > 0 {
+                self._isGlobalCooldown = 0
+                self.ContinueLoading()
+            }
+        }
     }
     
-    private func UpdateShowButton() {
-        _showButton.isEnabled = _trackA._state == .Ready || _trackB._state == .Ready
+    public func ContinueLoading() {
+        if !_loadSwitch.isOn {
+            return
+        }
+        
+        if _tracks[0]._state == .Idle {
+            Load(track: _tracks[0])
+        }
+        if _isGlobalCooldown > 0 {
+            return
+        }
+        for i in 1..<_tracks.count {
+            if _tracks[i]._state == .Loading {
+                return
+            }
+        }
+        for i in 1..<_tracks.count {
+            if _tracks[i]._state == .Idle {
+                Load(track: _tracks[i])
+                return
+            }
+        }
+    }
+    
+    private func OnTrackLoad(track: Track, success: Bool) {
+        if success {
+            _showButton.isEnabled = true
+        } else {
+            track._state = .Delay
+            let delay = Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                track._state = State.Idle
+                self.ContinueLoading()
+            }
+        }
+        
+        if track._isOptimized {
+            ContinueOptimized()
+        }
+    }
+    
+    private func GetReadyTrack() -> Track? {
+        var bestTrack: Track?
+        for track in _tracks {
+            if track._state == .Ready && (bestTrack == nil || track._revenue > bestTrack!._revenue) {
+                bestTrack = track
+            }
+        }
+        return bestTrack
     }
     
     private func Log(_ log: String) {
@@ -351,26 +396,27 @@ public class InterstitialSim : UIView {
         deinit {
             _ad = nil
             
-            if _adUnitId == InterstitialSim.AdUnitA {
-                InterstitialSim.Instance.ToggleTrackA(isOn: true)
-                InterstitialSim.Instance.ToggleTrackA(isOn: false)
-                InterstitialSim.Instance.SetStatusA("")
-            } else {
-                InterstitialSim.Instance.ToggleTrackB(isOn: true)
-                InterstitialSim.Instance.ToggleTrackB(isOn: false)
-                InterstitialSim.Instance.SetStatusB("")
+            var t = 0
+            for track in InterstitialSim.Instance._tracks {
+                if track._adUnitId == _adUnitId {
+                    InterstitialSim.Instance.ToggleTrack(t: t, isOn: true)
+                    InterstitialSim.Instance.ToggleTrack(t: t, isOn: false)
+                    InterstitialSim.Instance.SetStatus(t: t, status: "")
+                    break
+                }
+                t += 1
             }
         }
         
         public override func load() {
-            let status = "\(_adUnitId) loading \(_floor >= 0 ? "as Optimized" : "as Default")"
-            
-            if _adUnitId == InterstitialSim.AdUnitA {
-                InterstitialSim.Instance.ToggleTrackA(isOn: true)
-                InterstitialSim.Instance.SetStatusA(status)
-            } else {
-                InterstitialSim.Instance.ToggleTrackB(isOn: true)
-                InterstitialSim.Instance.SetStatusB(status)
+            var t = 0
+            for track in InterstitialSim.Instance._tracks {
+                if track._adUnitId == _adUnitId {
+                    InterstitialSim.Instance.ToggleTrack(t: t, isOn: true)
+                    InterstitialSim.Instance.SetStatus(t: t, status: "\(_adUnitId) loading \(_floor >= 0 ? "as Optimized" : "as Default")")
+                    break
+                }
+                t += 1
             }
         }
         
@@ -380,12 +426,14 @@ public class InterstitialSim : UIView {
             }
             _ad = nil
             
-            if _adUnitId == InterstitialSim.AdUnitA {
-                InterstitialSim.Instance.ToggleTrackA(isOn: false)
-                InterstitialSim.Instance.SetStatusA("Showing A")
-            } else {
-                InterstitialSim.Instance.ToggleTrackB(isOn: false)
-                InterstitialSim.Instance.SetStatusB("Showing B")
+            var t = 0
+            for track in InterstitialSim.Instance._tracks {
+                if track._adUnitId == _adUnitId {
+                    InterstitialSim.Instance.ToggleTrack(t: t, isOn: false)
+                    InterstitialSim.Instance.SetStatus(t: t, status: "Showing \(_adUnitId)")
+                    break
+                }
+                t += 1
             }
             
             NDebug.Open(
@@ -447,68 +495,43 @@ public class InterstitialSim : UIView {
         }
     }
     
-    private func ToggleTrackA(isOn: Bool) {
-        _aFill2.isEnabled = isOn
-        _aFill1.isEnabled = isOn
-        _aNoFill.isEnabled = isOn
-        _aOther.isEnabled = isOn
+    public func ToggleTrack(t: Int, isOn: Bool) {
+        _fill3[t].isEnabled = isOn
+        _fill2[t].isEnabled = isOn
+        _fill1[t].isEnabled = isOn
+        _noFill[t].isEnabled = isOn
+        _other[t].isEnabled = isOn
         
         if isOn {
-            _aFill2.tintColor = DefaultColor
-            _aFill2.backgroundColor = DefaultBackgroundColor
-            _aFill1.tintColor = DefaultColor
-            _aFill1.backgroundColor = DefaultBackgroundColor
-            _aNoFill.tintColor = DefaultColor
-            _aNoFill.backgroundColor = DefaultBackgroundColor
-            _aOther.tintColor = DefaultColor
-            _aOther.backgroundColor = DefaultBackgroundColor
+            _fill3[t].backgroundColor = DefaultBackgroundColor
+            _fill3[t].tintColor = DefaultColor
+            _fill2[t].backgroundColor = DefaultBackgroundColor
+            _fill2[t].tintColor = DefaultColor
+            _fill1[t].tintColor = DefaultColor
+            _fill1[t].backgroundColor = DefaultBackgroundColor
+            _noFill[t].tintColor = DefaultColor
+            _noFill[t].backgroundColor = DefaultBackgroundColor
+            _other[t].tintColor = DefaultColor
+            _other[t].backgroundColor = DefaultBackgroundColor
         }
     }
     
-    private func ToggleTrackB(isOn: Bool) {
-        _bFill2.isEnabled = isOn
-        _bFill1.isEnabled = isOn
-        _bNoFill.isEnabled = isOn
-        _bOther.isEnabled = isOn
-        
-        if isOn {
-            _bFill2.tintColor = DefaultColor
-            _bFill2.backgroundColor = DefaultBackgroundColor
-            _bFill1.tintColor = DefaultColor
-            _bFill1.backgroundColor = DefaultBackgroundColor
-            _bNoFill.tintColor = DefaultColor
-            _bNoFill.backgroundColor = DefaultBackgroundColor
-            _bOther.tintColor = DefaultColor
-            _bOther.backgroundColor = DefaultBackgroundColor
-        }
-    }
-    
-    func SimOnAdLoadedEvent(track: Track, isHigh: Bool) {
-        let revenue = isHigh ? 0.002 : 0.001
+    func SimOnAdLoadedEvent(t: Int, track: Track, r: Int) {
+        let revenue = r == 3 ? 0.003 : r == 2 ? 0.002 : 0.001
         if track._interstitial._ad != nil {
             track._interstitial._ad = nil
-            
-            if track._adUnitId == InterstitialSim.AdUnitA {
-                if isHigh {
-                    _aFill2.tintColor = DefaultColor
-                    _aFill2.backgroundColor = DefaultBackgroundColor
-                    _aFill2.isEnabled = false
-                } else {
-                    _aFill1.tintColor = DefaultColor
-                    _aFill1.backgroundColor = DefaultBackgroundColor
-                    _aFill1.isEnabled = false
-                }
-            } else {
-                if isHigh {
-                    _bFill2.tintColor = DefaultColor
-                    _bFill2.backgroundColor = DefaultBackgroundColor
-                    _bFill2.isEnabled = false
-                } else {
-                    _bFill1.tintColor = DefaultColor
-                    _bFill1.backgroundColor = DefaultBackgroundColor
-                    _bFill1.isEnabled = false
-                }
-            }
+  
+            _fill3[t].tintColor = DefaultColor
+            _fill3[t].backgroundColor = DefaultBackgroundColor
+            _fill3[t].isEnabled = false
+  
+            _fill2[t].tintColor = DefaultColor
+            _fill2[t].backgroundColor = DefaultBackgroundColor
+            _fill2[t].isEnabled = false
+
+            _fill1[t].tintColor = DefaultColor
+            _fill1[t].backgroundColor = DefaultBackgroundColor
+            _fill1[t].isEnabled = false
             return
         }
         
@@ -520,68 +543,42 @@ public class InterstitialSim : UIView {
         ad.simRevenuePrecision = "exact"
         ad.simWaterfall = SimMAAd.getWaterfall("simulator waterfall", testName: "test name", responses: [NSNumber(value: MAAdLoadState.adLoaded.rawValue), NSNumber(value: MAAdLoadState.adLoadNotAttempted.rawValue)])
         
-        if track._adUnitId == InterstitialSim.AdUnitA {
-            ToggleTrackA(isOn: false)
-            if isHigh {
-                _aFill2.tintColor = FillColor
-                _aFill2.backgroundColor = FillColor
-                _aFill2.isEnabled = true
-            } else {
-                _aFill1.tintColor = FillColor
-                _aFill1.backgroundColor = FillColor
-                _aFill1.isEnabled = true
-            }
-            SetStatusA("\(track._adUnitId) loaded \(revenue)")
+        ToggleTrack(t: t, isOn: false)
+        if r == 3 {
+            _fill3[t].tintColor = FillColor
+            _fill3[t].backgroundColor = FillColor
+            _fill3[t].isEnabled = true
+        } else if r == 2{
+            _fill2[t].tintColor = FillColor
+            _fill2[t].backgroundColor = FillColor
+            _fill2[t].isEnabled = true
         } else {
-            ToggleTrackB(isOn: false)
-            if isHigh {
-                _bFill2.tintColor = FillColor
-                _bFill2.backgroundColor = FillColor
-                _bFill2.isEnabled = true
-            } else {
-                _bFill1.tintColor = FillColor
-                _bFill1.backgroundColor = FillColor
-                _bFill1.isEnabled = true
-            }
-            SetStatusB("\(track._adUnitId) loaded \(revenue)")
+            _fill1[t].tintColor = FillColor
+            _fill1[t].backgroundColor = FillColor
+            _fill1[t].isEnabled = true
         }
+        SetStatus(t: t, status: "\(track._adUnitId) loaded \(revenue)")
         
         track._interstitial.SimLoad(ad: ad)
     }
     
-    func SimOnAdFailedEvent(track: Track, status: Int) {
-        if track._adUnitId == InterstitialSim.AdUnitA {
-            if status == 2 {
-                _aNoFill.tintColor = NoFillColor
-                _aNoFill.backgroundColor = NoFillColor
-            } else {
-                _aOther.tintColor = NoFillColor
-                _aOther.backgroundColor = NoFillColor
-            }
-            ToggleTrackA(isOn: false)
-            SetStatusA("\(track._adUnitId) failed")
+    func SimOnAdFailedEvent(t: Int, track: Track, status: Int) {
+        if status == 2 {
+            _noFill[t].tintColor = NoFillColor
+            _noFill[t].backgroundColor = NoFillColor
         } else {
-            if status == 2 {
-                _bNoFill.tintColor = NoFillColor
-                _bNoFill.backgroundColor = NoFillColor
-            } else {
-                _bOther.tintColor = NoFillColor
-                _bOther.backgroundColor = NoFillColor
-            }
-            ToggleTrackB(isOn: false)
-            SetStatusB("\(track._adUnitId) failed")
+            _other[t].tintColor = NoFillColor
+            _other[t].backgroundColor = NoFillColor
         }
+        ToggleTrack(t: t, isOn: false)
+        SetStatus(t: t, status: "\(track._adUnitId) failed")
         
         let error = SMAError.create(status, message: "simulator error")
         error.simWaterfall = SimMAAd.getWaterfall("sim waterfall", testName: "sim test name", responses: [NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue), NSNumber(value: MAAdLoadState.adFailedToLoad.rawValue)])
         track._interstitial.SimFailLoad(error: error)
     }
     
-    public func SetStatusA(_ status: String) {
-        _aStatus.text = status
-    }
-    
-    public func SetStatusB(_ status: String) {
-        _bStatus.text = status
+    func SetStatus(t: Int, status: String) {
+        _statuses[t].text = status
     }
 }
