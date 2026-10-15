@@ -129,7 +129,7 @@ public class RewardedSim : UIView {
         if _isFirstRequest && _isOptimized {
             Load(track: _tracks[1])
             
-            let stopWaitingForFirstResponseAfter = NeftaPlugin._instance?._state._firstResponseTimeoutRewardedInMs ?? 0
+            let stopWaitingForFirstResponseAfter = NeftaPlugin._instance!._state._firstResponseTimeoutRewardedInMs
             if stopWaitingForFirstResponseAfter > 0 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(stopWaitingForFirstResponseAfter) * 0.001) {
                     if !self._isFirstOptimizedResponseReceived {
@@ -148,6 +148,7 @@ public class RewardedSim : UIView {
             if (backFillTrackDelayInMs == 0) {
                 Load(track: _tracks[0])
             } else if (backFillTrackDelayInMs > 0) {
+                _tracks[0]._state = .Delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(backFillTrackDelayInMs) * 0.001) {
                     self.Load(track: self._tracks[0])
                 }
@@ -309,9 +310,9 @@ public class RewardedSim : UIView {
         }
         
         _isGlobalCooldown += 1
-        DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin._instance!._state._globalTrackCooldownInMs * 1000)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin._instance!._state._globalTrackCooldownInMs) * 0.001) {
             self._isGlobalCooldown -= 1
-            if self._isGlobalCooldown > 0 {
+            if self._isGlobalCooldown <= 0 {
                 self._isGlobalCooldown = 0
                 self.ContinueLoading()
             }
@@ -326,7 +327,7 @@ public class RewardedSim : UIView {
         if _tracks[0]._state == .Idle {
             Load(track: _tracks[0])
         }
-        if _isGlobalCooldown > 0 {
+        if _isGlobalCooldown > 0 || !_isOptimized {
             return
         }
         for i in 1..<_tracks.count {
