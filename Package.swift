@@ -12,10 +12,13 @@ let package = Package(
             targets: ["NeftaMAXAdapter"]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/AppLovin/AppLovin-MAX-Swift-Package.git", from: "12.0.0")
+    ],
     targets: [
         .target(
             name: "NeftaMAXAdapter",
-            dependencies: ["NeftaSDK"],
+            dependencies: ["NeftaSDK", .product(name: "AppLovinSDK", package: "AppLovin-MAX-Swift-Package")],
             publicHeadersPath: "."
         ),
         .binaryTarget(

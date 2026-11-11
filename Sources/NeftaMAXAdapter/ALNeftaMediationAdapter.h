@@ -18,10 +18,12 @@ typedef NS_ENUM(NSInteger, AdType) {
     AdTypeInterstitial = 2,
     AdTypeRewarded = 3
 };
-+ (void)InitWithAppId:(NSString *_Nonnull)appId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(appId:onReady:));
-+ (void)InitWithClientId:(NSString *_Nonnull)clientId onReady:(void (^ _Nullable)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(clientId:onReady:));
-+ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight NS_SWIFT_NAME(GetRetryDelayInSeconds(insight:));
-+ (void)AddNewSessionCallback:(void (^ _Nonnull)(void))callback NS_SWIFT_NAME(AddNewSessionCallback(callback:));
++ (void)InitWithAppId:(NSString *_Nonnull)appId optimizationType:(OptimizationType)optimizationType onReady:(void (^ _Nonnull)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(appId:optimizationType:onReady:));
++ (void)InitWithClientId:(NSString *_Nonnull)clientId optimizationType:(OptimizationType)optimizationType onReady:(void (^ _Nonnull)(InitConfiguration * _Nonnull))onReady NS_SWIFT_NAME(Init(clientId:optimizationType:onReady:));
++ (double)GetRetryDelayInSeconds:(AdInsight * _Nullable)insight adUnitId:(NSString * _Nonnull)adUnitId NS_SWIFT_NAME(GetRetryDelayInSeconds(insight:adUnitId:));
+
++ (void)GetInsights:(NSInteger)insights previousInsight:(AdInsight * _Nullable)previousInsight callback:(void (^ _Nullable)(Insights * _Nonnull))callback;
++ (void)GetInsightsBridge:(NSInteger)requestId insights:(NSInteger)insights previousRequestId:(NSInteger)previousRequestId;
 
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner insight:(AdInsight * _Nullable)insight;
 + (void)OnExternalMediationRequestWithBanner:(MAAdView * _Nonnull)banner;
@@ -32,6 +34,7 @@ typedef NS_ENUM(NSInteger, AdType) {
 + (void)OnExternalMediationRequestWithRewarded:(MARewardedAd * _Nonnull)rewarded insight:(AdInsight * _Nullable)insight;
 + (void)OnExternalMediationRequestWithRewarded:(MARewardedAd * _Nonnull)rewarded;
 + (void)OnExternalMediationRequestWithRewarded:(MARewardedAd * _Nonnull)rewarded customBidPrice:(double)customBidPrice;
++ (void)OnExternalMediationRequest:(AdType)adType id:(NSString * _Nonnull)id requestedAdUnitId:(NSString * _Nonnull)requestedAdUnitId requestedFloor:(double)requestedFloor requestId:(NSInteger)requestId;
 
 + (void)OnExternalMediationRequestLoadWithBanner:(MAAdView * _Nonnull)banner ad:(MAAd * _Nonnull)ad;
 + (void)OnExternalMediationRequestLoadWithInterstitial:(MAInterstitialAd * _Nonnull)interstitial ad:(MAAd * _Nonnull)ad;
