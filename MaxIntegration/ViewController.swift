@@ -147,8 +147,7 @@ public class ViewController: UIViewController {
     }
     
     @objc func OnConsentCheck() {
-        NeftaPlugin.SetHasUserConsent(hasUserConsent: false)
-        _consentCheckBox.isEnabled = false
+        NeftaPlugin.SetHasUserConsent(hasUserConsent: _consentCheckBox.isOn)
     }
     
     @objc func OnControlClick() {
