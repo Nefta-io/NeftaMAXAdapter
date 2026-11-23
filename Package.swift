@@ -13,7 +13,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/AppLovin/AppLovin-MAX-Swift-Package.git", "12.0.0"..<"14.0.0")
+            url: "https://github.com/Nefta-io/NeftaSDK-iOS/releases/download/REL_4.7.3/NeftaSDK.xcframework-4.7.3.zip",
     ],
     targets: [
         .target(
@@ -23,8 +23,8 @@ let package = Package(
         ),
         .binaryTarget(
             name: "NeftaSDK",
-            url: "https://github.com/Nefta-io/NeftaSDK-iOS/releases/download/REL_4.7.1/NeftaSDK.xcframework-4.7.1.zip",
-            checksum: "87fc8661f0c1f7d60815a5269b93cf6a7af3cf14f06b3cf6b9248f5b726fa762"
+            url: "https://github.com/Nefta-io/NeftaSDK-iOS/releases/download/REL_4.7.3/NeftaSDK.xcframework-4.7.3.zip",
+            checksum: "ba4b7f99e2bb4766fc0eb1e54441d9d060eb5a7268c3becad4d950f17170fd7a"
         )
     ]
 )

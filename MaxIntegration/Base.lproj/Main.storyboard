@@ -6,6 +6,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="UIMenu" message="Requires Xcode 11 or later." minToolsVersion="11.0" requiredIntegratedClassName="UICommandDiff"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -17,8 +18,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Nefta Adapter for MAX" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3DT-XR-XY2">
-                                <rect key="frame" x="16.666666666666657" y="117.99999999999999" width="360" height="38.333333333333329"/>
+                            <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Nefta Adapter for MAX" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3DT-XR-XY2">
+                                <rect key="frame" x="16.666666666666664" y="80" width="360" height="38.333333333333329"/>
                                 <constraints>
                                     <constraint firstAttribute="width" priority="990" constant="360" id="ML1-KY-XmL"/>
                                 </constraints>
@@ -32,21 +33,35 @@
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4gk-H8-bXC">
                                         <rect key="frame" x="0.0" y="4.6666666666666572" width="51" height="31"/>
                                     </switch>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Has Consent" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mRy-Ay-c9a" userLabel="HasConsent">
-                                        <rect key="frame" x="59.000000000000007" y="12.333333333333314" width="104.33333333333334" height="15.666666666666664"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Has Consent" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mRy-Ay-c9a" userLabel="HasConsent">
+                                        <rect key="frame" x="59.000000000000007" y="12.333333333333314" width="77.666666666666686" height="15.666666666666664"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AbS-bZ-kN0" userLabel="IsSimulator">
-                                        <rect key="frame" x="173.33333333333334" y="4.6666666666666572" width="51" height="31"/>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AbS-bZ-kN0" userLabel="IsSimulator">
+                                        <rect key="frame" x="146.66666666666669" y="4.6666666666666572" width="51" height="31"/>
                                     </switch>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="IsSimulator" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k2n-KZ-fnd">
-                                        <rect key="frame" x="232.33333333333334" y="12.333333333333314" width="67.666666666666657" height="15.666666666666664"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SIM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k2n-KZ-fnd">
+                                        <rect key="frame" x="205.66666666666669" y="12.333333333333314" width="23" height="15.666666666666664"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5fv-tj-nCx">
+                                        <rect key="frame" x="238.66666666666666" y="6" width="61.333333333333343" height="28"/>
+                                        <menu key="menu" title="Inline Menu" id="GcB-OL-nJW">
+                                            <menuOptions key="menuOptions" displayInline="YES"/>
+                                            <children>
+                                                <command title="MMP: Adjust Install" id="Xmy-rh-6Hm"/>
+                                                <command title="MMP: AppsFlyer install" id="py7-CE-bZu"/>
+                                                <command title="IAP product 1" id="P13-zw-q1g"/>
+                                                <command title="IAP product 2" id="Cl9-lN-IIr"/>
+                                            </children>
+                                        </menu>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="MISC" buttonSize="small"/>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="EOL-4z-McM"/>
@@ -632,6 +647,7 @@
                         <outlet property="_interstitialSim" destination="U78-Dy-KFR" id="2Lk-iv-oHo"/>
                         <outlet property="_interstitialUi" destination="nGu-K8-IWA" id="nfs-BG-rQM"/>
                         <outlet property="_isSimulatorCheckBox" destination="AbS-bZ-kN0" id="5OO-JN-BWj"/>
+                        <outlet property="_miscButton" destination="5fv-tj-nCx" id="vVD-7j-ouF"/>
                         <outlet property="_notOptimizedButton" destination="Zez-0e-mRc" id="RrF-Ip-PEi"/>
                         <outlet property="_optimizedButton" destination="p16-RI-cpl" id="pqz-7z-cSB"/>
                         <outlet property="_rewardedSim" destination="IKd-xC-j0e" id="l3u-pO-K9v"/>

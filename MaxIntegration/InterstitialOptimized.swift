@@ -123,14 +123,14 @@ class InterstitialOptimized : Interstitial {
                         if self._tracks.count > 2 && self._tracks[2]._state == .Idle {
                             self.Load(track: self._tracks[2])
                         }
-                        if NeftaPlugin._instance!._state._backfillTrackDelayInMs < 0 && self._tracks[0]._state == .Idle {
+                        if NeftaPlugin._instance!._state._backfillInterstitialDelayInMs < 0 && self._tracks[0]._state == .Idle {
                             self.Load(track: self._tracks[0])
                         }
                     }
                 }
             }
             
-            let backFillTrackDelayInMs = NeftaPlugin._instance!._state._backfillTrackDelayInMs
+            let backFillTrackDelayInMs = NeftaPlugin._instance!._state._backfillInterstitialDelayInMs
             if (backFillTrackDelayInMs == 0) {
                 Load(track: _tracks[0])
             } else if (backFillTrackDelayInMs > 0) {
@@ -153,18 +153,12 @@ class InterstitialOptimized : Interstitial {
             ALNeftaMediationAdapter.getInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
                 self.Log("Load with insights: \(insights)")
                 if let insight = insights._interstitial {
-                    track._insight = insight
-                    var bidFloor = ""
-                    if insight._floorPrice >= 0 {
-                        bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                    self.LoadOptimizedTrack(track: track, insight: insight)
+                    
+                    if track === self._tracks[1] && self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
+                        self._tracks[2]._state = .Loading
+                        self.LoadOptimizedTrack(track: self._tracks[2], insight: insightB)
                     }
-                    
-                    track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
-                    
-                    ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
-                    
-                    self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
-                    track._interstitial.load()
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
                         track._state = State.Idle
@@ -178,6 +172,21 @@ class InterstitialOptimized : Interstitial {
             Log("Loading \(track._adUnitId) as Default")
             track._interstitial.load()
         }
+    }
+    
+    private func LoadOptimizedTrack(track: Track, insight: AdInsight) {
+        track._insight = insight
+        var bidFloor = ""
+        if insight._floorPrice >= 0 {
+            bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+        }
+        
+        track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
+        
+        ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
+        
+        Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+        track._interstitial.load()
     }
     
     public func ContinueOptimized() {
@@ -221,16 +230,17 @@ class InterstitialOptimized : Interstitial {
     }
 
     public func Show() {
-        var isShown = false
-        let readyTrack = GetReadyTrack()
-        if let trackToShow = readyTrack {
-            isShown = TryShow(track: trackToShow)
+        var readyTrack = GetReadyTrack()
+        while readyTrack != nil {
+            let isShown = TryShow(track: readyTrack!)
+            readyTrack = nil
+            if !isShown {
+                readyTrack = GetReadyTrack()
+            }
         }
-        if !isShown {
-            ContinueLoading()
-        }
-        let availableTrack = GetReadyTrack()
-        _ui.SetAvailable(available: availableTrack != nil)
+        readyTrack = GetReadyTrack()
+        _ui.SetAvailable(available: readyTrack != nil)
+        ContinueLoading()
     }
     
     private func TryShow(track: Track) -> Bool {

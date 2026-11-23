@@ -14,6 +14,8 @@ public class RewardedSim : UIView {
     private let DefaultColor = UIColor(red: 0.6509804, green: 0.1490196, blue: 0.7490196, alpha: 1.0)
     private let FillColor = UIColor.green
     private let NoFillColor = UIColor.red
+    private let InvalidColor = UIColor(red: 0, green: 0.686274, blue: 0.172549, alpha: 1.0)
+
     
     public enum State {
         case Idle
@@ -137,14 +139,14 @@ public class RewardedSim : UIView {
                         if self._tracks.count > 2 && self._tracks[2]._state == .Idle {
                             self.Load(track: self._tracks[2])
                         }
-                        if NeftaPlugin._instance!._state._backfillTrackDelayInMs < 0 && self._tracks[0]._state == .Idle {
+                        if NeftaPlugin._instance!._state._backfillRewardedDelayInMs < 0 && self._tracks[0]._state == .Idle {
                             self.Load(track: self._tracks[0])
                         }
                     }
                 }
             }
             
-            let backFillTrackDelayInMs = NeftaPlugin._instance!._state._backfillTrackDelayInMs
+            let backFillTrackDelayInMs = NeftaPlugin._instance!._state._backfillRewardedDelayInMs
             if (backFillTrackDelayInMs == 0) {
                 Load(track: _tracks[0])
             } else if (backFillTrackDelayInMs > 0) {
@@ -167,18 +169,12 @@ public class RewardedSim : UIView {
             NeftaPlugin._instance!.GetInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
                 self.Log("Load with insights: \(insights)")
                 if let insight = insights._rewarded {
-                    track._insight = insight
-                    var bidFloor = ""
-                    if insight._floorPrice >= 0 {
-                        bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+                    self.LoadOptimizedTrack(track: track, insight: insight)
+                    
+                    if track === self._tracks[1] && self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
+                        self._tracks[2]._state = .Loading
+                        self.LoadOptimizedTrack(track: self._tracks[2], insight: insightB)
                     }
-                    
-                    track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
-                    
-                    ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded, insight: insight)
-                    
-                    self.Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
-                    track._rewarded.load()
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
                         track._state = State.Idle
@@ -192,6 +188,21 @@ public class RewardedSim : UIView {
             Log("Loading \(track._adUnitId) as Default")
             track._rewarded.load()
         }
+    }
+    
+    private func LoadOptimizedTrack(track: Track, insight: AdInsight) {
+        track._insight = insight
+        var bidFloor = ""
+        if insight._floorPrice >= 0 {
+            bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
+        }
+        
+        track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
+        
+        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded, insight: insight)
+        
+        Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+        track._rewarded.load()
     }
     
     public override func awakeFromNib() {
@@ -280,16 +291,17 @@ public class RewardedSim : UIView {
     }
     
     @objc private func OnShowClick() {
-        var isShown = false
-        let readyTrack = GetReadyTrack()
-        if let trackToShow = readyTrack {
-            isShown = TryShow(track: trackToShow)
+        var readyTrack = GetReadyTrack()
+        while readyTrack != nil {
+            let isShown = TryShow(track: readyTrack!)
+            readyTrack = nil
+            if !isShown {
+                readyTrack = GetReadyTrack()
+            }
         }
-        if !isShown {
-            ContinueLoading()
-        }
-        let availableTrack = GetReadyTrack()
-        _showButton.isEnabled = availableTrack != nil
+        readyTrack = GetReadyTrack()
+        _showButton.isEnabled = readyTrack != nil;
+        ContinueLoading()
     }
     
     private func TryShow(track: Track) -> Bool {
@@ -516,15 +528,15 @@ public class RewardedSim : UIView {
         if track._rewarded._ad != nil {
             track._rewarded._ad = nil
             
-            _fill3[t].tintColor = DefaultColor
+            _fill3[t].tintColor = r == 3 ? InvalidColor : DefaultColor
             _fill3[t].backgroundColor = DefaultBackgroundColor
             _fill3[t].isEnabled = false
   
-            _fill2[t].tintColor = DefaultColor
+            _fill2[t].tintColor = r == 2 ? InvalidColor : DefaultColor
             _fill2[t].backgroundColor = DefaultBackgroundColor
             _fill2[t].isEnabled = false
 
-            _fill1[t].tintColor = DefaultColor
+            _fill1[t].tintColor = r == 1 ? InvalidColor : DefaultColor
             _fill1[t].backgroundColor = DefaultBackgroundColor
             _fill1[t].isEnabled = false
             return

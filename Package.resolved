@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "applovin-max-swift-package",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AppLovin/AppLovin-MAX-Swift-Package.git",
+      "state" : {
+        "revision" : "ddf923e9b9de295d1c2425053cf14b32735246a8",
+        "version" : "13.7.0"
+      }
+    }
+  ],
+  "version" : 2
+}
