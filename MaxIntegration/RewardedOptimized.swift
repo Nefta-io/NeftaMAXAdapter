@@ -23,22 +23,22 @@ class RewardedOptimized : Rewarded {
         private let _controller: RewardedOptimized
         
         public let _adUnitId: String
-        public let _isOptimized: Bool
+        public let _index: Int
         public let _rewarded: MARewardedAd!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
         
-        public init(controller: RewardedOptimized, adUnitId: String, isOptimized: Bool) {
+        public init(controller: RewardedOptimized, adUnitId: String, index: Int) {
             _controller = controller
             _adUnitId = adUnitId
-            _isOptimized = isOptimized
+            _index = index
             
             _rewarded = MARewardedAd.shared(withAdUnitIdentifier: _adUnitId)
             
             super.init()
             
-            if _isOptimized {
+            if _index != 0 {
                 _rewarded.setExtraParameterForKey("disable_auto_retries", value: "true")
             }
             _rewarded.delegate = self
@@ -111,9 +111,9 @@ class RewardedOptimized : Rewarded {
         _ui = ui
         
         _tracks = [
-            Track(controller: self, adUnitId: RewardedUi.AdUnitDefault, isOptimized: false),
-            Track(controller: self, adUnitId: RewardedUi.AdUnitOptimizedA, isOptimized: true),
-            Track(controller: self, adUnitId: RewardedUi.AdUnitOptimizedB, isOptimized: true)
+            Track(controller: self, adUnitId: RewardedUi.AdUnitDefault, index: 0),
+            Track(controller: self, adUnitId: RewardedUi.AdUnitOptimizedA, index: 1),
+            Track(controller: self, adUnitId: RewardedUi.AdUnitOptimizedB, index: 2)
         ]
     }
     
@@ -142,7 +142,9 @@ class RewardedOptimized : Rewarded {
             } else if (backFillTrackDelayInMs > 0) {
                 _tracks[0]._state = .Delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(backFillTrackDelayInMs) * 0.001) {
-                    self.Load(track: self._tracks[0])
+                    if self._tracks[0]._state == .Delay {
+                        self.Load(track: self._tracks[0])
+                    }
                 }
             }
             
@@ -154,39 +156,41 @@ class RewardedOptimized : Rewarded {
     
     private func Load(track: Track) {
         track._state = .Loading
-
-        if track._isOptimized {
-            ALNeftaMediationAdapter.getInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
-                self.Log("Load with insights: \(insights)")
-                if let insight = insights._rewarded {
-                    self.LoadOptimizedTrack(track: track, insight: insight)
-                    
-                    if track === self._tracks[1] && self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
-                        self._tracks[2]._state = .Loading
+        ALNeftaMediationAdapter.getInsights(Insights.Rewarded, index: track._index, previousInsight: track._insight, callback: { insights in
+            self.Log("Load with insights: \(insights)")
+            if let insight = insights._insight {
+                self.LoadOptimizedTrack(track: track, insight: insight)
+                if track._index == 1 {
+                    if self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
                         self.LoadOptimizedTrack(track: self._tracks[2], insight: insightB)
                     }
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
-                        track._state = State.Idle
-                        self.ContinueLoading()
+                    if (self._tracks[0]._state == .Idle || self._tracks[0]._state == .Delay), let insightC = insights._insightC {
+                        self.LoadOptimizedTrack(track: self._tracks[0], insight: insightC)
                     }
                 }
-            })
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded)
-            
-            Log("Loading \(track._adUnitId) as Default")
-            track._rewarded.load()
-        }
+            } else if track._index == 0 {
+                track._rewarded.setExtraParameterForKey("jC7Fp", value: "")
+                ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded)
+                
+                self.Log("Loading \(track._adUnitId) as Default")
+                track._rewarded.load()
+            } else {
+                track._state = .Delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
+                    track._state = State.Idle
+                    self.ContinueLoading()
+                }
+            }
+        })
     }
     
     private func LoadOptimizedTrack(track: Track, insight: AdInsight) {
+        track._state = .Loading
         track._insight = insight
         var bidFloor = ""
         if insight._floorPrice >= 0 {
             bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
         }
-        
         track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
         
         ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded, insight: insight)
@@ -273,7 +277,7 @@ class RewardedOptimized : Rewarded {
             }
         }
         
-        if track._isOptimized {
+        if track._index != 0 {
             ContinueOptimized()
         }
     }

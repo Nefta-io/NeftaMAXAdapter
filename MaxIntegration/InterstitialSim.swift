@@ -8,7 +8,7 @@
 public class InterstitialSim : UIView {
     public static let AdUnitA = "Inter Track A"
     public static let AdUnitB = "Inter Track B"
-    public static let AdUnitD = "Inter Track D"
+    public static let AdUnitC = "Inter Track C"
     private let DefaultBackgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
     private let DefaultColor = UIColor(red: 0.6509804, green: 0.1490196, blue: 0.7490196, alpha: 1.0)
     private let FillColor = UIColor.green
@@ -27,16 +27,16 @@ public class InterstitialSim : UIView {
         private let _controller: InterstitialSim
         
         public let _adUnitId: String
-        public let _isOptimized: Bool
+        public let _index: Int
         public var _interstitial: SimInterstitial!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
         
-        public init(controller: InterstitialSim, adUnitId: String, isOptimized: Bool) {
+        public init(controller: InterstitialSim, adUnitId: String, index: Int) {
             _controller = controller
             _adUnitId = adUnitId
-            _isOptimized = isOptimized
+            _index = index
 
             _interstitial = SimInterstitial(adUnitIdentifier: _adUnitId)
             
@@ -137,7 +137,7 @@ public class InterstitialSim : UIView {
     private func Load() {
         if _isFirstRequest && _isOptimized {
             Load(track: _tracks[1])
-            
+
             let stopWaitingForFirstResponseAfter = NeftaPlugin._instance!._state._firstResponseTimeoutInterstitialInMs
             if stopWaitingForFirstResponseAfter > 0 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(stopWaitingForFirstResponseAfter) * 0.001) {
@@ -159,7 +159,9 @@ public class InterstitialSim : UIView {
             } else if (backFillTrackDelayInMs > 0) {
                 _tracks[0]._state = .Delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(backFillTrackDelayInMs) * 0.001) {
-                    self.Load(track: self._tracks[0])
+                    if self._tracks[0]._state == .Delay {
+                        self.Load(track: self._tracks[0])
+                    }
                 }
             }
             
@@ -171,44 +173,54 @@ public class InterstitialSim : UIView {
     
     private func Load(track: Track) {
         track._state = .Loading
-        
-        if track._isOptimized {
-            NeftaPlugin._instance!.GetInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
-                self.Log("Load with insights: \(insights)")
-                if let insight = insights._interstitial {
-                    self.LoadOptimizedTrack(track: track, insight: insight)
-                    
-                    if track === self._tracks[1] && self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
-                        self._tracks[2]._state = .Loading
+        if !_isOptimized && track === _tracks[0] {
+            LoadAsDefault(track: track)
+            return
+        }
+        NeftaPlugin._instance!.GetInsights(Insights.Interstitial, index: track._index, previousInsight: track._insight, callback: { insights in
+            self.Log("Load with insights: \(insights)")
+            if let insight = insights._insight {
+                self.LoadOptimizedTrack(track: track, insight: insight)
+                if track._index == 1 {
+                    if self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
                         self.LoadOptimizedTrack(track: self._tracks[2], insight: insightB)
                     }
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
-                        track._state = State.Idle
-                        self.ContinueLoading()
+                    if (self._tracks[0]._state == .Idle || self._tracks[0]._state == .Delay), let insightC = insights._insightC {
+                        self.LoadOptimizedTrack(track: self._tracks[0], insight: insightC)
                     }
                 }
-            })
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
-            
-            Log("Loading \(track._adUnitId) as Default")
-            track._interstitial.load()
-        }
+            } else if track._index == 0 {
+                self.LoadAsDefault(track: track)
+            } else {
+                track._state = .Delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
+                    track._state = State.Idle
+                    self.ContinueLoading()
+                }
+            }
+        })
     }
     
     private func LoadOptimizedTrack(track: Track, insight: AdInsight) {
+        track._state = .Loading
         track._insight = insight
         var bidFloor = ""
         if insight._floorPrice >= 0 {
             bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
         }
-        
         track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
         
         ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
         
         Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+        track._interstitial.load()
+    }
+    
+    private func LoadAsDefault(track: Track) {
+        track._interstitial.setExtraParameterForKey("jC7Fp", value: "")
+        ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
+        
+        Log("Loading \(track._adUnitId) as Default")
         track._interstitial.load()
     }
     
@@ -218,9 +230,9 @@ public class InterstitialSim : UIView {
         InterstitialSim.Instance = self
         
         _tracks = [
-            Track(controller: self, adUnitId: InterstitialSim.AdUnitD, isOptimized: false),
-            Track(controller: self, adUnitId: InterstitialSim.AdUnitA, isOptimized: true),
-            Track(controller: self, adUnitId: InterstitialSim.AdUnitB, isOptimized: true)
+            Track(controller: self, adUnitId: InterstitialSim.AdUnitC, index: 0),
+            Track(controller: self, adUnitId: InterstitialSim.AdUnitA, index: 1),
+            Track(controller: self, adUnitId: InterstitialSim.AdUnitB, index: 2)
         ]
         
         _statuses = [
@@ -374,7 +386,7 @@ public class InterstitialSim : UIView {
             }
         }
         
-        if track._isOptimized {
+        if track._index != 0 {
             ContinueOptimized()
         }
     }

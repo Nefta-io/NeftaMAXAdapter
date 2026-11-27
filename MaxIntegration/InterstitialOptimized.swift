@@ -22,21 +22,21 @@ class InterstitialOptimized : Interstitial {
         private let _controller: InterstitialOptimized
         
         public let _adUnitId: String
-        public let _isOptimized: Bool
+        public let _index: Int
         public let _interstitial: MAInterstitialAd!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
         
-        public init(controller: InterstitialOptimized, adUnitId: String, isOptimized: Bool) {
+        public init(controller: InterstitialOptimized, adUnitId: String, index: Int) {
             _controller = controller
             _adUnitId = adUnitId
-            _isOptimized = isOptimized
+            _index = index
             _interstitial = MAInterstitialAd(adUnitIdentifier: _adUnitId)
             
             super.init()
             
-            if _isOptimized {
+            if _index != 0 {
                 _interstitial.setExtraParameterForKey("disable_auto_retries", value: "true")
             }
             _interstitial.delegate = self
@@ -105,9 +105,9 @@ class InterstitialOptimized : Interstitial {
         _ui = ui
         
         _tracks = [
-            Track(controller: self, adUnitId: InterstitialUi.AdUnitDefault, isOptimized: false),
-            Track(controller: self, adUnitId: InterstitialUi.AdUnitOptimizedA, isOptimized: true),
-            Track(controller: self, adUnitId: InterstitialUi.AdUnitOptimizedB, isOptimized: true)
+            Track(controller: self, adUnitId: InterstitialUi.AdUnitDefault, index: 0),
+            Track(controller: self, adUnitId: InterstitialUi.AdUnitOptimizedA, index: 1),
+            Track(controller: self, adUnitId: InterstitialUi.AdUnitOptimizedB, index: 2)
         ]
     }
     
@@ -136,7 +136,9 @@ class InterstitialOptimized : Interstitial {
             } else if (backFillTrackDelayInMs > 0) {
                 _tracks[0]._state = .Delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(backFillTrackDelayInMs) * 0.001) {
-                    self.Load(track: self._tracks[0])
+                    if self._tracks[0]._state == .Delay {
+                        self.Load(track: self._tracks[0])
+                    }
                 }
             }
             
@@ -148,39 +150,41 @@ class InterstitialOptimized : Interstitial {
     
     private func Load(track: Track) {
         track._state = .Loading
-        
-        if track._isOptimized {
-            ALNeftaMediationAdapter.getInsights(Insights.Interstitial, previousInsight: track._insight, callback: { insights in
-                self.Log("Load with insights: \(insights)")
-                if let insight = insights._interstitial {
-                    self.LoadOptimizedTrack(track: track, insight: insight)
-                    
-                    if track === self._tracks[1] && self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
-                        self._tracks[2]._state = .Loading
+        ALNeftaMediationAdapter.getInsights(Insights.Interstitial, index: track._index, previousInsight: track._insight, callback: { insights in
+            self.Log("Load with insights: \(insights)")
+            if let insight = insights._insight {
+                self.LoadOptimizedTrack(track: track, insight: insight)
+                if track._index == 1 {
+                    if self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
                         self.LoadOptimizedTrack(track: self._tracks[2], insight: insightB)
                     }
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
-                        track._state = State.Idle
-                        self.ContinueLoading()
+                    if (self._tracks[0]._state == .Idle || self._tracks[0]._state == .Delay), let insightC = insights._insightC {
+                        self.LoadOptimizedTrack(track: self._tracks[0], insight: insightC)
                     }
                 }
-            })
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
-            
-            Log("Loading \(track._adUnitId) as Default")
-            track._interstitial.load()
-        }
+            } else if track._index == 0 {
+                track._interstitial.setExtraParameterForKey("jC7Fp", value: "")
+                ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial)
+                
+                self.Log("Loading \(track._adUnitId) as Default")
+                track._interstitial.load()
+            } else {
+                track._state = .Delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
+                    track._state = State.Idle
+                    self.ContinueLoading()
+                }
+            }
+        })
     }
     
     private func LoadOptimizedTrack(track: Track, insight: AdInsight) {
+        track._state = .Loading
         track._insight = insight
         var bidFloor = ""
         if insight._floorPrice >= 0 {
             bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
         }
-        
         track._interstitial.setExtraParameterForKey("jC7Fp", value: bidFloor)
         
         ALNeftaMediationAdapter.onExternalMediationRequest(withInterstitial: track._interstitial, insight: insight)
@@ -266,7 +270,7 @@ class InterstitialOptimized : Interstitial {
             }
         }
         
-        if track._isOptimized {
+        if track._index != 0 {
             ContinueOptimized()
         }
     }

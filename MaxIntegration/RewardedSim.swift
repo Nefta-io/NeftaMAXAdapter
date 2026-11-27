@@ -9,7 +9,7 @@
 public class RewardedSim : UIView {
     public static let AdUnitA = "Rewarded Track A"
     public static let AdUnitB = "Rewarded Track B"
-    public static let AdUnitD = "Rewarded Track D"
+    public static let AdUnitC = "Rewarded Track C"
     private let DefaultBackgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
     private let DefaultColor = UIColor(red: 0.6509804, green: 0.1490196, blue: 0.7490196, alpha: 1.0)
     private let FillColor = UIColor.green
@@ -29,16 +29,16 @@ public class RewardedSim : UIView {
         private let _controller: RewardedSim
         
         public let _adUnitId: String
-        public let _isOptimized: Bool
+        public let _index: Int
         public let _rewarded: SimRewarded!
         public var _state: State = State.Idle
         public var _insight: AdInsight? = nil
         public var _revenue: Float64 = -1
         
-        public init(controller: RewardedSim ,adUnitId: String, isOptimized: Bool) {
+        public init(controller: RewardedSim ,adUnitId: String, index: Int) {
             _controller = controller
             _adUnitId = adUnitId
-            _isOptimized = isOptimized
+            _index = index
             
             _rewarded = SimRewarded.shared(withAdUnitIdentifier: _adUnitId)
             
@@ -152,7 +152,9 @@ public class RewardedSim : UIView {
             } else if (backFillTrackDelayInMs > 0) {
                 _tracks[0]._state = .Delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(backFillTrackDelayInMs) * 0.001) {
-                    self.Load(track: self._tracks[0])
+                    if self._tracks[0]._state == .Delay {
+                        self.Load(track: self._tracks[0])
+                    }
                 }
             }
             
@@ -164,44 +166,54 @@ public class RewardedSim : UIView {
     
     private func Load(track: Track) {
         track._state = .Loading
-        
-        if track._isOptimized {
-            NeftaPlugin._instance!.GetInsights(Insights.Rewarded, previousInsight: track._insight, callback: { insights in
-                self.Log("Load with insights: \(insights)")
-                if let insight = insights._rewarded {
-                    self.LoadOptimizedTrack(track: track, insight: insight)
-                    
-                    if track === self._tracks[1] && self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
-                        self._tracks[2]._state = .Loading
+        if !_isOptimized && track === _tracks[0] {
+            LoadAsDefault(track: track)
+            return
+        }
+        NeftaPlugin._instance!.GetInsights(Insights.Rewarded, index: track._index, previousInsight: track._insight, callback: { insights in
+            self.Log("Load with insights: \(insights)")
+            if let insight = insights._insight {
+                self.LoadOptimizedTrack(track: track, insight: insight)
+                if track._index == 1 {
+                    if self._tracks.count > 2 && self._tracks[2]._state == .Idle, let insightB = insights._insightB {
                         self.LoadOptimizedTrack(track: self._tracks[2], insight: insightB)
                     }
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
-                        track._state = State.Idle
-                        self.ContinueLoading()
+                    if (self._tracks[0]._state == .Idle || self._tracks[0]._state == .Delay), let insightC = insights._insightC {
+                        self.LoadOptimizedTrack(track: self._tracks[0], insight: insightC)
                     }
                 }
-            })
-        } else {
-            ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded)
-            
-            Log("Loading \(track._adUnitId) as Default")
-            track._rewarded.load()
-        }
+            } else if track._index == 0 {
+                self.LoadAsDefault(track: track)
+            } else {
+                track._state = .Delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(NeftaPlugin.GetRetryDelayInSeconds(insight: track._insight, adUnitId: track._adUnitId))) {
+                    track._state = State.Idle
+                    self.ContinueLoading()
+                }
+            }
+        })
     }
     
     private func LoadOptimizedTrack(track: Track, insight: AdInsight) {
+        track._state = .Loading
         track._insight = insight
         var bidFloor = ""
         if insight._floorPrice >= 0 {
             bidFloor = String(format: "%.10f", locale: Locale(identifier: "en_US_POSIX"), insight._floorPrice)
         }
-        
         track._rewarded.setExtraParameterForKey("jC7Fp", value: bidFloor)
         
         ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded, insight: insight)
         
         Log("Loading \(track._adUnitId) as Optimized with floor: \(bidFloor)")
+        track._rewarded.load()
+    }
+    
+    private func LoadAsDefault(track: Track) {
+        track._rewarded.setExtraParameterForKey("jC7Fp", value: "")
+        ALNeftaMediationAdapter.onExternalMediationRequest(withRewarded: track._rewarded)
+        
+        Log("Loading \(track._adUnitId) as Default")
         track._rewarded.load()
     }
     
@@ -211,9 +223,9 @@ public class RewardedSim : UIView {
         RewardedSim.Instance = self
         
         _tracks = [
-            Track(controller: self, adUnitId: RewardedSim.AdUnitD, isOptimized: false),
-            Track(controller: self, adUnitId: RewardedSim.AdUnitA, isOptimized: true),
-            Track(controller: self, adUnitId: RewardedSim.AdUnitB, isOptimized: true)
+            Track(controller: self, adUnitId: RewardedSim.AdUnitC, index: 0),
+            Track(controller: self, adUnitId: RewardedSim.AdUnitA, index: 1),
+            Track(controller: self, adUnitId: RewardedSim.AdUnitB, index: 2)
         ]
         
         _statuses = [
@@ -367,7 +379,7 @@ public class RewardedSim : UIView {
             }
         }
         
-        if track._isOptimized {
+        if track._index != 0 {
             ContinueOptimized()
         }
     }
